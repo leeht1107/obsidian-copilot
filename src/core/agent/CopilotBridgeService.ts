@@ -10,6 +10,7 @@ import { spawn, type ChildProcess } from 'child_process';
 import type ObsidianCopilotPlugin from '../../main';
 import type { ChatMessage, StreamChunk } from '../types';
 import { findCopilotCLIPath } from '../../utils/copilotCli';
+import { getEnhancedPath } from '../../utils/env';
 
 /** Options for query execution. */
 export interface QueryOptions {
@@ -145,8 +146,8 @@ export class CopilotBridgeService {
       args.push('--model', selectedModel);
     }
 
-    // Add GitHub token from environment if available
-    const env = { ...process.env };
+    // Build env with enhanced PATH (Obsidian has minimal PATH; node must be findable)
+    const env: NodeJS.ProcessEnv = { ...process.env, PATH: getEnhancedPath(undefined, copilotPath) };
     if (this.plugin.settings.githubToken) {
       env.COPILOT_GITHUB_TOKEN = this.plugin.settings.githubToken;
       env.GH_TOKEN = this.plugin.settings.githubToken;
