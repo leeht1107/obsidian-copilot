@@ -6,7 +6,9 @@
  */
 
 import type { Editor, MarkdownView } from 'obsidian';
-import { Notice, Plugin } from 'obsidian';
+import { addIcon, Notice, Plugin } from 'obsidian';
+
+import { COPILOT_ICON_SVG } from './assets/icon';
 
 import { CopilotBridgeService } from './core/agent/CopilotBridgeService';
 import { deleteCachedImages } from './core/images/imageCache';
@@ -86,12 +88,14 @@ export default class ObsidianCopilotPlugin extends Plugin {
     this.agentService = new CopilotBridgeService(this);
     this.mcpService = new McpServiceStub();
 
+    addIcon('obsidian-copilot-icon', COPILOT_ICON_SVG);
+
     this.registerView(
       VIEW_TYPE_OBSIDIAN_CODE,
       (leaf) => new ObsidianCodeViewImpl(leaf, this)
     );
 
-    this.addRibbonIcon('bot', 'Open Obsidian Copilot', () => {
+    this.addRibbonIcon('obsidian-copilot-icon', 'Open Obsidian Copilot', () => {
       this.activateView();
     });
 
