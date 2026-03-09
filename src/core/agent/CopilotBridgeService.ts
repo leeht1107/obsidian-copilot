@@ -37,8 +37,14 @@ export type ApprovalCallback = (
 export type ExitPlanModeCallback = (planContent: string) => Promise<ExitPlanModeDecision>;
 export type EnterPlanModeCallback = () => Promise<void>;
 
-const DEFAULT_EXCLUDED_TOOLS = ['shell', 'write', 'read', 'url', 'memory'] as const;
 const MCP_CONFIG_RELATIVE_PATH = '.copilot/mcp.json';
+
+interface CopilotJsonEvent {
+  type: string;
+  data?: Record<string, unknown>;
+  sessionId?: string;
+  exitCode?: number;
+}
 
 export class CopilotBridgeService {
   private plugin: ObsidianCopilotPlugin;
@@ -194,10 +200,7 @@ export class CopilotBridgeService {
     const requestedTools = queryOptions?.allowedTools?.map((tool) => tool.trim()).filter(Boolean) ?? [];
     if (requestedTools.length > 0) {
       args.push('--available-tools', ...requestedTools);
-      return;
     }
-
-    args.push('--excluded-tools', ...DEFAULT_EXCLUDED_TOOLS);
   }
 
   async *query(
@@ -223,7 +226,7 @@ export class CopilotBridgeService {
       '--no-ask-user',
       '--no-custom-instructions',
       '--output-format',
-      'text',
+      'json',
       '--no-color',
       '--resume',
       sessionId,
@@ -269,13 +272,31 @@ export class CopilotBridgeService {
 
     this.currentProcess = child;
 
+    let stdoutBuffer = '';
     let stderrBuffer = '';
     const chunks: StreamChunk[] = [];
     let resolveWait: (() => void) | null = null;
     let done = false;
 
     child.stdout?.on('data', (data: Buffer) => {
-      chunks.push({ type: 'text', content: data.toString() });
+      stdoutBuffer += data.toString();
+      const lines = stdoutBuffer.split(/\r?\n/);
+      stdoutBuffer = lines.pop() ?? '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+
+        const parsed = this.parseCopilotEvent(trimmed);
+        if (!parsed) {
+          chunks.push({ type: 'text', content: line + '\n' });
+          continue;
+        }
+
+        for (const chunk of this.translateCopilotEvent(parsed)) {
+          chunks.push(chunk);
+        }
+      }
       resolveWait?.();
     });
 
@@ -285,6 +306,17 @@ export class CopilotBridgeService {
 
     child.on('close', (code) => {
       done = true;
+      const trailing = stdoutBuffer.trim();
+      if (trailing) {
+        const parsed = this.parseCopilotEvent(trailing);
+        if (parsed) {
+          for (const chunk of this.translateCopilotEvent(parsed)) {
+            chunks.push(chunk);
+          }
+        } else {
+          chunks.push({ type: 'text', content: stdoutBuffer });
+        }
+      }
       if (code !== 0 && stderrBuffer.trim()) {
         chunks.push({
           type: 'error',
@@ -331,6 +363,55 @@ export class CopilotBridgeService {
     }
 
     yield { type: 'done' };
+  }
+
+  private parseCopilotEvent(line: string): CopilotJsonEvent | null {
+    try {
+      return JSON.parse(line) as CopilotJsonEvent;
+    } catch {
+      return null;
+    }
+  }
+
+  private translateCopilotEvent(event: CopilotJsonEvent): StreamChunk[] {
+    if (event.type === 'assistant.message_delta') {
+      const deltaContent = typeof event.data?.deltaContent === 'string' ? event.data.deltaContent : '';
+      return deltaContent ? [{ type: 'text', content: deltaContent }] : [];
+    }
+
+    if (event.type === 'assistant.message') {
+      const toolRequests = Array.isArray(event.data?.toolRequests) ? event.data.toolRequests : [];
+      const chunks: StreamChunk[] = [];
+
+      for (const request of toolRequests) {
+        if (!request || typeof request !== 'object') continue;
+        const toolRequest = request as Record<string, unknown>;
+        const id = typeof toolRequest.id === 'string'
+          ? toolRequest.id
+          : typeof toolRequest.toolRequestId === 'string'
+            ? toolRequest.toolRequestId
+            : null;
+        const name = typeof toolRequest.name === 'string' ? toolRequest.name : null;
+        const input = toolRequest.input;
+
+        if (id && name && input && typeof input === 'object' && !Array.isArray(input)) {
+          chunks.push({ type: 'tool_use', id, name, input: input as Record<string, unknown> });
+        }
+      }
+
+      return chunks;
+    }
+
+    if (event.type === 'result') {
+      if (typeof event.sessionId === 'string' && event.sessionId.length > 0) {
+        this.sessionId = event.sessionId;
+      }
+      if (typeof event.exitCode === 'number' && event.exitCode !== 0) {
+        return [{ type: 'error', content: `Copilot exited with code ${event.exitCode}` }];
+      }
+    }
+
+    return [];
   }
 
   cancel(): void {
