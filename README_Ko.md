@@ -184,6 +184,12 @@ copilot login
 3. 아무 노트나 하나 열어 둡니다.
 4. 채팅창에 간단히 질문합니다.
 
+명령 팔레트에서 찾고 싶다면 아래 검색어로 찾으면 됩니다.
+
+- `Obsidian Copilot`
+- `Obsidian Copilot: Open chat view`
+- `Obsidian Copilot: Inline edit`
+
 예시:
 
 ```text
