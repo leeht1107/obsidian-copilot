@@ -108,3 +108,5 @@ docs/
 # yarn.lock
 # package-lock.json
 .claude/
+.serena/
+HANDOFF.md
