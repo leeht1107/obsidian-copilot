@@ -93,8 +93,6 @@ describe('types.ts', () => {
         allowedExportPaths: [],
         slashCommands: [],
         keyboardNavigation: { scrollUpKey: 'w', scrollDownKey: 's', focusInputKey: 'i' },
-        claudeCliPath: '',
-        loadUserClaudeSettings: false,
         copilotCliPath: '',
         githubToken: '',
       };
@@ -123,8 +121,6 @@ describe('types.ts', () => {
         allowedExportPaths: [],
         slashCommands: [],
         keyboardNavigation: { scrollUpKey: 'w', scrollDownKey: 's', focusInputKey: 'i' },
-        claudeCliPath: '',
-        loadUserClaudeSettings: false,
         copilotCliPath: '',
         githubToken: '',
       };
@@ -153,8 +149,6 @@ describe('types.ts', () => {
         allowedExportPaths: [],
         slashCommands: [],
         keyboardNavigation: { scrollUpKey: 'w', scrollDownKey: 's', focusInputKey: 'i' },
-        claudeCliPath: '',
-        loadUserClaudeSettings: false,
         copilotCliPath: '',
         githubToken: '',
       };

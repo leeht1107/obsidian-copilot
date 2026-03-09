@@ -26,7 +26,7 @@ import { COMMANDS_PATH, SlashCommandStorage } from './SlashCommandStorage';
 import { VaultFileAdapter } from './VaultFileAdapter';
 
 /** Base path for all ObsidianCode storage. */
-export const CLAUDE_PATH = '.copilot';
+export const COPILOT_PATH = '.copilot';
 
 /** Machine-specific state stored in Obsidian's data.json. */
 export interface PluginState {
@@ -189,7 +189,7 @@ export class StorageService {
 
   /** Ensure all required directories exist. */
   async ensureDirectories(): Promise<void> {
-    await this.adapter.ensureFolder(CLAUDE_PATH);
+    await this.adapter.ensureFolder(COPILOT_PATH);
     await this.adapter.ensureFolder(COMMANDS_PATH);
     await this.adapter.ensureFolder(SESSIONS_PATH);
   }

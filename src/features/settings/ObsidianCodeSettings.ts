@@ -377,18 +377,6 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
     new Setting(containerEl).setName('Safety').setHeading();
 
     new Setting(containerEl)
-      .setName('Load user Copilot settings')
-      .setDesc('Load ~/.copilot/settings.json. When enabled, global Copilot plugin settings can override vault defaults.')
-      .addToggle((toggle) =>
-        toggle
-          .setValue(this.plugin.settings.loadUserClaudeSettings)
-          .onChange(async (value) => {
-            this.plugin.settings.loadUserClaudeSettings = value;
-            await this.plugin.saveSettings();
-          })
-      );
-
-    new Setting(containerEl)
       .setName('Enable command blocklist')
       .setDesc('Block potentially dangerous shell commands')
       .addToggle((toggle) =>

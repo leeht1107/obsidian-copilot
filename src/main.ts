@@ -249,13 +249,13 @@ export default class ObsidianCopilotPlugin extends Plugin {
     }
   }
 
-  getResolvedClaudeCliPath(): string | null {
+  getResolvedCopilotCliPath(): string | null {
     return this.settings.copilotCliPath || 'copilot';
   }
 
   get cliResolver(): { resolve: () => string | null; reset: () => void } {
     return { 
-      resolve: () => this.getResolvedClaudeCliPath(),
+      resolve: () => this.getResolvedCopilotCliPath(),
       reset: () => {}
     };
   }

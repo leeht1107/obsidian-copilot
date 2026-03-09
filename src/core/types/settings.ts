@@ -147,8 +147,6 @@ export interface ObsidianCodeSettings {
   allowedExportPaths: string[];
   slashCommands: SlashCommand[];
   keyboardNavigation: KeyboardNavigationSettings;
-  claudeCliPath: string;  // Custom Claude CLI path (empty = auto-detect)
-  loadUserClaudeSettings: boolean;  // Load ~/.claude/settings.json (may override permissions)
   copilotCliPath: string;  // Custom Copilot CLI path (empty = auto-detect from PATH)
   githubToken: string;  // GitHub token for Copilot authentication (optional, uses stored auth by default)
 }
@@ -180,8 +178,6 @@ export const DEFAULT_SETTINGS: ObsidianCodeSettings = {
     scrollDownKey: 's',
     focusInputKey: 'i',
   },
-  claudeCliPath: '',  // Empty = auto-detect
-  loadUserClaudeSettings: true,  // Default on for compatibility
   copilotCliPath: '',  // Empty = auto-detect from PATH
   githubToken: '',  // Empty = use stored auth
 };
