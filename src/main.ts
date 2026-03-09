@@ -20,7 +20,7 @@ import type {
 } from './core/types';
 import {
   DEFAULT_SETTINGS,
-  VIEW_TYPE_OBSIDIAN_CODE,
+  VIEW_TYPE_OBSIDIAN_COPILOT,
 } from './core/types';
 import type { ObsidianCopilotView } from './features/chat/ObsidianCopilotView';
 import { ObsidianCopilotView as ObsidianCopilotViewImpl } from './features/chat/ObsidianCopilotView';
@@ -66,7 +66,7 @@ export default class ObsidianCopilotPlugin extends Plugin {
     addIcon('obsidian-copilot-icon', COPILOT_ICON_SVG);
 
     this.registerView(
-      VIEW_TYPE_OBSIDIAN_CODE,
+      VIEW_TYPE_OBSIDIAN_COPILOT,
       (leaf) => new ObsidianCopilotViewImpl(leaf, this)
     );
 
@@ -146,13 +146,13 @@ export default class ObsidianCopilotPlugin extends Plugin {
   /** Opens the ObsidianCode sidebar view, creating it if necessary. */
   async activateView() {
     const { workspace } = this.app;
-    let leaf = workspace.getLeavesOfType(VIEW_TYPE_OBSIDIAN_CODE)[0];
+      let leaf = workspace.getLeavesOfType(VIEW_TYPE_OBSIDIAN_COPILOT)[0];
 
     if (!leaf) {
       const rightLeaf = workspace.getRightLeaf(false);
       if (rightLeaf) {
         await rightLeaf.setViewState({
-          type: VIEW_TYPE_OBSIDIAN_CODE,
+        type: VIEW_TYPE_OBSIDIAN_COPILOT,
           active: true,
         });
         leaf = rightLeaf;
@@ -419,7 +419,7 @@ export default class ObsidianCopilotPlugin extends Plugin {
 
   /** Returns the active ObsidianCode view from workspace, if open. */
   getView(): ObsidianCopilotView | null {
-    const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_OBSIDIAN_CODE);
+    const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_OBSIDIAN_COPILOT);
     if (leaves.length > 0) {
     return leaves[0].view as ObsidianCopilotView;
     }

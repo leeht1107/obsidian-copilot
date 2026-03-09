@@ -8,13 +8,13 @@ import type {
 } from '@/core/types';
 import {
   DEFAULT_SETTINGS,
-  VIEW_TYPE_OBSIDIAN_CODE
+  VIEW_TYPE_OBSIDIAN_COPILOT
 } from '@/core/types';
 
 describe('types.ts', () => {
-  describe('VIEW_TYPE_OBSIDIAN_CODE', () => {
+  describe('VIEW_TYPE_OBSIDIAN_COPILOT', () => {
     it('should be defined as the correct view type', () => {
-      expect(VIEW_TYPE_OBSIDIAN_CODE).toBe('obsidian-copilot-view');
+      expect(VIEW_TYPE_OBSIDIAN_COPILOT).toBe('obsidian-copilot-view');
     });
   });
 

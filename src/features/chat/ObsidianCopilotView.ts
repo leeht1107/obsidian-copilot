@@ -6,7 +6,7 @@ import type { CopilotModel, PermissionMode, ThinkingBudget } from '../../core/ty
 import {
   COPILOT_MODELS,
   DEFAULT_THINKING_BUDGET,
-  VIEW_TYPE_OBSIDIAN_CODE,
+  VIEW_TYPE_OBSIDIAN_COPILOT,
 } from '../../core/types';
 import type ObsidianCopilotPlugin from '../../main';
 import {
@@ -91,7 +91,7 @@ export class ObsidianCopilotView extends ItemView {
   }
 
   getViewType(): string {
-    return VIEW_TYPE_OBSIDIAN_CODE;
+    return VIEW_TYPE_OBSIDIAN_COPILOT;
   }
 
   getDisplayText(): string {

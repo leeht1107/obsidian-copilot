@@ -14,7 +14,7 @@ export {
   type ImageMediaType,
   type StreamChunk,
   type UsageInfo,
-  VIEW_TYPE_OBSIDIAN_CODE,
+  VIEW_TYPE_OBSIDIAN_COPILOT,
 } from './chat';
 
 // Model types
