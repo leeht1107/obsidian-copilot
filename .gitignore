@@ -18,6 +18,21 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# Security and local secrets
+.envrc
+.direnv/
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+*.token
+secrets/
+secrets.*
+credentials.json
+
 # IDE
 .idea/
 .vscode/

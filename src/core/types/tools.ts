@@ -47,3 +47,9 @@ export interface SubagentInfo {
   startedAt?: number;
   completedAt?: number;
 }
+
+export type ExitPlanModeDecision =
+  | { decision: 'approve' }
+  | { decision: 'approve_new_session' }
+  | { decision: 'revise'; feedback: string }
+  | { decision: 'cancel' };

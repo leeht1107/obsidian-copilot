@@ -6,16 +6,23 @@
 .oc-model-btn {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: 4px;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--text-normal);
   font-size: 12px;
+  background: color-mix(in srgb, var(--background-secondary) 78%, transparent);
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 80%, transparent);
 }
 
 .oc-model-label {
-  font-weight: 500;
+  font-weight: 600;
+}
+
+.oc-model-cost {
+  color: var(--text-muted);
+  font-size: 11px;
 }
 
 .oc-model-chevron {
@@ -32,18 +39,19 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  margin-bottom: 28px;
-  /* Height of the button + some spacing */
+  margin-bottom: 38px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 4px;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
+  gap: 4px;
+  background: color-mix(in srgb, var(--background-secondary) 92%, var(--background-primary));
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 82%, transparent);
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
   z-index: 1000;
-  width: max-content;
-  padding: 4px;
+  width: 300px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 8px;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.15s ease, visibility 0.15s ease;
@@ -55,16 +63,16 @@
 }
 
 .oc-model-option {
-  padding: 4px 8px;
+  padding: 8px 10px;
   cursor: pointer;
   font-size: 12px;
-  color: var(--text-muted);
-  border-radius: 3px;
+  color: var(--text-normal);
+  border-radius: 10px;
   transition: background 0.1s ease, color 0.1s ease;
-  white-space: nowrap;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .oc-model-option:hover {
@@ -73,15 +81,33 @@
 }
 
 .oc-model-option.selected {
-  background: rgba(217, 119, 87, 0.15);
-  color: #D97757;
+  background: color-mix(in srgb, var(--interactive-accent) 14%, transparent);
+  color: var(--text-normal);
   font-weight: 500;
+}
+
+.oc-model-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.oc-model-option-label {
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .oc-model-option .oc-model-desc {
   font-size: 10px;
   color: var(--text-faint);
-  margin-left: 12px;
   font-weight: normal;
   opacity: 0.7;
+  white-space: normal;
+}
+
+.oc-model-option-cost {
+  color: var(--text-muted);
+  font-size: 11px;
+  flex-shrink: 0;
 }

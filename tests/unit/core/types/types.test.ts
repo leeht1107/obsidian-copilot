@@ -64,8 +64,8 @@ describe('types.ts', () => {
       expect(DEFAULT_SETTINGS.envSnippets).toEqual([]);
     });
 
-    it('should have lastClaudeModel set to haiku by default', () => {
-      expect(DEFAULT_SETTINGS.lastClaudeModel).toBe('haiku');
+    it('should have lastClaudeModel set to auto by default', () => {
+      expect(DEFAULT_SETTINGS.lastClaudeModel).toBe('auto');
     });
 
     it('should have lastCustomModel as empty string by default', () => {
@@ -79,7 +79,7 @@ describe('types.ts', () => {
         userName: '',
         enableBlocklist: false,
         blockedCommands: { unix: ['test'], windows: ['test-win'] },
-        model: 'haiku',
+        model: 'auto',
         enableAutoTitleGeneration: true,
         titleGenerationModel: '',
         thinkingBudget: 'off',
@@ -95,11 +95,13 @@ describe('types.ts', () => {
         keyboardNavigation: { scrollUpKey: 'w', scrollDownKey: 's', focusInputKey: 'i' },
         claudeCliPath: '',
         loadUserClaudeSettings: false,
+        copilotCliPath: '',
+        githubToken: '',
       };
 
       expect(settings.enableBlocklist).toBe(false);
       expect(settings.blockedCommands).toEqual({ unix: ['test'], windows: ['test-win'] });
-      expect(settings.model).toBe('haiku');
+      expect(settings.model).toBe('auto');
     });
 
     it('should accept custom model strings', () => {
@@ -110,7 +112,7 @@ describe('types.ts', () => {
         model: 'anthropic/custom-model-v1',
         enableAutoTitleGeneration: true,
         titleGenerationModel: '',
-        thinkingBudget: 'medium',
+        thinkingBudget: 'off',
         permissionMode: 'normal',
         permissions: [],
         excludedTags: ['private'],
@@ -123,6 +125,8 @@ describe('types.ts', () => {
         keyboardNavigation: { scrollUpKey: 'w', scrollDownKey: 's', focusInputKey: 'i' },
         claudeCliPath: '',
         loadUserClaudeSettings: false,
+        copilotCliPath: '',
+        githubToken: '',
       };
 
       expect(settings.model).toBe('anthropic/custom-model-v1');
@@ -133,12 +137,12 @@ describe('types.ts', () => {
         userName: '',
         enableBlocklist: true,
         blockedCommands: { unix: [], windows: [] },
-        model: 'sonnet',
+        model: 'claude-sonnet-4.6',
         enableAutoTitleGeneration: true,
         titleGenerationModel: '',
-        lastClaudeModel: 'opus',
+        lastClaudeModel: 'claude-opus-4.6',
         lastCustomModel: 'custom/model',
-        thinkingBudget: 'high',
+        thinkingBudget: 'off',
         permissionMode: 'yolo',
         permissions: [],
         excludedTags: [],
@@ -151,9 +155,11 @@ describe('types.ts', () => {
         keyboardNavigation: { scrollUpKey: 'w', scrollDownKey: 's', focusInputKey: 'i' },
         claudeCliPath: '',
         loadUserClaudeSettings: false,
+        copilotCliPath: '',
+        githubToken: '',
       };
 
-      expect(settings.lastClaudeModel).toBe('opus');
+      expect(settings.lastClaudeModel).toBe('claude-opus-4.6');
       expect(settings.lastCustomModel).toBe('custom/model');
     });
   });
