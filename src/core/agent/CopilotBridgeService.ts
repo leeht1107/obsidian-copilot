@@ -223,15 +223,23 @@ export class CopilotBridgeService {
   private addToolArgs(args: string[], queryOptions?: QueryOptions): void {
     const requestedTools = queryOptions?.allowedTools?.map((tool) => tool.trim()).filter(Boolean) ?? [];
     const permissionMode = this.plugin.settings.permissionMode;
-    const effectiveTools = queryOptions?.planMode && requestedTools.length === 0
+    const guardrailTools = queryOptions?.planMode
       ? [...PLAN_MODE_ALLOWED_TOOLS]
-      : requestedTools.length > 0
-        ? requestedTools
-        : permissionMode === 'yolo'
-          ? []
-          : [...NORMAL_MODE_ALLOWED_TOOLS];
-    if (effectiveTools.length > 0) {
-      args.push('--available-tools', ...effectiveTools);
+      : permissionMode === 'yolo'
+        ? null
+        : [...NORMAL_MODE_ALLOWED_TOOLS];
+    const guardrailSet = guardrailTools ? new Set<string>(guardrailTools) : null;
+    const effectiveTools = requestedTools.length > 0
+      ? guardrailSet
+        ? requestedTools.filter((tool) => guardrailSet.has(tool))
+        : requestedTools
+      : guardrailTools ?? [];
+
+    const finalTools = guardrailSet && effectiveTools.length === 0
+      ? guardrailTools ?? []
+      : effectiveTools;
+    if (finalTools.length > 0) {
+      args.push('--available-tools', ...finalTools);
     }
   }
 
