@@ -101,6 +101,8 @@ test-results/
 dev/archive
 sandbox/
 .agents/archive
+.sisyphus/
+docs/
 
 # Lock files (uncomment based on package manager)
 # yarn.lock
