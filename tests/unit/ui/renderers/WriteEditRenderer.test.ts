@@ -490,7 +490,7 @@ describe('WriteEditRenderer', () => {
 
       // Find header and trigger click
       const header = (block as any)._children.find((c: any) =>
-        c.hasClass('oc-write-edit-header')
+        c.hasClass('ocop-write-edit-header')
       );
       expect(header).toBeDefined();
 
@@ -516,7 +516,7 @@ describe('WriteEditRenderer', () => {
 
       const block = renderStoredWriteEdit(parentEl, toolCall);
       const header = (block as any)._children.find((c: any) =>
-        c.hasClass('oc-write-edit-header')
+        c.hasClass('ocop-write-edit-header')
       );
 
       const keydownHandlers = header._eventListeners.get('keydown') || [];

@@ -416,7 +416,7 @@ describe('Async Subagent Renderer', () => {
 
     expect(state.labelEl.textContent).toBe('Background job');
     expect(state.statusTextEl.textContent).toBe('Running');
-    const contentText = getTextByClass(state.contentEl as any, 'oc-subagent-done-text')[0];
+    const contentText = getTextByClass(state.contentEl as any, 'ocop-subagent-done-text')[0];
     expect(contentText).toContain('agent-xyz');
     expect((state.wrapperEl as any).getClasses()).toEqual(expect.arrayContaining(['running', 'async']));
   });
@@ -431,7 +431,7 @@ describe('Async Subagent Renderer', () => {
     expect(state.labelEl.textContent).toBe('Background job');
     expect(state.statusTextEl.textContent).toBe('Completed');
     expect((state.wrapperEl as any).hasClass('done')).toBe(true);
-    const contentText = getTextByClass(state.contentEl as any, 'oc-subagent-done-text')[0];
+    const contentText = getTextByClass(state.contentEl as any, 'ocop-subagent-done-text')[0];
     expect(contentText).toBe('DONE');
     const lastIcon = (setIcon as jest.Mock).mock.calls.pop();
     expect(lastIcon?.[1]).toBe('check');
@@ -446,7 +446,7 @@ describe('Async Subagent Renderer', () => {
 
     expect(state.statusTextEl.textContent).toBe('Error');
     expect((state.wrapperEl as any).hasClass('error')).toBe(true);
-    const contentText = getTextByClass(state.contentEl as any, 'oc-subagent-done-text')[0];
+    const contentText = getTextByClass(state.contentEl as any, 'ocop-subagent-done-text')[0];
     expect(contentText).toContain('ERROR');
     const lastIcon = (setIcon as jest.Mock).mock.calls.pop();
     expect(lastIcon?.[1]).toBe('x');
@@ -459,7 +459,7 @@ describe('Async Subagent Renderer', () => {
 
     expect(state.statusTextEl.textContent).toBe('Orphaned');
     expect((state.wrapperEl as any).hasClass('orphaned')).toBe(true);
-    const contentText = getTextByClass(state.contentEl as any, 'oc-subagent-done-text')[0];
+    const contentText = getTextByClass(state.contentEl as any, 'ocop-subagent-done-text')[0];
     expect(contentText).toContain('Task orphaned');
   });
 });

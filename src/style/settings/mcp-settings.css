@@ -1,13 +1,13 @@
 /* MCP Server Settings */
-.oc-mcp-settings-desc {
+.ocop-mcp-settings-desc {
   margin-bottom: 12px;
 }
 
-.oc-mcp-container {
+.ocop-mcp-container {
   margin-top: 8px;
 }
 
-.oc-mcp-header {
+.ocop-mcp-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -15,17 +15,17 @@
   padding: 0 12px;
 }
 
-.oc-mcp-label {
+.ocop-mcp-label {
   font-size: var(--font-ui-small);
   color: var(--text-muted);
   font-weight: var(--font-medium);
 }
 
-.oc-mcp-add-container {
+.ocop-mcp-add-container {
   position: relative;
 }
 
-.oc-add-mcp-btn {
+.ocop-add-mcp-btn {
   padding: 4px 12px;
   border-radius: 4px;
   background: var(--interactive-accent);
@@ -35,11 +35,11 @@
   border: none;
 }
 
-.oc-add-mcp-btn:hover {
+.ocop-add-mcp-btn:hover {
   background: var(--interactive-accent-hover);
 }
 
-.oc-mcp-add-dropdown {
+.ocop-mcp-add-dropdown {
   display: none;
   position: absolute;
   top: 100%;
@@ -54,11 +54,11 @@
   overflow: hidden;
 }
 
-.oc-mcp-add-dropdown.is-visible {
+.ocop-mcp-add-dropdown.is-visible {
   display: block;
 }
 
-.oc-mcp-add-option {
+.ocop-mcp-add-option {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -68,22 +68,22 @@
   color: var(--text-normal);
 }
 
-.oc-mcp-add-option:hover {
+.ocop-mcp-add-option:hover {
   background: var(--background-modifier-hover);
 }
 
-.oc-mcp-add-option-icon {
+.ocop-mcp-add-option-icon {
   display: flex;
   align-items: center;
   color: var(--text-muted);
 }
 
-.oc-mcp-add-option-icon svg {
+.ocop-mcp-add-option-icon svg {
   width: 16px;
   height: 16px;
 }
 
-.oc-mcp-empty {
+.ocop-mcp-empty {
   padding: 16px;
   text-align: center;
   color: var(--text-muted);
@@ -92,13 +92,13 @@
   border-radius: 6px;
 }
 
-.oc-mcp-list {
+.ocop-mcp-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.oc-mcp-item {
+.ocop-mcp-item {
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -108,15 +108,15 @@
   transition: background 0.15s ease;
 }
 
-.oc-mcp-item:hover {
+.ocop-mcp-item:hover {
   background: var(--background-modifier-hover);
 }
 
-.oc-mcp-item-disabled {
+.ocop-mcp-item-disabled {
   opacity: 0.6;
 }
 
-.oc-mcp-status {
+.ocop-mcp-status {
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -124,31 +124,31 @@
   flex-shrink: 0;
 }
 
-.oc-mcp-status-enabled {
+.ocop-mcp-status-enabled {
   background: var(--color-green);
 }
 
-.oc-mcp-status-disabled {
+.ocop-mcp-status-disabled {
   background: var(--text-muted);
 }
 
-.oc-mcp-info {
+.ocop-mcp-info {
   flex: 1;
   min-width: 0;
 }
 
-.oc-mcp-name-row {
+.ocop-mcp-name-row {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.oc-mcp-name {
+.ocop-mcp-name {
   font-weight: 600;
 }
 
-.oc-mcp-type-badge {
+.ocop-mcp-type-badge {
   font-size: 10px;
   padding: 2px 6px;
   background: var(--background-modifier-border);
@@ -157,7 +157,7 @@
   text-transform: uppercase;
 }
 
-.oc-mcp-context-saving-badge {
+.ocop-mcp-context-saving-badge {
   font-size: 11px;
   padding: 2px 6px;
   background: var(--interactive-accent);
@@ -166,7 +166,7 @@
   font-weight: 600;
 }
 
-.oc-mcp-preview {
+.ocop-mcp-preview {
   font-size: 12px;
   color: var(--text-muted);
   margin-top: 4px;
@@ -175,13 +175,13 @@
   white-space: nowrap;
 }
 
-.oc-mcp-actions {
+.ocop-mcp-actions {
   display: flex;
   gap: 4px;
   flex-shrink: 0;
 }
 
-.oc-mcp-action-btn {
+.ocop-mcp-action-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -196,16 +196,16 @@
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.oc-mcp-action-btn:hover {
+.ocop-mcp-action-btn:hover {
   background: var(--background-modifier-hover);
   color: var(--text-normal);
 }
 
-.oc-mcp-action-btn svg {
+.ocop-mcp-action-btn svg {
   width: 14px;
   height: 14px;
 }
 
-.oc-mcp-delete-btn:hover {
+.ocop-mcp-delete-btn:hover {
   color: var(--text-error);
 }

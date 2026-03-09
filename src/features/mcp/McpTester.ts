@@ -251,7 +251,7 @@ async function testStdioServer(server: ObsidianCodeMcpServer): Promise<McpTestRe
         params: {
           protocolVersion: '2024-11-05',
           capabilities: {},
-          clientInfo: { name: 'oc-tester', version: '1.0.0' },
+          clientInfo: { name: 'ocop-tester', version: '1.0.0' },
         },
       };
 
@@ -337,7 +337,7 @@ async function testHttpServer(server: ObsidianCodeMcpServer): Promise<McpTestRes
           params: {
             protocolVersion: '2024-11-05',
             capabilities: {},
-            clientInfo: { name: 'oc-tester', version: '1.0.0' },
+            clientInfo: { name: 'ocop-tester', version: '1.0.0' },
           },
         });
 
@@ -519,7 +519,7 @@ async function testSseServer(server: ObsidianCodeMcpServer): Promise<McpTestResu
       params: {
         protocolVersion: '2024-11-05',
         capabilities: {},
-        clientInfo: { name: 'oc-tester', version: '1.0.0' },
+        clientInfo: { name: 'ocop-tester', version: '1.0.0' },
       },
     };
 

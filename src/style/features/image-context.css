@@ -1,7 +1,7 @@
 /* Image Context - Preview & Attachments */
 
 /* Image preview container (in input area) */
-.oc-image-preview {
+.ocop-image-preview {
   display: none;
   flex-wrap: wrap;
   gap: 8px;
@@ -10,7 +10,7 @@
 }
 
 /* Individual image preview chip */
-.oc-image-chip {
+.ocop-image-chip {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -21,12 +21,12 @@
   max-width: 200px;
 }
 
-.oc-image-chip:hover {
+.ocop-image-chip:hover {
   border-color: var(--interactive-accent);
 }
 
 /* Image thumbnail */
-.oc-image-thumb {
+.ocop-image-thumb {
   width: 40px;
   height: 40px;
   border-radius: 4px;
@@ -35,21 +35,21 @@
   cursor: pointer;
 }
 
-.oc-image-thumb img {
+.ocop-image-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
 /* Image info */
-.oc-image-info {
+.ocop-image-info {
   display: flex;
   flex-direction: column;
   min-width: 0;
   flex: 1;
 }
 
-.oc-image-name {
+.ocop-image-name {
   font-size: 12px;
   color: var(--text-normal);
   overflow: hidden;
@@ -57,13 +57,13 @@
   white-space: nowrap;
 }
 
-.oc-image-size {
+.ocop-image-size {
   font-size: 10px;
   color: var(--text-muted);
 }
 
 /* Remove button */
-.oc-image-remove {
+.ocop-image-remove {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -78,13 +78,13 @@
   flex-shrink: 0;
 }
 
-.oc-image-remove:hover {
+.ocop-image-remove:hover {
   background: var(--background-modifier-error);
   color: var(--text-on-accent);
 }
 
 /* Drop overlay - inside input wrapper */
-.oc-drop-overlay {
+.ocop-drop-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -100,11 +100,11 @@
   pointer-events: none;
 }
 
-.oc-drop-overlay.visible {
+.ocop-drop-overlay.visible {
   display: flex;
 }
 
-.oc-drop-content {
+.ocop-drop-content {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -112,11 +112,11 @@
   color: #67d7ff;
 }
 
-.oc-drop-content svg {
+.ocop-drop-content svg {
   opacity: 0.7;
 }
 
-.oc-drop-content span {
+.ocop-drop-content span {
   font-size: 12px;
   font-weight: 500;
 }
@@ -124,7 +124,7 @@
 /* Images in Messages (displayed above user bubble) */
 
 /* Images container - right-aligned above user message */
-.oc-message-images {
+.ocop-message-images {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -134,7 +134,7 @@
 }
 
 /* Individual image in message - standardized size */
-.oc-message-image {
+.ocop-message-image {
   width: 120px;
   height: 120px;
   border-radius: 8px;
@@ -145,12 +145,12 @@
   border: 1px solid var(--background-modifier-border);
 }
 
-.oc-message-image:hover {
+.ocop-message-image:hover {
   transform: scale(1.03);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.oc-message-image img {
+.ocop-message-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;

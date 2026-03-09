@@ -32,8 +32,8 @@ function findInputElements(containerEl: HTMLElement): {
   inputContainer: HTMLElement | null;
   inputWrapper: HTMLElement | null;
 } {
-  const inputContainer = containerEl.querySelector('.oc-input-container') as HTMLElement | null;
-  const inputWrapper = containerEl.querySelector('.oc-input-wrapper') as HTMLElement | null;
+  const inputContainer = containerEl.querySelector('.ocop-input-container') as HTMLElement | null;
+  const inputWrapper = containerEl.querySelector('.ocop-input-wrapper') as HTMLElement | null;
   return { inputContainer, inputWrapper };
 }
 
@@ -41,7 +41,7 @@ function findInputElements(containerEl: HTMLElement): {
 const APPROVAL_OPTIONS = [
   { label: 'Approve', isRevise: false },
   { label: 'Approve && New Session', isRevise: false },
-  { label: 'Type here to tell ObsidianCode what to change', isRevise: true },
+  { label: 'Type here to tell Copilot what to change', isRevise: true },
 ] as const;
 
 /**
@@ -97,7 +97,7 @@ export class PlanApprovalPanel {
   /** Create the panel DOM structure. */
   private createPanel(): HTMLElement {
     const panel = document.createElement('div');
-    panel.className = 'oc-plan-approval-panel';
+    panel.className = 'ocop-plan-approval-panel';
     panel.setAttribute('tabindex', '0');
     panel.setAttribute('role', 'dialog');
     panel.setAttribute('aria-label', 'Review implementation plan');
@@ -107,13 +107,13 @@ export class PlanApprovalPanel {
 
     // Header: "Would you like to proceed?"
     const headerEl = document.createElement('div');
-    headerEl.className = 'oc-plan-approval-header';
+    headerEl.className = 'ocop-plan-approval-header';
     headerEl.textContent = 'Would you like to proceed?';
     panel.appendChild(headerEl);
 
     // Options container
     this.optionsEl = document.createElement('div');
-    this.optionsEl.className = 'oc-plan-approval-options';
+    this.optionsEl.className = 'ocop-plan-approval-options';
     this.renderOptions();
     panel.appendChild(this.optionsEl);
 
@@ -127,18 +127,18 @@ export class PlanApprovalPanel {
 
     APPROVAL_OPTIONS.forEach((option, index) => {
       const optionEl = document.createElement('div');
-      optionEl.className = 'oc-plan-approval-option';
+      optionEl.className = 'ocop-plan-approval-option';
       optionEl.setAttribute('data-option-index', String(index));
 
       // Caret indicator
       const caretEl = document.createElement('span');
-      caretEl.className = 'oc-plan-approval-caret';
+      caretEl.className = 'ocop-plan-approval-caret';
       caretEl.textContent = index === this.currentOptionIndex ? '>' : ' ';
       optionEl.appendChild(caretEl);
 
       // Number indicator
       const numberEl = document.createElement('span');
-      numberEl.className = 'oc-plan-approval-number';
+      numberEl.className = 'ocop-plan-approval-number';
       numberEl.textContent = `${index + 1}.`;
       optionEl.appendChild(numberEl);
 
@@ -146,7 +146,7 @@ export class PlanApprovalPanel {
       if (option.isRevise) {
         this.reviseInputEl = document.createElement('input');
         this.reviseInputEl.type = 'text';
-        this.reviseInputEl.className = 'oc-plan-approval-revise-inline';
+        this.reviseInputEl.className = 'ocop-plan-approval-revise-inline';
         this.reviseInputEl.placeholder = option.label;
         // Prevent click from bubbling to option click handler
         this.reviseInputEl.addEventListener('click', (e) => {
@@ -184,7 +184,7 @@ export class PlanApprovalPanel {
       } else {
         // Regular label
         const labelEl = document.createElement('span');
-        labelEl.className = 'oc-plan-approval-option-label';
+        labelEl.className = 'ocop-plan-approval-option-label';
         labelEl.textContent = option.label;
         optionEl.appendChild(labelEl);
       }
@@ -219,9 +219,9 @@ export class PlanApprovalPanel {
   private updateOptionFocus(): void {
     if (!this.optionsEl) return;
 
-    const options = this.optionsEl.querySelectorAll('.oc-plan-approval-option');
+    const options = this.optionsEl.querySelectorAll('.ocop-plan-approval-option');
     options.forEach((opt, i) => {
-      const caret = opt.querySelector('.oc-plan-approval-caret');
+      const caret = opt.querySelector('.ocop-plan-approval-caret');
       const isFocused = i === this.currentOptionIndex;
       opt.classList.toggle('focused', isFocused);
       if (caret) {

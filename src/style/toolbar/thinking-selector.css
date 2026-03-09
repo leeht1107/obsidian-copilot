@@ -1,17 +1,17 @@
 /* Thinking budget selector */
-.oc-thinking-selector {
+.ocop-thinking-selector {
   display: flex;
   align-items: center;
   gap: 6px;
   margin-left: 12px;
 }
 
-.oc-thinking-label-text {
+.ocop-thinking-label-text {
   font-size: 11px;
   color: var(--text-muted);
 }
 
-.oc-thinking-gears {
+.ocop-thinking-gears {
   position: relative;
   display: flex;
   align-items: center;
@@ -19,7 +19,7 @@
 }
 
 /* Current selection (visible when collapsed) */
-.oc-thinking-current {
+.ocop-thinking-current {
   padding: 3px 8px;
   font-size: 11px;
   color: #67d7ff;
@@ -31,7 +31,7 @@
 }
 
 /* Options container - expands vertically upward */
-.oc-thinking-options {
+.ocop-thinking-options {
   position: absolute;
   left: 0;
   bottom: 100%;
@@ -49,12 +49,12 @@
 }
 
 /* Expand on hover */
-.oc-thinking-gears:hover .oc-thinking-options {
+.ocop-thinking-gears:hover .ocop-thinking-options {
   opacity: 1;
   visibility: visible;
 }
 
-.oc-thinking-gear {
+.ocop-thinking-gear {
   padding: 3px 8px;
   font-size: 11px;
   color: var(--text-muted);
@@ -64,12 +64,12 @@
   white-space: nowrap;
 }
 
-.oc-thinking-gear:hover {
+.ocop-thinking-gear:hover {
   background: var(--background-modifier-hover);
   color: var(--text-normal);
 }
 
-.oc-thinking-gear.selected {
+.ocop-thinking-gear.selected {
   background: rgba(217, 119, 87, 0.15);
   color: #67d7ff;
   font-weight: 500;

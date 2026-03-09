@@ -178,30 +178,30 @@ export class SlashCommandDropdown {
     this.dropdownEl.empty();
 
     if (this.filteredCommands.length === 0) {
-      const emptyEl = this.dropdownEl.createDiv({ cls: 'oc-slash-empty' });
+      const emptyEl = this.dropdownEl.createDiv({ cls: 'ocop-slash-empty' });
       emptyEl.setText('No matching commands');
     } else {
       for (let i = 0; i < this.filteredCommands.length; i++) {
         const cmd = this.filteredCommands[i];
-        const itemEl = this.dropdownEl.createDiv({ cls: 'oc-slash-item' });
+        const itemEl = this.dropdownEl.createDiv({ cls: 'ocop-slash-item' });
 
         if (i === this.selectedIndex) {
           itemEl.addClass('selected');
         }
 
         // Command name
-        const nameEl = itemEl.createSpan({ cls: 'oc-slash-name' });
+        const nameEl = itemEl.createSpan({ cls: 'ocop-slash-name' });
         nameEl.setText(`/${cmd.name}`);
 
         // Argument hint
         if (cmd.argumentHint) {
-          const hintEl = itemEl.createSpan({ cls: 'oc-slash-hint' });
+          const hintEl = itemEl.createSpan({ cls: 'ocop-slash-hint' });
           hintEl.setText(cmd.argumentHint);
         }
 
         // Description
         if (cmd.description) {
-          const descEl = itemEl.createDiv({ cls: 'oc-slash-desc' });
+          const descEl = itemEl.createDiv({ cls: 'ocop-slash-desc' });
           descEl.setText(cmd.description);
         }
 
@@ -229,12 +229,12 @@ export class SlashCommandDropdown {
     if (this.isFixed) {
       // For inline editor: append to containerEl with fixed positioning
       const dropdown = this.containerEl.createDiv({
-        cls: 'oc-slash-dropdown oc-slash-dropdown-fixed',
+        cls: 'ocop-slash-dropdown ocop-slash-dropdown-fixed',
       });
       return dropdown;
     } else {
       // For chat panel: append to container with absolute positioning
-      return this.containerEl.createDiv({ cls: 'oc-slash-dropdown' });
+      return this.containerEl.createDiv({ cls: 'ocop-slash-dropdown' });
     }
   }
 
@@ -257,7 +257,7 @@ export class SlashCommandDropdown {
   }
 
   private updateSelection(): void {
-    const items = this.dropdownEl?.querySelectorAll('.oc-slash-item');
+    const items = this.dropdownEl?.querySelectorAll('.ocop-slash-item');
     items?.forEach((item, index) => {
       if (index === this.selectedIndex) {
         item.addClass('selected');

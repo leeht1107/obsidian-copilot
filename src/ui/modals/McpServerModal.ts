@@ -94,7 +94,7 @@ export class McpServerModal extends Modal {
 
   onOpen() {
     this.setTitle(this.existingServer ? 'Edit MCP Server' : 'Add MCP Server');
-    this.modalEl.addClass('oc-mcp-modal');
+    this.modalEl.addClass('ocop-mcp-modal');
 
     const { contentEl } = this;
 
@@ -128,7 +128,7 @@ export class McpServerModal extends Modal {
       });
 
     // Type-specific fields container
-    this.typeFieldsEl = contentEl.createDiv({ cls: 'oc-mcp-type-fields' });
+    this.typeFieldsEl = contentEl.createDiv({ cls: 'ocop-mcp-type-fields' });
     this.renderTypeFields();
 
     // Enabled toggle
@@ -154,17 +154,17 @@ export class McpServerModal extends Modal {
       });
 
     // Buttons
-    const buttonContainer = contentEl.createDiv({ cls: 'oc-mcp-buttons' });
+    const buttonContainer = contentEl.createDiv({ cls: 'ocop-mcp-buttons' });
 
     const cancelBtn = buttonContainer.createEl('button', {
       text: 'Cancel',
-      cls: 'oc-cancel-btn',
+      cls: 'ocop-cancel-btn',
     });
     cancelBtn.addEventListener('click', () => this.close());
 
     const saveBtn = buttonContainer.createEl('button', {
       text: this.existingServer ? 'Update' : 'Add',
-      cls: 'oc-save-btn mod-cta',
+      cls: 'ocop-save-btn mod-cta',
     });
     saveBtn.addEventListener('click', () => this.save());
   }
@@ -187,10 +187,10 @@ export class McpServerModal extends Modal {
     const cmdSetting = new Setting(this.typeFieldsEl)
       .setName('Command')
       .setDesc('Full command with arguments');
-    cmdSetting.settingEl.addClass('oc-mcp-cmd-setting');
+    cmdSetting.settingEl.addClass('ocop-mcp-cmd-setting');
 
     const cmdTextarea = cmdSetting.controlEl.createEl('textarea', {
-      cls: 'oc-mcp-cmd-textarea',
+      cls: 'ocop-mcp-cmd-textarea',
     });
     cmdTextarea.value = this.command;
     cmdTextarea.placeholder = 'docker exec -i mcp-server python -m src.server';
@@ -203,10 +203,10 @@ export class McpServerModal extends Modal {
     const envSetting = new Setting(this.typeFieldsEl)
       .setName('Environment variables')
       .setDesc('KEY=VALUE per line (optional)');
-    envSetting.settingEl.addClass('oc-mcp-env-setting');
+    envSetting.settingEl.addClass('ocop-mcp-env-setting');
 
     const envTextarea = envSetting.controlEl.createEl('textarea', {
-      cls: 'oc-mcp-env-textarea',
+      cls: 'ocop-mcp-env-textarea',
     });
     envTextarea.value = this.env;
     envTextarea.placeholder = 'API_KEY=your-key';
@@ -236,10 +236,10 @@ export class McpServerModal extends Modal {
     const headersSetting = new Setting(this.typeFieldsEl)
       .setName('Headers')
       .setDesc('HTTP headers (KEY=VALUE per line)');
-    headersSetting.settingEl.addClass('oc-mcp-env-setting');
+    headersSetting.settingEl.addClass('ocop-mcp-env-setting');
 
     const headersTextarea = headersSetting.controlEl.createEl('textarea', {
-      cls: 'oc-mcp-env-textarea',
+      cls: 'ocop-mcp-env-textarea',
     });
     headersTextarea.value = this.headers;
     headersTextarea.placeholder = 'Authorization=Bearer token\nContent-Type=application/json';

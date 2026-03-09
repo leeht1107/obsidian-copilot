@@ -170,7 +170,7 @@ export function renderDiffContent(
 
   if (hunks.length === 0) {
     // No changes
-    const noChanges = containerEl.createDiv({ cls: 'oc-diff-no-changes' });
+    const noChanges = containerEl.createDiv({ cls: 'ocop-diff-no-changes' });
     noChanges.setText('No changes');
     return;
   }
@@ -178,23 +178,23 @@ export function renderDiffContent(
   hunks.forEach((hunk, hunkIndex) => {
     // Add separator between hunks
     if (hunkIndex > 0) {
-      const separator = containerEl.createDiv({ cls: 'oc-diff-separator' });
+      const separator = containerEl.createDiv({ cls: 'ocop-diff-separator' });
       separator.setText('...');
     }
 
     // Render hunk lines
-    const hunkEl = containerEl.createDiv({ cls: 'oc-diff-hunk' });
+    const hunkEl = containerEl.createDiv({ cls: 'ocop-diff-hunk' });
 
     for (const line of hunk.lines) {
-      const lineEl = hunkEl.createDiv({ cls: `oc-diff-line oc-diff-${line.type}` });
+      const lineEl = hunkEl.createDiv({ cls: `ocop-diff-line ocop-diff-${line.type}` });
 
       // Line prefix
       const prefix = line.type === 'insert' ? '+' : line.type === 'delete' ? '-' : ' ';
-      const prefixEl = lineEl.createSpan({ cls: 'oc-diff-prefix' });
+      const prefixEl = lineEl.createSpan({ cls: 'ocop-diff-prefix' });
       prefixEl.setText(prefix);
 
       // Line content
-      const contentEl = lineEl.createSpan({ cls: 'oc-diff-text' });
+      const contentEl = lineEl.createSpan({ cls: 'ocop-diff-text' });
       contentEl.setText(line.text || ' '); // Show space for empty lines
     }
   });
@@ -205,25 +205,25 @@ export function diffLinesToHtml(diffLines: DiffLine[], contextLines = 3): string
   const hunks = splitIntoHunks(diffLines, contextLines);
 
   if (hunks.length === 0) {
-    return '<div class="oc-diff-no-changes">No changes</div>';
+    return '<div class="ocop-diff-no-changes">No changes</div>';
   }
 
   const parts: string[] = [];
 
   hunks.forEach((hunk, hunkIndex) => {
     if (hunkIndex > 0) {
-      parts.push('<div class="oc-diff-separator">...</div>');
+      parts.push('<div class="ocop-diff-separator">...</div>');
     }
 
-    parts.push('<div class="oc-diff-hunk">');
+    parts.push('<div class="ocop-diff-hunk">');
 
     for (const line of hunk.lines) {
       const prefix = line.type === 'insert' ? '+' : line.type === 'delete' ? '-' : ' ';
       const escapedText = escapeHtml(line.text || ' ');
       parts.push(
-        `<div class="oc-diff-line oc-diff-${line.type}">` +
-          `<span class="oc-diff-prefix">${prefix}</span>` +
-          `<span class="oc-diff-text">${escapedText}</span>` +
+        `<div class="ocop-diff-line ocop-diff-${line.type}">` +
+          `<span class="ocop-diff-prefix">${prefix}</span>` +
+          `<span class="ocop-diff-text">${escapedText}</span>` +
           `</div>`
       );
     }

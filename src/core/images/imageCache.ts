@@ -13,7 +13,7 @@ import * as path from 'path';
 import { getVaultPath } from '../../utils/path';
 import type { ImageMediaType } from '../types';
 
-export const IMAGE_CACHE_DIR = '.oc-cache/images';
+export const IMAGE_CACHE_DIR = '.ocop-cache/images';
 
 /** Ensures the cache directory exists and returns its absolute path. */
 export function ensureImageCacheDir(app: App): string | null {

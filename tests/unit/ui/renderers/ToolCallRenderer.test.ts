@@ -328,7 +328,7 @@ describe('ToolCallRenderer', () => {
       toolCall.result = 'Success';
       updateToolCallResult('tool-1', toolCall, toolCallElements);
 
-      const statusEl = toolEl.querySelector('.oc-tool-status');
+      const statusEl = toolEl.querySelector('.ocop-tool-status');
       expect(statusEl?.hasClass('status-completed')).toBe(true);
     });
   });

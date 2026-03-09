@@ -30,7 +30,7 @@ function createMockPlugin(vaultPath: string) {
 }
 
 function createTempVault() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'oc-vault-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ocop-vault-'));
   return dir;
 }
 
@@ -91,7 +91,7 @@ describe('ObsidianCodeService image hydration', () => {
       name: 'missing.png',
       mediaType: 'image/png',
       size: 1,
-      cachePath: '.oc-cache/images/missing.png',
+      cachePath: '.ocop-cache/images/missing.png',
       filePath: 'missing.png',
       source: 'paste',
     }];

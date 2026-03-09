@@ -1,11 +1,11 @@
 /* Input area */
-.oc-input-container {
+.ocop-input-container {
   position: relative;
   padding: 12px 0 0 0;
 }
 
 /* Input wrapper (border container) */
-.oc-input-wrapper {
+.ocop-input-wrapper {
   position: relative;
   border: 1px solid var(--background-modifier-border);
   border-radius: 6px;
@@ -13,7 +13,7 @@
 }
 
 /* Selection indicator (shown when text is selected in editor) */
-.oc-selection-indicator {
+.ocop-selection-indicator {
   position: absolute;
   top: 4px;
   right: 8px;
@@ -28,7 +28,7 @@
   border-radius: 4px;
 }
 
-.oc-input {
+.ocop-input {
   width: 100%;
   min-height: 60px;
   max-height: 200px;
@@ -44,20 +44,20 @@
   box-shadow: none !important;
 }
 
-.oc-input:hover,
-.oc-input:focus {
+.ocop-input:hover,
+.ocop-input:focus {
   outline: none !important;
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
 }
 
-.oc-input::placeholder {
+.ocop-input::placeholder {
   color: var(--text-muted);
 }
 
 /* Input toolbar */
-.oc-input-toolbar {
+.ocop-input-toolbar {
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -65,7 +65,7 @@
 }
 
 /* File indicator (attached files) */
-.oc-file-indicator {
+.ocop-file-indicator {
   display: none;
   flex-wrap: wrap;
   gap: 6px;
@@ -73,7 +73,7 @@
   margin-bottom: 8px;
 }
 
-.oc-file-chip {
+.ocop-file-chip {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -86,26 +86,26 @@
   cursor: pointer;
 }
 
-.oc-file-chip-icon {
+.ocop-file-chip-icon {
   display: flex;
   align-items: center;
   color: var(--text-muted);
   flex-shrink: 0;
 }
 
-.oc-file-chip-icon svg {
+.ocop-file-chip-icon svg {
   width: 12px;
   height: 12px;
 }
 
-.oc-file-chip-name {
+.ocop-file-chip-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--text-normal);
 }
 
-.oc-file-chip-remove {
+.ocop-file-chip-remove {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -119,13 +119,13 @@
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.oc-file-chip-remove:hover {
+.ocop-file-chip-remove:hover {
   background: var(--background-modifier-hover);
   color: var(--text-normal);
 }
 
 /* Pin button on file chip */
-.oc-file-chip-pin {
+.ocop-file-chip-pin {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -137,50 +137,50 @@
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.oc-file-chip-pin svg {
+.ocop-file-chip-pin svg {
   width: 12px;
   height: 12px;
 }
 
-.oc-file-chip-pin:hover {
+.ocop-file-chip-pin:hover {
   background: var(--background-modifier-hover);
   color: var(--interactive-accent);
 }
 
 /* Pinned state - show as active */
-.oc-file-chip-pinned .oc-file-chip-pin {
+.ocop-file-chip-pinned .ocop-file-chip-pin {
   color: var(--interactive-accent);
 }
 
-.oc-file-chip:hover {
+.ocop-file-chip:hover {
   background: var(--background-modifier-hover);
 }
 
 /* Current note chip (slightly different styling) */
-.oc-file-chip.oc-file-chip-current {
+.ocop-file-chip.ocop-file-chip-current {
   border-color: var(--interactive-accent);
   background: color-mix(in srgb, var(--interactive-accent) 10%, transparent);
 }
 
 /* Attached file chip (from @-mention) */
-.oc-file-chip.oc-file-chip-attached {
+.ocop-file-chip.ocop-file-chip-attached {
   border-style: dashed;
   opacity: 0.9;
 }
 
 /* Pinned file chip (won't be auto-replaced) */
-.oc-file-chip.oc-file-chip-pinned {
+.ocop-file-chip.ocop-file-chip-pinned {
   border-color: var(--interactive-accent);
   border-width: 2px;
   background: color-mix(in srgb, var(--interactive-accent) 15%, transparent);
 }
 
-.oc-file-chip.oc-file-chip-pinned .oc-file-chip-icon {
+.ocop-file-chip.ocop-file-chip-pinned .ocop-file-chip-icon {
   color: var(--interactive-accent);
 }
 
 /* Message Queue Indicator (shown below flavor text in thinking indicator) */
-.oc-queue-indicator {
+.ocop-queue-indicator {
   display: none;
   font-size: 12px;
   color: var(--text-muted);
@@ -192,7 +192,7 @@
 }
 
 /* Light blue border when instruction mode is active */
-.oc-input-instruction-mode {
+.ocop-input-instruction-mode {
   border-color: #60a5fa !important;
   box-shadow: 0 0 0 1px #60a5fa;
 }

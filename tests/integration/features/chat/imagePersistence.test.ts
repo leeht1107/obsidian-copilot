@@ -66,7 +66,7 @@ describe('ObsidianCodeView persistence', () => {
         name: 'cached.png',
         mediaType: 'image/png',
         size: 10,
-        cachePath: '.oc-cache/images/cached.png',
+        cachePath: '.ocop-cache/images/cached.png',
         filePath: 'images/cached.png',
         data: 'YmFzZTY0',
         source: 'paste',
@@ -88,7 +88,7 @@ describe('ObsidianCodeView persistence', () => {
     const persisted = view.state.getPersistedMessages();
 
     expect(persisted[0].images?.[0].data).toBeUndefined();
-    expect(persisted[0].images?.[0].cachePath).toBe('.oc-cache/images/cached.png');
+    expect(persisted[0].images?.[0].cachePath).toBe('.ocop-cache/images/cached.png');
     expect(persisted[0].images?.[0].filePath).toBe('images/cached.png');
   });
 });

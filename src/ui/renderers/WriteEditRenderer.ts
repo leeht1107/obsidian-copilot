@@ -66,39 +66,39 @@ export function createWriteEditBlock(
   const filePath = (toolCall.input.file_path as string) || 'file';
   const toolName = toolCall.name; // 'Write' or 'Edit'
 
-  const wrapperEl = parentEl.createDiv({ cls: 'oc-write-edit-block' });
+  const wrapperEl = parentEl.createDiv({ cls: 'ocop-write-edit-block' });
   wrapperEl.dataset.toolId = toolCall.id;
 
   // Header (clickable to collapse/expand)
-  const headerEl = wrapperEl.createDiv({ cls: 'oc-write-edit-header' });
+  const headerEl = wrapperEl.createDiv({ cls: 'ocop-write-edit-header' });
   headerEl.setAttribute('tabindex', '0');
   headerEl.setAttribute('role', 'button');
   headerEl.setAttribute('aria-label', `${toolName}: ${shortenPath(filePath)} - click to expand`);
 
   // File icon
-  const iconEl = headerEl.createDiv({ cls: 'oc-write-edit-icon' });
+  const iconEl = headerEl.createDiv({ cls: 'ocop-write-edit-icon' });
   iconEl.setAttribute('aria-hidden', 'true');
   setIcon(iconEl, toolName === TOOL_EDIT ? 'file-pen' : 'file-plus');
 
   // Label: "Write: filename.md" or "Edit: filename.md"
-  const labelEl = headerEl.createDiv({ cls: 'oc-write-edit-label' });
+  const labelEl = headerEl.createDiv({ cls: 'ocop-write-edit-label' });
   labelEl.setText(`${toolName}: ${shortenPath(filePath)}`);
 
   // Stats (will be updated when diff is ready): "+15 -20"
-  const statsEl = headerEl.createDiv({ cls: 'oc-write-edit-stats' });
+  const statsEl = headerEl.createDiv({ cls: 'ocop-write-edit-stats' });
   // Empty initially, populated when diff is computed
 
   // Status indicator (spinner while running)
-  const statusEl = headerEl.createDiv({ cls: 'oc-write-edit-status status-running' });
+  const statusEl = headerEl.createDiv({ cls: 'ocop-write-edit-status status-running' });
   statusEl.setAttribute('aria-label', 'Status: running');
-  statusEl.createSpan({ cls: 'oc-spinner' });
+  statusEl.createSpan({ cls: 'ocop-spinner' });
 
   // Content area (collapsed by default)
-  const contentEl = wrapperEl.createDiv({ cls: 'oc-write-edit-content' });
+  const contentEl = wrapperEl.createDiv({ cls: 'ocop-write-edit-content' });
 
   // Initial loading state
-  const loadingRow = contentEl.createDiv({ cls: 'oc-write-edit-diff-row' });
-  const loadingEl = loadingRow.createDiv({ cls: 'oc-write-edit-loading' });
+  const loadingRow = contentEl.createDiv({ cls: 'ocop-write-edit-diff-row' });
+  const loadingEl = loadingRow.createDiv({ cls: 'ocop-write-edit-loading' });
   loadingEl.setText('Writing...');
 
   // Create state object
@@ -126,8 +126,8 @@ export function updateWriteEditWithDiff(state: WriteEditState, diffData: ToolDif
 
   // Handle skipped reasons or missing content
   if (diffData.skippedReason === 'too_large') {
-    const row = state.contentEl.createDiv({ cls: 'oc-write-edit-diff-row' });
-    const skipEl = row.createDiv({ cls: 'oc-write-edit-binary' });
+    const row = state.contentEl.createDiv({ cls: 'ocop-write-edit-diff-row' });
+    const skipEl = row.createDiv({ cls: 'ocop-write-edit-binary' });
     skipEl.setText('Diff skipped: file too large');
     return;
   }
@@ -137,8 +137,8 @@ export function updateWriteEditWithDiff(state: WriteEditState, diffData: ToolDif
     diffData.originalContent === undefined ||
     diffData.newContent === undefined
   ) {
-    const row = state.contentEl.createDiv({ cls: 'oc-write-edit-diff-row' });
-    const skipEl = row.createDiv({ cls: 'oc-write-edit-binary' });
+    const row = state.contentEl.createDiv({ cls: 'ocop-write-edit-diff-row' });
+    const skipEl = row.createDiv({ cls: 'ocop-write-edit-binary' });
     skipEl.setText('Diff unavailable');
     return;
   }
@@ -147,8 +147,8 @@ export function updateWriteEditWithDiff(state: WriteEditState, diffData: ToolDif
 
   // Check for binary content
   if (isBinaryContent(originalContent) || isBinaryContent(newContent)) {
-    const row = state.contentEl.createDiv({ cls: 'oc-write-edit-diff-row' });
-    const binaryEl = row.createDiv({ cls: 'oc-write-edit-binary' });
+    const row = state.contentEl.createDiv({ cls: 'ocop-write-edit-diff-row' });
+    const binaryEl = row.createDiv({ cls: 'ocop-write-edit-binary' });
     binaryEl.setText('Binary file');
     return;
   }
@@ -172,15 +172,15 @@ export function updateWriteEditWithDiff(state: WriteEditState, diffData: ToolDif
   }
 
   // Render diff content
-  const row = state.contentEl.createDiv({ cls: 'oc-write-edit-diff-row' });
-  const diffEl = row.createDiv({ cls: 'oc-write-edit-diff' });
+  const row = state.contentEl.createDiv({ cls: 'ocop-write-edit-diff-row' });
+  const diffEl = row.createDiv({ cls: 'ocop-write-edit-diff' });
   renderDiffContent(diffEl, diffLines);
 }
 
 /** Finalize Write/Edit block (update status icon). */
 export function finalizeWriteEditBlock(state: WriteEditState, isError: boolean): void {
   // Update status icon - only show icon on error
-  state.statusEl.className = 'oc-write-edit-status';
+  state.statusEl.className = 'ocop-write-edit-status';
   state.statusEl.empty();
 
   if (isError) {
@@ -191,8 +191,8 @@ export function finalizeWriteEditBlock(state: WriteEditState, isError: boolean):
     // Show error in content if no diff was shown
     if (!state.diffLines) {
       state.contentEl.empty();
-      const row = state.contentEl.createDiv({ cls: 'oc-write-edit-diff-row' });
-      const errorEl = row.createDiv({ cls: 'oc-write-edit-error' });
+      const row = state.contentEl.createDiv({ cls: 'ocop-write-edit-diff-row' });
+      const errorEl = row.createDiv({ cls: 'ocop-write-edit-error' });
       errorEl.setText(state.toolCall.result || 'Error');
     }
   }
@@ -211,7 +211,7 @@ export function renderStoredWriteEdit(parentEl: HTMLElement, toolCall: ToolCallI
   const toolName = toolCall.name;
   const isError = toolCall.status === 'error' || toolCall.status === 'blocked';
 
-  const wrapperEl = parentEl.createDiv({ cls: 'oc-write-edit-block' });
+  const wrapperEl = parentEl.createDiv({ cls: 'ocop-write-edit-block' });
   if (isError) {
     wrapperEl.addClass('error');
   } else if (toolCall.status === 'completed') {
@@ -220,21 +220,21 @@ export function renderStoredWriteEdit(parentEl: HTMLElement, toolCall: ToolCallI
   wrapperEl.dataset.toolId = toolCall.id;
 
   // Header
-  const headerEl = wrapperEl.createDiv({ cls: 'oc-write-edit-header' });
+  const headerEl = wrapperEl.createDiv({ cls: 'ocop-write-edit-header' });
   headerEl.setAttribute('tabindex', '0');
   headerEl.setAttribute('role', 'button');
 
   // File icon
-  const iconEl = headerEl.createDiv({ cls: 'oc-write-edit-icon' });
+  const iconEl = headerEl.createDiv({ cls: 'ocop-write-edit-icon' });
   iconEl.setAttribute('aria-hidden', 'true');
   setIcon(iconEl, toolName === TOOL_EDIT ? 'file-pen' : 'file-plus');
 
   // Label
-  const labelEl = headerEl.createDiv({ cls: 'oc-write-edit-label' });
+  const labelEl = headerEl.createDiv({ cls: 'ocop-write-edit-label' });
   labelEl.setText(`${toolName}: ${shortenPath(filePath)}`);
 
   // Stats (compute from stored diffData if available)
-  const statsEl = headerEl.createDiv({ cls: 'oc-write-edit-stats' });
+  const statsEl = headerEl.createDiv({ cls: 'ocop-write-edit-stats' });
   if (
     toolCall.diffData &&
     !toolCall.diffData.skippedReason &&
@@ -257,39 +257,39 @@ export function renderStoredWriteEdit(parentEl: HTMLElement, toolCall: ToolCallI
   }
 
   // Status indicator - only show icon on error
-  const statusEl = headerEl.createDiv({ cls: 'oc-write-edit-status' });
+  const statusEl = headerEl.createDiv({ cls: 'ocop-write-edit-status' });
   if (isError) {
     statusEl.addClass('status-error');
     setIcon(statusEl, 'x');
   }
 
   // Content
-  const contentEl = wrapperEl.createDiv({ cls: 'oc-write-edit-content' });
+  const contentEl = wrapperEl.createDiv({ cls: 'ocop-write-edit-content' });
 
   // Render diff if available
-  const row = contentEl.createDiv({ cls: 'oc-write-edit-diff-row' });
+  const row = contentEl.createDiv({ cls: 'ocop-write-edit-diff-row' });
 
   if (toolCall.diffData) {
     if (toolCall.diffData.skippedReason === 'too_large') {
-      const skipEl = row.createDiv({ cls: 'oc-write-edit-binary' });
+      const skipEl = row.createDiv({ cls: 'ocop-write-edit-binary' });
       skipEl.setText('Diff skipped: file too large');
     } else if (
       toolCall.diffData.skippedReason === 'unavailable' ||
       toolCall.diffData.originalContent === undefined ||
       toolCall.diffData.newContent === undefined
     ) {
-      const skipEl = row.createDiv({ cls: 'oc-write-edit-binary' });
+      const skipEl = row.createDiv({ cls: 'ocop-write-edit-binary' });
       skipEl.setText('Diff unavailable');
     } else {
-      const diffEl = row.createDiv({ cls: 'oc-write-edit-diff' });
+      const diffEl = row.createDiv({ cls: 'ocop-write-edit-diff' });
       const diffLines = computeLineDiff(toolCall.diffData.originalContent, toolCall.diffData.newContent);
       renderDiffContent(diffEl, diffLines);
     }
   } else if (isError && toolCall.result) {
-    const errorEl = row.createDiv({ cls: 'oc-write-edit-error' });
+    const errorEl = row.createDiv({ cls: 'ocop-write-edit-error' });
     errorEl.setText(toolCall.result);
   } else {
-    const doneEl = row.createDiv({ cls: 'oc-write-edit-done-text' });
+    const doneEl = row.createDiv({ cls: 'ocop-write-edit-done-text' });
     doneEl.setText(isError ? 'ERROR' : 'DONE');
   }
 

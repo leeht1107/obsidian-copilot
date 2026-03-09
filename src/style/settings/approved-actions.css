@@ -1,9 +1,9 @@
 /* Settings - Approved Actions List */
-.oc-approved-desc {
+.ocop-approved-desc {
   margin-bottom: 12px;
 }
 
-.oc-approved-empty {
+.ocop-approved-empty {
   padding: 16px;
   text-align: center;
   color: var(--text-muted);
@@ -13,11 +13,11 @@
   margin-bottom: 16px;
 }
 
-.oc-approved-list {
+.ocop-approved-list {
   margin-bottom: 16px;
 }
 
-.oc-approved-item {
+.ocop-approved-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -27,12 +27,12 @@
   margin-bottom: 8px;
 }
 
-.oc-approved-item-info {
+.ocop-approved-item-info {
   flex: 1;
   min-width: 0;
 }
 
-.oc-approved-item-tool {
+.ocop-approved-item-tool {
   display: inline-block;
   padding: 2px 8px;
   background: rgba(217, 119, 87, 0.15);
@@ -43,7 +43,7 @@
   margin-right: 8px;
 }
 
-.oc-approved-item-pattern {
+.ocop-approved-item-pattern {
   font-family: var(--font-monospace);
   font-size: 12px;
   color: var(--text-normal);
@@ -53,13 +53,13 @@
   text-overflow: ellipsis;
 }
 
-.oc-approved-item-date {
+.ocop-approved-item-date {
   font-size: 11px;
   color: var(--text-muted);
   margin-left: 8px;
 }
 
-.oc-approved-remove-btn {
+.ocop-approved-remove-btn {
   padding: 4px 12px;
   font-size: 12px;
   background: var(--background-modifier-error);
@@ -71,6 +71,6 @@
   margin-left: 12px;
 }
 
-.oc-approved-remove-btn:hover {
+.ocop-approved-remove-btn:hover {
   opacity: 0.9;
 }

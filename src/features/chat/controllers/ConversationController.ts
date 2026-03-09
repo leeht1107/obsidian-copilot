@@ -108,8 +108,8 @@ export class ConversationController {
     this.deps.getTodoPanel()?.remount();
 
     // Recreate welcome element after clearing messages
-    const welcomeEl = messagesEl.createDiv({ cls: 'oc-welcome' });
-    welcomeEl.createDiv({ cls: 'oc-welcome-greeting', text: this.getGreeting() });
+    const welcomeEl = messagesEl.createDiv({ cls: 'ocop-welcome' });
+    welcomeEl.createDiv({ cls: 'ocop-welcome-greeting', text: this.getGreeting() });
     this.deps.setWelcomeEl(welcomeEl);
 
     this.deps.getInputEl().value = '';
@@ -365,14 +365,14 @@ export class ConversationController {
 
     dropdown.empty();
 
-    const dropdownHeader = dropdown.createDiv({ cls: 'oc-history-header' });
+    const dropdownHeader = dropdown.createDiv({ cls: 'ocop-history-header' });
     dropdownHeader.createSpan({ text: 'Conversations' });
 
-    const list = dropdown.createDiv({ cls: 'oc-history-list' });
+    const list = dropdown.createDiv({ cls: 'ocop-history-list' });
     const allConversations = plugin.getConversationList();
 
     if (allConversations.length === 0) {
-      list.createDiv({ cls: 'oc-history-empty', text: 'No conversations' });
+      list.createDiv({ cls: 'ocop-history-empty', text: 'No conversations' });
       return;
     }
 
@@ -384,17 +384,17 @@ export class ConversationController {
     for (const conv of conversations) {
       const isCurrent = conv.id === state.currentConversationId;
       const item = list.createDiv({
-        cls: `oc-history-item${isCurrent ? ' active' : ''}`,
+        cls: `ocop-history-item${isCurrent ? ' active' : ''}`,
       });
 
-      const iconEl = item.createDiv({ cls: 'oc-history-item-icon' });
+      const iconEl = item.createDiv({ cls: 'ocop-history-item-icon' });
       setIcon(iconEl, isCurrent ? 'message-square-dot' : 'message-square');
 
-      const content = item.createDiv({ cls: 'oc-history-item-content' });
-      const titleEl = content.createDiv({ cls: 'oc-history-item-title', text: conv.title });
+      const content = item.createDiv({ cls: 'ocop-history-item-content' });
+      const titleEl = content.createDiv({ cls: 'ocop-history-item-title', text: conv.title });
       titleEl.setAttribute('title', conv.title);
       content.createDiv({
-        cls: 'oc-history-item-date',
+        cls: 'ocop-history-item-date',
         text: isCurrent ? 'Current session' : this.formatDate(conv.lastResponseAt ?? conv.createdAt),
       });
 
@@ -405,15 +405,15 @@ export class ConversationController {
         });
       }
 
-      const actions = item.createDiv({ cls: 'oc-history-item-actions' });
+      const actions = item.createDiv({ cls: 'ocop-history-item-actions' });
 
       // Show regenerate button if title generation failed, or loading indicator if pending
       if (conv.titleGenerationStatus === 'pending') {
-        const loadingEl = actions.createEl('span', { cls: 'oc-action-btn oc-action-loading' });
+        const loadingEl = actions.createEl('span', { cls: 'ocop-action-btn ocop-action-loading' });
         setIcon(loadingEl, 'loader-2');
         loadingEl.setAttribute('aria-label', 'Generating title...');
       } else if (conv.titleGenerationStatus === 'failed') {
-        const regenerateBtn = actions.createEl('button', { cls: 'oc-action-btn' });
+        const regenerateBtn = actions.createEl('button', { cls: 'ocop-action-btn' });
         setIcon(regenerateBtn, 'refresh-cw');
         regenerateBtn.setAttribute('aria-label', 'Regenerate title');
         regenerateBtn.addEventListener('click', async (e) => {
@@ -426,7 +426,7 @@ export class ConversationController {
         });
       }
 
-      const renameBtn = actions.createEl('button', { cls: 'oc-action-btn' });
+      const renameBtn = actions.createEl('button', { cls: 'ocop-action-btn' });
       setIcon(renameBtn, 'pencil');
       renameBtn.setAttribute('aria-label', 'Rename');
       renameBtn.addEventListener('click', (e) => {
@@ -434,7 +434,7 @@ export class ConversationController {
         this.showRenameInput(item, conv.id, conv.title);
       });
 
-      const deleteBtn = actions.createEl('button', { cls: 'oc-action-btn oc-delete-btn' });
+      const deleteBtn = actions.createEl('button', { cls: 'ocop-action-btn ocop-delete-btn' });
       setIcon(deleteBtn, 'trash-2');
       deleteBtn.setAttribute('aria-label', 'Delete');
       deleteBtn.addEventListener('click', async (e) => {
@@ -452,12 +452,12 @@ export class ConversationController {
 
   /** Shows inline rename input for a conversation. */
   private showRenameInput(item: HTMLElement, convId: string, currentTitle: string): void {
-    const titleEl = item.querySelector('.oc-history-item-title') as HTMLElement;
+    const titleEl = item.querySelector('.ocop-history-item-title') as HTMLElement;
     if (!titleEl) return;
 
     const input = document.createElement('input');
     input.type = 'text';
-    input.className = 'oc-rename-input';
+    input.className = 'ocop-rename-input';
     input.value = currentTitle;
 
     titleEl.replaceWith(input);

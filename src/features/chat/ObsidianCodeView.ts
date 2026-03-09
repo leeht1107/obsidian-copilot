@@ -105,9 +105,9 @@ export class ObsidianCodeView extends ItemView {
   async onOpen() {
     const container = this.containerEl.children[1] as HTMLElement;
     container.empty();
-    container.addClass('oc-container');
+    container.addClass('ocop-container');
 
-    const header = container.createDiv({ cls: 'oc-header' });
+    const header = container.createDiv({ cls: 'ocop-header' });
     this.buildHeader(header);
 
     this.planBanner = new PlanBanner({
@@ -116,13 +116,13 @@ export class ObsidianCodeView extends ItemView {
     });
     this.planBanner.mount(container);
 
-    this.messagesEl = container.createDiv({ cls: 'oc-messages' });
-    this.welcomeEl = this.messagesEl.createDiv({ cls: 'oc-welcome' });
+    this.messagesEl = container.createDiv({ cls: 'ocop-messages' });
+    this.welcomeEl = this.messagesEl.createDiv({ cls: 'ocop-welcome' });
 
     this.todoPanel = new TodoPanel();
     this.todoPanel.mount(this.messagesEl);
 
-    const inputContainerEl = container.createDiv({ cls: 'oc-input-container' });
+    const inputContainerEl = container.createDiv({ cls: 'ocop-input-container' });
     this.buildInputArea(inputContainerEl);
 
     this.renderer = new MessageRenderer(this.plugin.app, this, this.messagesEl);
@@ -166,8 +166,8 @@ export class ObsidianCodeView extends ItemView {
   }
 
   private buildHeader(header: HTMLElement) {
-    const titleContainer = header.createDiv({ cls: 'oc-title' });
-    const logoEl = titleContainer.createSpan({ cls: 'oc-logo' });
+    const titleContainer = header.createDiv({ cls: 'ocop-title' });
+    const logoEl = titleContainer.createSpan({ cls: 'ocop-logo' });
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', LOGO_SVG.viewBox);
     svg.setAttribute('width', LOGO_SVG.width);
@@ -180,34 +180,34 @@ export class ObsidianCodeView extends ItemView {
     logoEl.appendChild(svg);
     titleContainer.createEl('h4', { text: 'Obsidian Copilot' });
 
-    const headerActions = header.createDiv({ cls: 'oc-header-actions' });
+    const headerActions = header.createDiv({ cls: 'ocop-header-actions' });
 
-    const historyContainer = headerActions.createDiv({ cls: 'oc-history-container' });
-    const trigger = historyContainer.createDiv({ cls: 'oc-header-btn' });
+    const historyContainer = headerActions.createDiv({ cls: 'ocop-history-container' });
+    const trigger = historyContainer.createDiv({ cls: 'ocop-header-btn' });
     setIcon(trigger, 'history');
     trigger.setAttribute('aria-label', 'Chat history');
 
-    this.historyDropdown = historyContainer.createDiv({ cls: 'oc-history-menu' });
+    this.historyDropdown = historyContainer.createDiv({ cls: 'ocop-history-menu' });
 
     trigger.addEventListener('click', (e) => {
       e.stopPropagation();
       this.conversationController?.toggleHistoryDropdown();
     });
 
-    const newBtn = headerActions.createDiv({ cls: 'oc-header-btn' });
+    const newBtn = headerActions.createDiv({ cls: 'ocop-header-btn' });
     setIcon(newBtn, 'plus');
     newBtn.setAttribute('aria-label', 'New conversation');
     newBtn.addEventListener('click', () => this.conversationController?.createNew());
   }
 
   private buildInputArea(inputContainerEl: HTMLElement) {
-    this.inputWrapper = inputContainerEl.createDiv({ cls: 'oc-input-wrapper' });
+    this.inputWrapper = inputContainerEl.createDiv({ cls: 'ocop-input-wrapper' });
 
-    this.selectionIndicatorEl = this.inputWrapper.createDiv({ cls: 'oc-selection-indicator' });
+    this.selectionIndicatorEl = this.inputWrapper.createDiv({ cls: 'ocop-selection-indicator' });
     this.selectionIndicatorEl.style.display = 'none';
 
     this.inputEl = this.inputWrapper.createEl('textarea', {
-      cls: 'oc-input',
+      cls: 'ocop-input',
       attr: {
         placeholder: 'Ask Copilot about this note or attached files...',
         rows: '3',
@@ -263,7 +263,7 @@ export class ObsidianCodeView extends ItemView {
       }
     );
 
-    const inputToolbar = this.inputWrapper.createDiv({ cls: 'oc-input-toolbar' });
+    const inputToolbar = this.inputWrapper.createDiv({ cls: 'ocop-input-toolbar' });
     const toolbarComponents = createInputToolbar(inputToolbar, {
       getSettings: () => ({
         model: this.plugin.settings.model,

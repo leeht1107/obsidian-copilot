@@ -47,8 +47,8 @@ export class ImageContextManager {
     this.inputEl = inputEl;
     this.callbacks = callbacks;
 
-    const fileIndicator = this.containerEl.querySelector('.oc-file-indicator');
-    this.imagePreviewEl = this.containerEl.createDiv({ cls: 'oc-image-preview' });
+    const fileIndicator = this.containerEl.querySelector('.ocop-file-indicator');
+    this.imagePreviewEl = this.containerEl.createDiv({ cls: 'ocop-image-preview' });
     if (fileIndicator) {
       this.containerEl.insertBefore(this.imagePreviewEl, fileIndicator);
     }
@@ -83,14 +83,14 @@ export class ImageContextManager {
 
   private setupDragAndDrop() {
     // Find input wrapper - it could be inside containerEl or containerEl itself might have the class
-    let inputWrapper = this.containerEl.querySelector('.oc-input-wrapper') as HTMLElement;
+    let inputWrapper = this.containerEl.querySelector('.ocop-input-wrapper') as HTMLElement;
 
     // If not found as child, check if containerEl itself is the wrapper or a parent has it
     if (!inputWrapper) {
       // Maybe the containerEl IS the input-container, and we need to wait or check differently
-      const parent = this.containerEl.closest('.oc-input-container') as HTMLElement;
+      const parent = this.containerEl.closest('.ocop-input-container') as HTMLElement;
       if (parent) {
-        inputWrapper = parent.querySelector('.oc-input-wrapper') as HTMLElement;
+        inputWrapper = parent.querySelector('.ocop-input-wrapper') as HTMLElement;
       }
     }
 
@@ -99,8 +99,8 @@ export class ImageContextManager {
       return;
     }
 
-    this.dropOverlay = inputWrapper.createDiv({ cls: 'oc-drop-overlay' });
-    const dropContent = this.dropOverlay.createDiv({ cls: 'oc-drop-content' });
+    this.dropOverlay = inputWrapper.createDiv({ cls: 'ocop-drop-overlay' });
+    const dropContent = this.dropOverlay.createDiv({ cls: 'ocop-drop-content' });
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 24 24');
     svg.setAttribute('width', '32');
@@ -149,7 +149,7 @@ export class ImageContextManager {
     e.preventDefault();
     e.stopPropagation();
 
-    const inputWrapper = this.containerEl.querySelector('.oc-input-wrapper');
+    const inputWrapper = this.containerEl.querySelector('.ocop-input-wrapper');
     if (!inputWrapper) {
       this.dropOverlay?.removeClass('visible');
       return;
@@ -279,9 +279,9 @@ export class ImageContextManager {
   }
 
   private renderImagePreview(id: string, image: ImageAttachment) {
-    const previewEl = this.imagePreviewEl.createDiv({ cls: 'oc-image-chip' });
+    const previewEl = this.imagePreviewEl.createDiv({ cls: 'ocop-image-chip' });
 
-    const thumbEl = previewEl.createDiv({ cls: 'oc-image-thumb' });
+    const thumbEl = previewEl.createDiv({ cls: 'ocop-image-thumb' });
     thumbEl.createEl('img', {
       attr: {
         src: `data:${image.mediaType};base64,${image.data}`,
@@ -289,15 +289,15 @@ export class ImageContextManager {
       },
     });
 
-    const infoEl = previewEl.createDiv({ cls: 'oc-image-info' });
-    const nameEl = infoEl.createSpan({ cls: 'oc-image-name' });
+    const infoEl = previewEl.createDiv({ cls: 'ocop-image-info' });
+    const nameEl = infoEl.createSpan({ cls: 'ocop-image-name' });
     nameEl.setText(this.truncateName(image.name, 20));
     nameEl.setAttribute('title', image.name);
 
-    const sizeEl = infoEl.createSpan({ cls: 'oc-image-size' });
+    const sizeEl = infoEl.createSpan({ cls: 'ocop-image-size' });
     sizeEl.setText(this.formatSize(image.size));
 
-    const removeEl = previewEl.createSpan({ cls: 'oc-image-remove' });
+    const removeEl = previewEl.createSpan({ cls: 'ocop-image-remove' });
     removeEl.setText('\u00D7');
     removeEl.setAttribute('aria-label', 'Remove image');
 
@@ -314,8 +314,8 @@ export class ImageContextManager {
   }
 
   private showFullImage(image: ImageAttachment) {
-    const overlay = document.body.createDiv({ cls: 'oc-image-modal-overlay' });
-    const modal = overlay.createDiv({ cls: 'oc-image-modal' });
+    const overlay = document.body.createDiv({ cls: 'ocop-image-modal-overlay' });
+    const modal = overlay.createDiv({ cls: 'ocop-image-modal' });
 
     modal.createEl('img', {
       attr: {
@@ -324,7 +324,7 @@ export class ImageContextManager {
       },
     });
 
-    const closeBtn = modal.createDiv({ cls: 'oc-image-modal-close' });
+    const closeBtn = modal.createDiv({ cls: 'ocop-image-modal-close' });
     closeBtn.setText('\u00D7');
 
     const handleEsc = (e: KeyboardEvent) => {

@@ -65,7 +65,7 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
-    containerEl.addClass('oc-settings');
+    containerEl.addClass('ocop-settings');
 
     new Setting(containerEl).setName('Customization').setHeading();
 
@@ -127,7 +127,7 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
             this.plugin.settings.mediaFolder = value.trim();
             await this.plugin.saveSettings();
           });
-        text.inputEl.addClass('oc-settings-media-input');
+        text.inputEl.addClass('ocop-settings-media-input');
       });
 
     new Setting(containerEl)
@@ -232,7 +232,7 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
 
     new Setting(containerEl).setName('Obsidian Skills').setHeading();
 
-    const skillsDesc = containerEl.createDiv({ cls: 'oc-skills-settings-desc' });
+    const skillsDesc = containerEl.createDiv({ cls: 'ocop-skills-settings-desc' });
     skillsDesc.createEl('p', {
       text: 'Install Obsidian-specific skills to help Copilot understand Obsidian Flavored Markdown, wikilinks, callouts, properties, and JSON Canvas format.',
       cls: 'setting-item-description',
@@ -304,31 +304,31 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
 
     const installedSkills = getInstalledSkills(this.app);
     if (installedSkills.length > 0) {
-      const installedSkillsDesc = containerEl.createDiv({ cls: 'oc-skills-installed-desc' });
+      const installedSkillsDesc = containerEl.createDiv({ cls: 'ocop-skills-installed-desc' });
       installedSkillsDesc.createEl('p', {
         text: `Installed Skills (${installedSkills.length}):`,
         cls: 'setting-item-description',
       });
 
-      const skillsListEl = containerEl.createDiv({ cls: 'oc-skills-list' });
+      const skillsListEl = containerEl.createDiv({ cls: 'ocop-skills-list' });
       for (const skill of installedSkills) {
-        const skillItemEl = skillsListEl.createDiv({ cls: 'oc-skills-item' });
-        const skillInfoEl = skillItemEl.createDiv({ cls: 'oc-skills-item-info' });
-        skillInfoEl.createSpan({ cls: 'oc-skills-item-name', text: skill.name });
+        const skillItemEl = skillsListEl.createDiv({ cls: 'ocop-skills-item' });
+        const skillInfoEl = skillItemEl.createDiv({ cls: 'ocop-skills-item-info' });
+        skillInfoEl.createSpan({ cls: 'ocop-skills-item-name', text: skill.name });
         if (skill.isBuiltIn) {
-          skillInfoEl.createSpan({ cls: 'oc-skills-builtin-badge', text: 'Built-in' });
+          skillInfoEl.createSpan({ cls: 'ocop-skills-builtin-badge', text: 'Built-in' });
         } else if (skill.isGlobal) {
-          skillInfoEl.createSpan({ cls: 'oc-skills-builtin-badge', text: 'Global' });
+          skillInfoEl.createSpan({ cls: 'ocop-skills-builtin-badge', text: 'Global' });
         }
         skillInfoEl.createDiv({
-          cls: 'oc-skills-item-desc',
+          cls: 'ocop-skills-item-desc',
           text: skill.description.length > 100 ? `${skill.description.substring(0, 100)}...` : skill.description,
         });
 
         if (!skill.isBuiltIn && !skill.isGlobal) {
           const removeBtn = skillItemEl.createEl('button', {
             text: 'Remove',
-            cls: 'oc-skills-remove-btn',
+            cls: 'ocop-skills-remove-btn',
           });
           removeBtn.addEventListener('click', async () => {
             await removeSkill(this.app, skill.name);
@@ -337,7 +337,7 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
         }
       }
     } else {
-      containerEl.createDiv({ cls: 'oc-skills-empty', text: 'No skills installed. Install Obsidian Skills above or add custom skills from GitHub.' });
+      containerEl.createDiv({ cls: 'ocop-skills-empty', text: 'No skills installed. Install Obsidian Skills above or add custom skills from GitHub.' });
     }
 
     new Setting(containerEl).setName('Hotkeys').setHeading();
@@ -357,21 +357,21 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
       .addButton((button) => button.setButtonText(openChatHotkey ? 'Change' : 'Set hotkey').onClick(() => openHotkeySettings(this.app)));
 
     new Setting(containerEl).setName('Slash Commands').setHeading();
-    const slashCommandsDesc = containerEl.createDiv({ cls: 'oc-slash-settings-desc' });
+    const slashCommandsDesc = containerEl.createDiv({ cls: 'ocop-slash-settings-desc' });
     slashCommandsDesc.createEl('p', {
       text: 'Create custom prompt templates triggered by /command. Use $ARGUMENTS for all arguments, $1/$2 for positional args, @file for file content, and !`bash` for command output.',
       cls: 'setting-item-description',
     });
-    const slashCommandsContainer = containerEl.createDiv({ cls: 'oc-slash-commands-container' });
+    const slashCommandsContainer = containerEl.createDiv({ cls: 'ocop-slash-commands-container' });
     new SlashCommandSettings(slashCommandsContainer, this.plugin);
 
     new Setting(containerEl).setName('MCP Servers').setHeading();
-    const mcpDesc = containerEl.createDiv({ cls: 'oc-mcp-settings-desc' });
+    const mcpDesc = containerEl.createDiv({ cls: 'ocop-mcp-settings-desc' });
     mcpDesc.createEl('p', {
       text: 'Configure Model Context Protocol servers. This mirrors Obsidian Code settings, but Copilot CLI support may depend on your local setup.',
       cls: 'setting-item-description',
     });
-    const mcpContainer = containerEl.createDiv({ cls: 'oc-mcp-container' });
+    const mcpContainer = containerEl.createDiv({ cls: 'ocop-mcp-container' });
     new McpSettingsManager(mcpContainer, this.plugin);
 
     new Setting(containerEl).setName('Safety').setHeading();
@@ -452,7 +452,7 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
         text.inputEl.cols = 40;
       });
 
-    const approvedDesc = containerEl.createDiv({ cls: 'oc-approved-desc' });
+    const approvedDesc = containerEl.createDiv({ cls: 'ocop-approved-desc' });
     approvedDesc.createEl('p', {
       text: 'Actions that have been permanently approved (via Always Allow). These will not require approval in Safe mode.',
       cls: 'setting-item-description',
@@ -460,18 +460,18 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
 
     if (this.plugin.settings.permissions.length === 0) {
       containerEl.createDiv({
-        cls: 'oc-approved-empty',
+        cls: 'ocop-approved-empty',
         text: 'No approved actions yet. When you click Always Allow in the approval dialog, actions will appear here.',
       });
     } else {
-      const listEl = containerEl.createDiv({ cls: 'oc-approved-list' });
+      const listEl = containerEl.createDiv({ cls: 'ocop-approved-list' });
       for (const action of this.plugin.settings.permissions) {
-        const itemEl = listEl.createDiv({ cls: 'oc-approved-item' });
-        const infoEl = itemEl.createDiv({ cls: 'oc-approved-item-info' });
-        infoEl.createSpan({ cls: 'oc-approved-item-tool', text: action.toolName });
-        infoEl.createDiv({ cls: 'oc-approved-item-pattern', text: action.pattern });
-        infoEl.createSpan({ cls: 'oc-approved-item-date', text: new Date(action.approvedAt).toLocaleDateString() });
-        const removeBtn = itemEl.createEl('button', { text: 'Remove', cls: 'oc-approved-remove-btn' });
+        const itemEl = listEl.createDiv({ cls: 'ocop-approved-item' });
+        const infoEl = itemEl.createDiv({ cls: 'ocop-approved-item-info' });
+        infoEl.createSpan({ cls: 'ocop-approved-item-tool', text: action.toolName });
+        infoEl.createDiv({ cls: 'ocop-approved-item-pattern', text: action.pattern });
+        infoEl.createSpan({ cls: 'ocop-approved-item-date', text: new Date(action.approvedAt).toLocaleDateString() });
+        const removeBtn = itemEl.createEl('button', { text: 'Remove', cls: 'ocop-approved-remove-btn' });
         removeBtn.addEventListener('click', async () => {
           this.plugin.settings.permissions = this.plugin.settings.permissions.filter((entry) => entry !== action);
           await this.plugin.saveSettings();
@@ -518,10 +518,10 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
           });
         text.inputEl.rows = 6;
         text.inputEl.cols = 50;
-        text.inputEl.addClass('oc-settings-env-textarea');
+        text.inputEl.addClass('ocop-settings-env-textarea');
       });
 
-    const envSnippetsContainer = containerEl.createDiv({ cls: 'oc-env-snippets-container' });
+    const envSnippetsContainer = containerEl.createDiv({ cls: 'ocop-env-snippets-container' });
     new EnvSnippetManager(envSnippetsContainer, this.plugin);
 
     new Setting(containerEl).setName('Advanced').setHeading();
@@ -532,7 +532,7 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
       .setName('Copilot CLI path')
       .setDesc(cliPathDescription);
 
-    const validationEl = containerEl.createDiv({ cls: 'oc-cli-path-validation' });
+    const validationEl = containerEl.createDiv({ cls: 'ocop-cli-path-validation' });
     validationEl.style.color = 'var(--text-error)';
     validationEl.style.fontSize = '0.85em';
     validationEl.style.marginTop = '-0.5em';
@@ -576,7 +576,7 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
           this.plugin.cliResolver?.reset();
           this.plugin.agentService?.cleanup();
         });
-      text.inputEl.addClass('oc-settings-cli-path-input');
+      text.inputEl.addClass('ocop-settings-cli-path-input');
       text.inputEl.style.width = '100%';
 
       const initialError = validatePath(this.plugin.settings.copilotCliPath || '');

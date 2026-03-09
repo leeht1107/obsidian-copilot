@@ -207,9 +207,9 @@ function createMockDocument() {
 function createContainer(document: any): MockElement {
   const container = document.createElement('div');
   const inputContainer = document.createElement('div');
-  inputContainer.className = 'oc-input-container';
+  inputContainer.className = 'ocop-input-container';
   const inputWrapper = document.createElement('div');
-  inputWrapper.className = 'oc-input-wrapper';
+  inputWrapper.className = 'ocop-input-wrapper';
   inputContainer.appendChild(inputWrapper);
   container.appendChild(inputContainer);
   document.body.appendChild(container);
@@ -262,7 +262,7 @@ describe('AskUserQuestionPanel - global keyboard routing', () => {
     mockDocument.dispatchEvent(event);
 
     const option1 = containerEl.querySelector(
-      '.oc-ask-panel-option[data-option-index="1"]'
+      '.ocop-ask-panel-option[data-option-index="1"]'
     ) as MockElement;
 
     expect(option1).toBeTruthy();
@@ -305,7 +305,7 @@ describe('AskUserQuestionPanel - global keyboard routing', () => {
     mockDocument.dispatchEvent(event);
 
     const submitTab = containerEl.querySelector(
-      '.oc-ask-panel-tab[data-tab-index="1"]'
+      '.ocop-ask-panel-tab[data-tab-index="1"]'
     ) as MockElement;
 
     expect(submitTab).toBeTruthy();

@@ -275,7 +275,7 @@ export class InputController {
     };
     state.addMessage(assistantMsg);
     const msgEl = renderer.addMessage(assistantMsg);
-    const contentEl = msgEl.querySelector('.oc-message-content') as HTMLElement;
+    const contentEl = msgEl.querySelector('.ocop-message-content') as HTMLElement;
 
     state.toolCallElements.clear();
     state.currentContentEl = contentEl;
@@ -324,7 +324,7 @@ export class InputController {
       await streamController.appendText(`\n\n**Error:** ${errorMsg}`);
     } finally {
       if (wasInterrupted) {
-        await streamController.appendText('\n\n<span class="oc-interrupted">Interrupted</span> <span class="oc-interrupted-hint">· What should ObsidianCode do instead?</span>');
+        await streamController.appendText('\n\n<span class="ocop-interrupted">Interrupted</span> <span class="ocop-interrupted-hint">· What should Copilot do instead?</span>');
       }
       streamController.hideThinkingIndicator();
       state.isStreaming = false;
@@ -570,7 +570,7 @@ ${content}
     };
     state.addMessage(assistantMsg);
     const msgEl = renderer.addMessage(assistantMsg);
-    const contentEl = msgEl.querySelector('.oc-message-content') as HTMLElement;
+    const contentEl = msgEl.querySelector('.ocop-message-content') as HTMLElement;
 
     state.toolCallElements.clear();
     state.currentContentEl = contentEl;
@@ -608,7 +608,7 @@ ${content}
       await streamController.appendText(`\n\n**Error:** ${errorMsg}`);
     } finally {
       if (wasInterrupted) {
-        await streamController.appendText('\n\n<span class="oc-interrupted">Plan mode interrupted</span>');
+        await streamController.appendText('\n\n<span class="ocop-interrupted">Plan mode interrupted</span>');
         plugin.agentService.setCurrentPlanFilePath(null);
       }
       streamController.hideThinkingIndicator();
@@ -977,10 +977,10 @@ ${content}
     // Render the plan content with special styling
     const lastMsgEl = messagesEl.lastElementChild;
     if (lastMsgEl) {
-      lastMsgEl.classList.add('oc-message-plan');
-      const contentEl = lastMsgEl.querySelector('.oc-message-content') as HTMLElement;
+      lastMsgEl.classList.add('ocop-message-plan');
+      const contentEl = lastMsgEl.querySelector('.ocop-message-content') as HTMLElement;
       if (contentEl) {
-        const textEl = contentEl.createDiv({ cls: 'oc-text-block' });
+        const textEl = contentEl.createDiv({ cls: 'ocop-text-block' });
         await renderer.renderContent(textEl, planContent);
         // Update currentContentEl to point to the plan message's content.
         // This ensures that if revision is selected and the stream continues,

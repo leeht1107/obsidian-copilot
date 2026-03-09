@@ -4,9 +4,9 @@ import * as path from 'path';
 
 import { getCurrentModelFromEnvironment, getModelsFromEnvironment, parseEnvironmentVariables } from '@/utils/env';
 import { appendMarkdownSnippet } from '@/utils/markdown';
+import { findCopilotCLIPath } from '@/utils/copilotCli';
 import {
   expandHomePath,
-  findClaudeCLIPath,
   getPathAccessType,
   getVaultPath,
   isPathInAllowedContextPaths,
@@ -225,7 +225,7 @@ describe('utils.ts', () => {
 
   describe('expandHomePath', () => {
     const envKey = 'OBSIDIAN_CODE_TEST_PATH';
-    const envValue = path.join(os.tmpdir(), 'oc-env');
+    const envValue = path.join(os.tmpdir(), 'ocop-env');
     let originalValue: string | undefined;
 
     beforeEach(() => {
@@ -284,10 +284,10 @@ describe('utils.ts', () => {
     it('expands environment variables before filesystem use', () => {
       const envKey = 'OBSIDIAN_CODE_FS_TEST_PATH';
       const originalValue = process.env[envKey];
-      process.env[envKey] = '/tmp/oc-test';
+      process.env[envKey] = '/tmp/ocop-test';
 
       try {
-        expect(normalizePathForFilesystem(`$${envKey}/notes/file.md`)).toBe('/tmp/oc-test/notes/file.md');
+        expect(normalizePathForFilesystem(`$${envKey}/notes/file.md`)).toBe('/tmp/ocop-test/notes/file.md');
       } finally {
         if (originalValue === undefined) {
           delete process.env[envKey];
@@ -520,7 +520,7 @@ describe('utils.ts', () => {
     });
   });
 
-  describe('findClaudeCLIPath', () => {
+  describe('findCopilotCLIPath', () => {
     const originalPlatform = process.platform;
     let originalEnv: NodeJS.ProcessEnv;
 
@@ -548,51 +548,43 @@ describe('utils.ts', () => {
         }) as fs.Stats);
       }
 
-      it('should return first matching Claude CLI path', () => {
+      it('should return first matching Copilot CLI path', () => {
         jest.spyOn(os, 'homedir').mockReturnValue('/home/test');
-        mockExistingFile('/home/test/.local/bin/claude');
+        mockExistingFile('/opt/homebrew/bin/copilot');
 
-        expect(findClaudeCLIPath()).toBe('/home/test/.local/bin/claude');
+        expect(findCopilotCLIPath()).toBe('/opt/homebrew/bin/copilot');
       });
 
-      it('should return null when Claude CLI is not found', () => {
+      it('should return null when Copilot CLI is not found', () => {
         jest.spyOn(os, 'homedir').mockReturnValue('/home/test');
         jest.spyOn(fs, 'existsSync').mockReturnValue(false as any);
 
-        expect(findClaudeCLIPath()).toBeNull();
+        expect(findCopilotCLIPath()).toBeNull();
       });
 
-      it('should check cli.js paths as fallback on Unix', () => {
-        jest.spyOn(os, 'homedir').mockReturnValue('/home/test');
-        mockExistingFile('/usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js');
-
-        expect(findClaudeCLIPath()).toBe('/usr/local/lib/node_modules/@anthropic-ai/claude-code/cli.js');
-      });
-
-      it('should resolve Claude CLI from custom PATH', () => {
-        mockExistingFile('/custom/bin/claude');
+      it('should resolve Copilot CLI from PATH', () => {
+        mockExistingFile('/custom/bin/copilot');
 
         const customPath = '/custom/bin:/usr/bin';
-        expect(findClaudeCLIPath(customPath)).toBe('/custom/bin/claude');
+        process.env.PATH = customPath;
+        expect(findCopilotCLIPath()).toBe('/custom/bin/copilot');
       });
 
-      it('should expand home directory in custom PATH', () => {
+      it('should consider home-bin candidates', () => {
         jest.spyOn(os, 'homedir').mockReturnValue('/home/test');
-        mockExistingFile('/home/test/bin/claude');
-
-        const customPath = '~/bin:/usr/bin';
-        expect(findClaudeCLIPath(customPath)).toBe('/home/test/bin/claude');
+        mockExistingFile('/home/test/bin/copilot');
+        expect(findCopilotCLIPath()).toBe('/home/test/bin/copilot');
       });
 
       it('should not return a directory path even if it exists', () => {
         jest.spyOn(os, 'homedir').mockReturnValue('/home/test');
-        const dirPath = path.join('/home/test', '.local', 'bin', 'claude');
+        const dirPath = path.join('/opt/homebrew/bin', 'copilot');
         jest.spyOn(fs, 'existsSync').mockImplementation((p: any) => p === dirPath);
         jest.spyOn(fs, 'statSync').mockImplementation(() => ({
           isFile: () => false,
         }) as fs.Stats);
 
-        expect(findClaudeCLIPath()).toBeNull();
+        expect(findCopilotCLIPath()).toBeNull();
       });
     });
 
@@ -612,78 +604,45 @@ describe('utils.ts', () => {
         }) as fs.Stats);
       }
 
-      it('should prefer .exe when both .exe and cli.js exist', () => {
+      it('should return first matching Windows Copilot executable', () => {
         jest.spyOn(os, 'homedir').mockReturnValue('C:\\Users\\test');
-        const exePath = path.join('C:\\Users\\test', '.claude', 'local', 'claude.exe');
-        const cliJsPath = path.join('C:\\Users\\test', 'AppData', 'Roaming', 'npm', 'node_modules', '@anthropic-ai', 'claude-code', 'cli.js');
-        mockExistingFile(exePath, cliJsPath);
+        const exePath = path.join('C:\\Users\\test', 'AppData', 'Roaming', 'npm', 'copilot.exe');
+        mockExistingFile(exePath);
 
-        expect(findClaudeCLIPath()).toBe(exePath);
+        expect(findCopilotCLIPath()).toBe(exePath);
       });
 
-      it('should prioritize cli.js over .cmd files on Windows', () => {
-        jest.spyOn(os, 'homedir').mockReturnValue('C:\\Users\\test');
-        // Note: path.join uses actual platform separator, so we match against that
-        const cliJsPath = path.join('C:\\Users\\test', 'AppData', 'Roaming', 'npm', 'node_modules', '@anthropic-ai', 'claude-code', 'cli.js');
-        const cmdPath = path.join('C:\\Users\\test', 'AppData', 'Roaming', 'npm', 'claude.cmd');
-        // Both .cmd and cli.js exist, but cli.js should be returned (cmd is ignored entirely)
-        mockExistingFile(cmdPath, cliJsPath);
-
-        // Should return cli.js, not claude.cmd
-        expect(findClaudeCLIPath()).toBe(cliJsPath);
-      });
-
-      it('should find cli.js in custom npm global path via npm_config_prefix', () => {
-        jest.spyOn(os, 'homedir').mockReturnValue('C:\\Users\\test');
+      it('should find Copilot CLI in custom npm global path via npm_config_prefix', () => {
         process.env.npm_config_prefix = 'D:\\nodejs\\node_global';
-        const expectedPath = path.join('D:\\nodejs\\node_global', 'node_modules', '@anthropic-ai', 'claude-code', 'cli.js');
+        const expectedPath = path.join('D:\\nodejs\\node_global', 'copilot.exe');
         mockExistingFile(expectedPath);
 
-        expect(findClaudeCLIPath()).toBe(expectedPath);
+        expect(findCopilotCLIPath()).toBe(expectedPath);
       });
 
-      it('should fall back to .exe if cli.js not found', () => {
-        jest.spyOn(os, 'homedir').mockReturnValue('C:\\Users\\test');
-        const expectedPath = path.join('C:\\Users\\test', '.claude', 'local', 'claude.exe');
+      it('should resolve Copilot CLI from PATH on Windows', () => {
+        const expectedPath = path.join('C:\\Tools', 'copilot.exe');
         mockExistingFile(expectedPath);
+        process.env.PATH = 'C:\\Tools;C:\\Windows\\System32';
 
-        expect(findClaudeCLIPath()).toBe(expectedPath);
-      });
-
-      it('should ignore .cmd fallback on Windows', () => {
-        jest.spyOn(os, 'homedir').mockReturnValue('C:\\Users\\test');
-        const expectedPath = path.join('C:\\Users\\test', 'AppData', 'Roaming', 'npm', 'claude.cmd');
-        mockExistingFile(expectedPath);
-
-        expect(findClaudeCLIPath()).toBeNull();
+        expect(findCopilotCLIPath()).toBe(expectedPath);
       });
 
       it('should return null when no CLI is found on Windows', () => {
         jest.spyOn(os, 'homedir').mockReturnValue('C:\\Users\\test');
         jest.spyOn(fs, 'existsSync').mockReturnValue(false as any);
 
-        expect(findClaudeCLIPath()).toBeNull();
-      });
-
-      it('should resolve cli.js from custom PATH npm prefix', () => {
-        const npmBin = 'C:\\Users\\test\\AppData\\Roaming\\npm';
-        const cliJsPath = path.join(npmBin, 'node_modules', '@anthropic-ai', 'claude-code', 'cli.js');
-        mockExistingFile(cliJsPath);
-
-        const customPath = `${npmBin};C:\\Windows\\System32`;
-        expect(findClaudeCLIPath(customPath)).toBe(cliJsPath);
+        expect(findCopilotCLIPath()).toBeNull();
       });
 
       it('should not return a directory path even if it exists', () => {
-        jest.spyOn(os, 'homedir').mockReturnValue('C:\\Users\\test');
-        const dirPath = path.join('C:\\Users\\test', '.claude', 'local', 'claude');
-        // Simulate a directory named 'claude' (exists but isFile returns false)
+        const dirPath = path.join('C:\\Users\\test', 'AppData', 'Roaming', 'npm', 'copilot.exe');
         jest.spyOn(fs, 'existsSync').mockImplementation((p: any) => p === dirPath);
         jest.spyOn(fs, 'statSync').mockImplementation(() => ({
           isFile: () => false,
         }) as fs.Stats);
 
-        expect(findClaudeCLIPath()).toBeNull();
+        expect(findCopilotCLIPath()).toBeNull();
       });
     });
   });

@@ -1,6 +1,6 @@
 /* Context usage meter (inline in toolbar) */
 
-.oc-context-meter {
+.ocop-context-meter {
   position: relative;
   display: flex;
   align-items: center;
@@ -10,7 +10,7 @@
 }
 
 /* Custom tooltip */
-.oc-context-meter::after {
+.ocop-context-meter::after {
   content: attr(data-tooltip);
   position: absolute;
   bottom: 100%;
@@ -31,12 +31,12 @@
   z-index: 100;
 }
 
-.oc-context-meter:hover::after {
+.ocop-context-meter:hover::after {
   opacity: 1;
   visibility: visible;
 }
 
-.oc-context-meter-gauge {
+.ocop-context-meter-gauge {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -44,21 +44,21 @@
   height: 24px;
 }
 
-.oc-context-meter-gauge svg {
+.ocop-context-meter-gauge svg {
   width: 16px;
   height: 16px;
 }
 
-.oc-meter-bg {
+.ocop-meter-bg {
   stroke: var(--background-modifier-border);
 }
 
-.oc-meter-fill {
+.ocop-meter-fill {
   stroke: #67d7ff;
   transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;
 }
 
-.oc-context-meter-percent {
+.ocop-context-meter-percent {
   font-size: 11px;
   color: #67d7ff;
   min-width: 24px;
@@ -67,10 +67,10 @@
 }
 
 /* Warning state (> 80%) - pale red */
-.oc-context-meter.warning .oc-meter-fill {
+.ocop-context-meter.warning .ocop-meter-fill {
   stroke: #E57373;
 }
 
-.oc-context-meter.warning .oc-context-meter-percent {
+.ocop-context-meter.warning .ocop-context-meter-percent {
   color: #E57373;
 }

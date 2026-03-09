@@ -230,7 +230,7 @@ describe('NavigationController', () => {
 
     it('adds focusable CSS class to messagesEl', () => {
       controller.initialize();
-      expect(messagesEl.hasClass('oc-messages-focusable')).toBe(true);
+      expect(messagesEl.hasClass('ocop-messages-focusable')).toBe(true);
     });
 
     it('attaches keydown listener to messagesEl', () => {

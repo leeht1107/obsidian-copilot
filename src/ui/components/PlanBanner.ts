@@ -59,22 +59,22 @@ export class PlanBanner {
 
     // Create the banner element
     this.bannerEl = document.createElement('div');
-    this.bannerEl.className = 'oc-plan-banner';
+    this.bannerEl.className = 'ocop-plan-banner';
 
     // Header (clickable to toggle)
     const headerEl = document.createElement('div');
-    headerEl.className = 'oc-plan-banner-header';
+    headerEl.className = 'ocop-plan-banner-header';
     headerEl.addEventListener('click', () => this.toggle());
 
     // Chevron icon
     const chevronEl = document.createElement('span');
-    chevronEl.className = 'oc-plan-banner-chevron';
+    chevronEl.className = 'ocop-plan-banner-chevron';
     chevronEl.textContent = '▶';
     headerEl.appendChild(chevronEl);
 
     // Title
     const titleEl = document.createElement('span');
-    titleEl.className = 'oc-plan-banner-title';
+    titleEl.className = 'ocop-plan-banner-title';
     titleEl.textContent = 'Approved Plan';
     headerEl.appendChild(titleEl);
 
@@ -82,7 +82,7 @@ export class PlanBanner {
 
     // Content area (hidden by default)
     this.contentEl = document.createElement('div');
-    this.contentEl.className = 'oc-plan-banner-content';
+    this.contentEl.className = 'ocop-plan-banner-content';
     this.contentEl.style.display = 'none';
 
     // Render plan content as markdown
@@ -91,7 +91,7 @@ export class PlanBanner {
     this.bannerEl.appendChild(this.contentEl);
 
     // Insert after header, before messages
-    const messagesEl = this.containerEl.querySelector('.oc-messages');
+    const messagesEl = this.containerEl.querySelector('.ocop-messages');
     if (messagesEl) {
       this.containerEl.insertBefore(this.bannerEl, messagesEl);
     } else {
@@ -126,7 +126,7 @@ export class PlanBanner {
   private updateDisplay(): void {
     if (!this.bannerEl || !this.contentEl) return;
 
-    const chevron = this.bannerEl.querySelector('.oc-plan-banner-chevron');
+    const chevron = this.bannerEl.querySelector('.ocop-plan-banner-chevron');
     if (chevron) {
       chevron.textContent = this.isExpanded ? '▼' : '▶';
     }

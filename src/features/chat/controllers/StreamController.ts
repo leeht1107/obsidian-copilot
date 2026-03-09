@@ -375,7 +375,7 @@ export class StreamController {
     if (!state.currentContentEl) return;
 
     if (!state.currentTextEl) {
-      state.currentTextEl = state.currentContentEl.createDiv({ cls: 'oc-text-block' });
+      state.currentTextEl = state.currentContentEl.createDiv({ cls: 'ocop-text-block' });
       state.currentTextContent = '';
     }
 
@@ -681,13 +681,13 @@ export class StreamController {
       return;
     }
 
-    state.thinkingEl = parentEl.createDiv({ cls: 'oc-thinking' });
+    state.thinkingEl = parentEl.createDiv({ cls: 'ocop-thinking' });
     const randomText = FLAVOR_TEXTS[Math.floor(Math.random() * FLAVOR_TEXTS.length)];
     state.thinkingEl.createSpan({ text: randomText });
-    state.thinkingEl.createSpan({ text: ' (esc to interrupt)', cls: 'oc-thinking-hint' });
+    state.thinkingEl.createSpan({ text: ' (esc to interrupt)', cls: 'ocop-thinking-hint' });
 
     // Queue indicator line (initially hidden)
-    state.queueIndicatorEl = state.thinkingEl.createDiv({ cls: 'oc-queue-indicator' });
+    state.queueIndicatorEl = state.thinkingEl.createDiv({ cls: 'ocop-queue-indicator' });
     this.deps.updateQueueIndicator();
   }
 

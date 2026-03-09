@@ -1,13 +1,13 @@
 /* Approval Modal */
-.oc-approval-modal {
+.ocop-approval-modal {
   padding: 16px;
 }
 
-.oc-approval-info {
+.ocop-approval-info {
   margin-bottom: 12px;
 }
 
-.oc-approval-tool {
+.ocop-approval-tool {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -17,16 +17,16 @@
   margin-bottom: 12px;
 }
 
-.oc-approval-icon {
+.ocop-approval-icon {
   color: #67d7ff;
 }
 
-.oc-approval-tool-name {
+.ocop-approval-tool-name {
   font-weight: 600;
   color: var(--text-normal);
 }
 
-.oc-approval-desc {
+.ocop-approval-desc {
   padding: 12px;
   background: var(--background-primary-alt);
   border-radius: 6px;
@@ -37,13 +37,13 @@
   margin-bottom: 12px;
 }
 
-.oc-approval-buttons {
+.ocop-approval-buttons {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
 }
 
-.oc-approval-btn {
+.ocop-approval-btn {
   padding: 8px 16px;
   border-radius: 6px;
   font-size: 14px;
@@ -52,32 +52,32 @@
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.oc-deny-btn {
+.ocop-deny-btn {
   background: var(--background-modifier-error);
   color: var(--text-on-accent);
   border: none;
 }
 
-.oc-deny-btn:hover {
+.ocop-deny-btn:hover {
   opacity: 0.9;
 }
 
-.oc-allow-btn {
+.ocop-allow-btn {
   background: var(--background-secondary);
   color: var(--text-normal);
   border: 1px solid var(--background-modifier-border);
 }
 
-.oc-allow-btn:hover {
+.ocop-allow-btn:hover {
   background: var(--background-modifier-hover);
 }
 
-.oc-always-btn {
+.ocop-always-btn {
   background: #67d7ff;
   color: white;
   border: none;
 }
 
-.oc-always-btn:hover {
+.ocop-always-btn:hover {
   background: #c56a4a;
 }

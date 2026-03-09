@@ -64,17 +64,17 @@ export class TodoPanel {
 
     // Create panel element (no border/background - seamless)
     this.panelEl = document.createElement('div');
-    this.panelEl.className = 'oc-todo-panel';
+    this.panelEl.className = 'ocop-todo-panel';
 
     // Todo container
     this.todoContainerEl = document.createElement('div');
-    this.todoContainerEl.className = 'oc-todo-panel-todos';
+    this.todoContainerEl.className = 'ocop-todo-panel-todos';
     this.todoContainerEl.style.display = 'none';
     this.panelEl.appendChild(this.todoContainerEl);
 
     // Todo header (collapsed view)
     this.todoHeaderEl = document.createElement('div');
-    this.todoHeaderEl.className = 'oc-todo-panel-header';
+    this.todoHeaderEl.className = 'ocop-todo-panel-header';
     this.todoHeaderEl.setAttribute('tabindex', '0');
     this.todoHeaderEl.setAttribute('role', 'button');
 
@@ -92,7 +92,7 @@ export class TodoPanel {
 
     // Todo content (expanded list)
     this.todoContentEl = document.createElement('div');
-    this.todoContentEl.className = 'oc-todo-panel-content';
+    this.todoContentEl.className = 'ocop-todo-panel-content';
     this.todoContentEl.style.display = 'none';
     this.todoContainerEl.appendChild(this.todoContentEl);
 
@@ -153,20 +153,20 @@ export class TodoPanel {
 
     // List icon
     const icon = document.createElement('span');
-    icon.className = 'oc-todo-panel-icon';
+    icon.className = 'ocop-todo-panel-icon';
     setIcon(icon, 'list-checks');
     this.todoHeaderEl.appendChild(icon);
 
     // Label
     const label = document.createElement('span');
-    label.className = 'oc-todo-panel-label';
+    label.className = 'ocop-todo-panel-label';
     label.textContent = `Tasks (${completedCount}/${totalCount})`;
     this.todoHeaderEl.appendChild(label);
 
     // Current task (only when collapsed)
     if (!this.isExpanded && currentTask) {
       const current = document.createElement('span');
-      current.className = 'oc-todo-panel-current';
+      current.className = 'ocop-todo-panel-current';
       current.textContent = currentTask.activeForm;
       this.todoHeaderEl.appendChild(current);
     }
@@ -182,16 +182,16 @@ export class TodoPanel {
 
     for (const todo of todos) {
       const itemEl = document.createElement('div');
-      itemEl.className = `oc-todo-item oc-todo-${todo.status}`;
+      itemEl.className = `ocop-todo-item ocop-todo-${todo.status}`;
 
       const statusIcon = document.createElement('div');
-      statusIcon.className = 'oc-todo-status-icon';
+      statusIcon.className = 'ocop-todo-status-icon';
       statusIcon.setAttribute('aria-hidden', 'true');
       setIcon(statusIcon, this.getStatusIcon(todo.status));
       itemEl.appendChild(statusIcon);
 
       const text = document.createElement('div');
-      text.className = 'oc-todo-text';
+      text.className = 'ocop-todo-text';
       text.textContent = todo.status === 'in_progress' ? todo.activeForm : todo.content;
       itemEl.appendChild(text);
 

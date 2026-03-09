@@ -1,12 +1,12 @@
 /* Code block wrapper - contains pre + button outside scroll area */
-.oc-code-wrapper {
+.ocop-code-wrapper {
   position: relative;
   margin: 8px 0;
 }
 
 /* Code blocks in chat messages */
-.oc-code-wrapper pre,
-.oc-message-content pre {
+.ocop-code-wrapper pre,
+.ocop-message-content pre {
   background: var(--background-secondary);
   border: 1px solid var(--background-modifier-border);
   padding: 8px 12px;
@@ -16,24 +16,24 @@
 }
 
 /* Code blocks without language - wrap content */
-.oc-code-wrapper:not(.has-language) pre {
+.ocop-code-wrapper:not(.has-language) pre {
   white-space: pre-wrap;
   word-wrap: break-word;
   overflow-x: hidden;
 }
 
 /* Unwrapped pre still needs margin */
-.oc-message-content>pre {
+.ocop-message-content>pre {
   margin: 8px 0;
 }
 
-.oc-message-content code {
+.ocop-message-content code {
   font-family: var(--font-monospace);
   font-size: 13px;
 }
 
 /* Clickable language label - positioned outside scroll area */
-.oc-code-wrapper .oc-code-lang-label {
+.ocop-code-wrapper .ocop-code-lang-label {
   position: absolute;
   top: 6px;
   right: 6px;
@@ -48,18 +48,18 @@
   transition: color 0.15s ease, background 0.15s ease;
 }
 
-.oc-code-wrapper .oc-code-lang-label:hover {
+.ocop-code-wrapper .ocop-code-lang-label:hover {
   color: var(--text-normal);
   background: var(--background-modifier-hover);
 }
 
 /* Hide default copy button when language label exists */
-.oc-code-wrapper.has-language .copy-code-button {
+.ocop-code-wrapper.has-language .copy-code-button {
   display: none;
 }
 
 /* Copy button - positioned outside scroll area */
-.oc-code-wrapper .copy-code-button {
+.ocop-code-wrapper .copy-code-button {
   position: absolute;
   top: 6px;
   right: 6px;
@@ -76,17 +76,17 @@
 }
 
 /* If copy button uses an icon (svg) */
-.oc-code-wrapper .copy-code-button svg {
+.ocop-code-wrapper .copy-code-button svg {
   width: 14px;
   height: 14px;
 }
 
 /* Show copy button on hover */
-.oc-code-wrapper:not(.has-language):hover .copy-code-button {
+.ocop-code-wrapper:not(.has-language):hover .copy-code-button {
   opacity: 1;
 }
 
-.oc-code-wrapper .copy-code-button:hover {
+.ocop-code-wrapper .copy-code-button:hover {
   background: var(--background-modifier-hover);
   color: var(--text-normal);
 }

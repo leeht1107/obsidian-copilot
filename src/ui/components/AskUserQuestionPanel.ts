@@ -30,8 +30,8 @@ function findInputElements(containerEl: HTMLElement): {
   inputContainer: HTMLElement | null;
   inputWrapper: HTMLElement | null;
 } {
-  const inputContainer = containerEl.querySelector('.oc-input-container') as HTMLElement | null;
-  const inputWrapper = containerEl.querySelector('.oc-input-wrapper') as HTMLElement | null;
+  const inputContainer = containerEl.querySelector('.ocop-input-container') as HTMLElement | null;
+  const inputWrapper = containerEl.querySelector('.ocop-input-wrapper') as HTMLElement | null;
   return { inputContainer, inputWrapper };
 }
 
@@ -93,10 +93,10 @@ export class AskUserQuestionPanel {
   /** Create the panel DOM structure. */
   private createPanel(): HTMLElement {
     const panel = document.createElement('div');
-    panel.className = 'oc-ask-panel';
+    panel.className = 'ocop-ask-panel';
     panel.setAttribute('tabindex', '0');
     panel.setAttribute('role', 'dialog');
-    panel.setAttribute('aria-label', 'Claude is asking a question');
+    panel.setAttribute('aria-label', 'Copilot is asking a question');
 
     // Add keyboard listener
     panel.addEventListener('keydown', this.handleKeyDown.bind(this));
@@ -106,12 +106,12 @@ export class AskUserQuestionPanel {
 
     // Question content area
     this.questionContentEl = document.createElement('div');
-    this.questionContentEl.className = 'oc-ask-panel-content';
+    this.questionContentEl.className = 'ocop-ask-panel-content';
     panel.appendChild(this.questionContentEl);
 
     // Hint text
     const hintEl = document.createElement('div');
-    hintEl.className = 'oc-ask-panel-hint';
+    hintEl.className = 'ocop-ask-panel-hint';
     hintEl.textContent = 'Enter to select · Tab/Arrow keys to navigate · Esc to cancel';
     panel.appendChild(hintEl);
 
@@ -124,11 +124,11 @@ export class AskUserQuestionPanel {
   /** Create tab navigation row. */
   private createTabs(parent: HTMLElement): HTMLElement {
     const tabsContainer = document.createElement('div');
-    tabsContainer.className = 'oc-ask-panel-tabs';
+    tabsContainer.className = 'ocop-ask-panel-tabs';
 
     // Left arrow
     const leftArrow = document.createElement('span');
-    leftArrow.className = 'oc-ask-panel-nav';
+    leftArrow.className = 'ocop-ask-panel-nav';
     leftArrow.textContent = '←';
     leftArrow.addEventListener('click', () => this.navigateTab(-1));
     tabsContainer.appendChild(leftArrow);
@@ -136,12 +136,12 @@ export class AskUserQuestionPanel {
     // Question tabs
     this.questions.forEach((q, index) => {
       const tab = document.createElement('button');
-      tab.className = 'oc-ask-panel-tab';
+      tab.className = 'ocop-ask-panel-tab';
       tab.setAttribute('data-tab-index', String(index));
 
       // Status indicator (○ unanswered, ● answered)
       const check = document.createElement('span');
-      check.className = 'oc-ask-panel-tab-check';
+      check.className = 'ocop-ask-panel-tab-check';
       check.textContent = '○';
       tab.appendChild(check);
 
@@ -159,11 +159,11 @@ export class AskUserQuestionPanel {
 
     // Submit tab (as a proper tab)
     const submitTab = document.createElement('button');
-    submitTab.className = 'oc-ask-panel-tab oc-ask-panel-submit-tab';
+    submitTab.className = 'ocop-ask-panel-tab ocop-ask-panel-submit-tab';
     submitTab.setAttribute('data-tab-index', String(this.questions.length));
 
     const submitCheck = document.createElement('span');
-    submitCheck.className = 'oc-ask-panel-tab-check';
+    submitCheck.className = 'ocop-ask-panel-tab-check';
     submitCheck.textContent = '✓';
     submitTab.appendChild(submitCheck);
 
@@ -175,7 +175,7 @@ export class AskUserQuestionPanel {
 
     // Right arrow
     const rightArrow = document.createElement('span');
-    rightArrow.className = 'oc-ask-panel-nav';
+    rightArrow.className = 'ocop-ask-panel-nav';
     rightArrow.textContent = '→';
     rightArrow.addEventListener('click', () => this.navigateTab(1));
     tabsContainer.appendChild(rightArrow);
@@ -208,7 +208,7 @@ export class AskUserQuestionPanel {
 
     // Update tab active state
     if (this.tabsEl) {
-      const tabs = this.tabsEl.querySelectorAll('.oc-ask-panel-tab');
+      const tabs = this.tabsEl.querySelectorAll('.ocop-ask-panel-tab');
       tabs.forEach((tab, i) => {
         tab.classList.toggle('active', i === index);
       });
@@ -236,13 +236,13 @@ export class AskUserQuestionPanel {
 
     // Question text
     const questionTextEl = document.createElement('div');
-    questionTextEl.className = 'oc-ask-panel-question';
+    questionTextEl.className = 'ocop-ask-panel-question';
     questionTextEl.textContent = question.question;
     this.questionContentEl.appendChild(questionTextEl);
 
     // Options
     const optionsEl = document.createElement('div');
-    optionsEl.className = 'oc-ask-panel-options';
+    optionsEl.className = 'ocop-ask-panel-options';
     optionsEl.setAttribute('role', question.multiSelect ? 'group' : 'radiogroup');
 
     question.options.forEach((option, index) => {
@@ -267,27 +267,27 @@ export class AskUserQuestionPanel {
 
     // Title
     const titleEl = document.createElement('div');
-    titleEl.className = 'oc-ask-panel-question';
+    titleEl.className = 'ocop-ask-panel-question';
     titleEl.textContent = 'Review your answers';
     this.questionContentEl.appendChild(titleEl);
 
     // Summary of all answers
     const summaryEl = document.createElement('div');
-    summaryEl.className = 'oc-ask-panel-summary';
+    summaryEl.className = 'ocop-ask-panel-summary';
 
     this.questions.forEach((q) => {
       const itemEl = document.createElement('div');
-      itemEl.className = 'oc-ask-panel-summary-item';
+      itemEl.className = 'ocop-ask-panel-summary-item';
 
       // Question with bullet
       const questionEl = document.createElement('div');
-      questionEl.className = 'oc-ask-panel-summary-question';
+      questionEl.className = 'ocop-ask-panel-summary-question';
       questionEl.textContent = `● ${q.question}`;
       itemEl.appendChild(questionEl);
 
       // Answer (green)
       const answerEl = document.createElement('div');
-      answerEl.className = 'oc-ask-panel-summary-answer';
+      answerEl.className = 'ocop-ask-panel-summary-answer';
       const answer = this.answers.get(q.question);
       if (answer) {
         const answerText = Array.isArray(answer) ? answer.join(', ') : answer;
@@ -305,13 +305,13 @@ export class AskUserQuestionPanel {
 
     // Confirmation prompt
     const promptEl = document.createElement('div');
-    promptEl.className = 'oc-ask-panel-submit-prompt';
+    promptEl.className = 'ocop-ask-panel-submit-prompt';
     promptEl.textContent = 'Ready to submit your answers?';
     this.questionContentEl.appendChild(promptEl);
 
     // Options: Submit answers, Cancel
     const optionsEl = document.createElement('div');
-    optionsEl.className = 'oc-ask-panel-options';
+    optionsEl.className = 'ocop-ask-panel-options';
 
     // Submit option
     const submitOptionEl = this.createSubmitOption('Submit answers', 0, () => this.submit());
@@ -330,24 +330,24 @@ export class AskUserQuestionPanel {
   /** Create an option for the submit review. */
   private createSubmitOption(label: string, index: number, onClick: () => void): HTMLElement {
     const optionEl = document.createElement('div');
-    optionEl.className = 'oc-ask-panel-option oc-ask-panel-submit-option';
+    optionEl.className = 'ocop-ask-panel-option ocop-ask-panel-submit-option';
     optionEl.setAttribute('data-option-index', String(index));
 
     // Caret
     const caret = document.createElement('span');
-    caret.className = 'oc-ask-panel-caret';
+    caret.className = 'ocop-ask-panel-caret';
     caret.textContent = ' ';
     optionEl.appendChild(caret);
 
     // Number
     const indicator = document.createElement('span');
-    indicator.className = 'oc-ask-panel-indicator';
+    indicator.className = 'ocop-ask-panel-indicator';
     indicator.textContent = `${index + 1}.`;
     optionEl.appendChild(indicator);
 
     // Label
     const labelEl = document.createElement('span');
-    labelEl.className = 'oc-ask-panel-option-label';
+    labelEl.className = 'ocop-ask-panel-option-label';
     labelEl.textContent = label;
     optionEl.appendChild(labelEl);
 
@@ -364,9 +364,9 @@ export class AskUserQuestionPanel {
   private updateSubmitOptionFocus(): void {
     if (!this.questionContentEl) return;
 
-    const options = this.questionContentEl.querySelectorAll('.oc-ask-panel-submit-option');
+    const options = this.questionContentEl.querySelectorAll('.ocop-ask-panel-submit-option');
     options.forEach((opt, i) => {
-      const caret = opt.querySelector('.oc-ask-panel-caret');
+      const caret = opt.querySelector('.ocop-ask-panel-caret');
       const isFocused = i === this.currentOptionIndex;
       opt.classList.toggle('focused', isFocused);
       if (caret) {
@@ -382,18 +382,18 @@ export class AskUserQuestionPanel {
     index: number
   ): HTMLElement {
     const optionEl = document.createElement('div');
-    optionEl.className = 'oc-ask-panel-option';
+    optionEl.className = 'ocop-ask-panel-option';
     optionEl.setAttribute('data-option-index', String(index));
 
     // Focus caret indicator (> or space)
     const caret = document.createElement('span');
-    caret.className = 'oc-ask-panel-caret';
+    caret.className = 'ocop-ask-panel-caret';
     caret.textContent = ' ';
     optionEl.appendChild(caret);
 
     // Number/checkbox indicator
     const indicator = document.createElement('span');
-    indicator.className = 'oc-ask-panel-indicator';
+    indicator.className = 'ocop-ask-panel-indicator';
     if (question.multiSelect) {
       indicator.textContent = `${index + 1}. [ ]`;
     } else {
@@ -403,21 +403,21 @@ export class AskUserQuestionPanel {
 
     // Label and description
     const textContainer = document.createElement('div');
-    textContainer.className = 'oc-ask-panel-option-text';
+    textContainer.className = 'ocop-ask-panel-option-text';
 
     // Label row (contains label + checkmark for single-select)
     const labelRowEl = document.createElement('div');
-    labelRowEl.className = 'oc-ask-panel-label-row';
+    labelRowEl.className = 'ocop-ask-panel-label-row';
 
     const labelEl = document.createElement('span');
-    labelEl.className = 'oc-ask-panel-option-label';
+    labelEl.className = 'ocop-ask-panel-option-label';
     labelEl.textContent = option.label;
     labelRowEl.appendChild(labelEl);
 
     // Checkmark for single-select (shown after label when selected)
     if (!question.multiSelect) {
       const checkmarkEl = document.createElement('span');
-      checkmarkEl.className = 'oc-ask-panel-checkmark';
+      checkmarkEl.className = 'ocop-ask-panel-checkmark';
       checkmarkEl.textContent = '';
       labelRowEl.appendChild(checkmarkEl);
     }
@@ -426,7 +426,7 @@ export class AskUserQuestionPanel {
 
     if (option.description) {
       const descEl = document.createElement('div');
-      descEl.className = 'oc-ask-panel-option-desc';
+      descEl.className = 'ocop-ask-panel-option-desc';
       descEl.textContent = option.description;
       textContainer.appendChild(descEl);
     }
@@ -447,18 +447,18 @@ export class AskUserQuestionPanel {
     const otherIndex = question.options.length;
 
     const otherEl = document.createElement('div');
-    otherEl.className = 'oc-ask-panel-option oc-ask-panel-other';
+    otherEl.className = 'ocop-ask-panel-option ocop-ask-panel-other';
     otherEl.setAttribute('data-option-index', String(otherIndex));
 
     // Focus caret indicator
     const caret = document.createElement('span');
-    caret.className = 'oc-ask-panel-caret';
+    caret.className = 'ocop-ask-panel-caret';
     caret.textContent = ' ';
     otherEl.appendChild(caret);
 
     // Number/checkbox indicator
     const indicator = document.createElement('span');
-    indicator.className = 'oc-ask-panel-indicator';
+    indicator.className = 'ocop-ask-panel-indicator';
     if (question.multiSelect) {
       indicator.textContent = `${otherIndex + 1}. [ ]`;
     } else {
@@ -469,7 +469,7 @@ export class AskUserQuestionPanel {
     // Text input
     this.otherInputEl = document.createElement('input');
     this.otherInputEl.type = 'text';
-    this.otherInputEl.className = 'oc-ask-panel-other-input';
+    this.otherInputEl.className = 'ocop-ask-panel-other-input';
     this.otherInputEl.placeholder = 'Type something.';
 
     // Enter to submit from Other input
@@ -695,10 +695,10 @@ export class AskUserQuestionPanel {
     const answer = this.answers.get(questionKey);
     const answerArray = Array.isArray(answer) ? answer : (answer ? [answer] : []);
 
-    const options = this.questionContentEl.querySelectorAll('.oc-ask-panel-option');
+    const options = this.questionContentEl.querySelectorAll('.ocop-ask-panel-option');
     options.forEach((opt, i) => {
-      const caret = opt.querySelector('.oc-ask-panel-caret');
-      const indicator = opt.querySelector('.oc-ask-panel-indicator');
+      const caret = opt.querySelector('.ocop-ask-panel-caret');
+      const indicator = opt.querySelector('.ocop-ask-panel-indicator');
       const isFocused = i === this.currentOptionIndex;
 
       // Check if this option is selected
@@ -731,7 +731,7 @@ export class AskUserQuestionPanel {
 
       // Update checkmark for single-select (shown after label)
       if (!question.multiSelect) {
-        const checkmark = opt.querySelector('.oc-ask-panel-checkmark');
+        const checkmark = opt.querySelector('.ocop-ask-panel-checkmark');
         if (checkmark) {
           checkmark.textContent = isSelected ? ' ✓' : '';
         }
@@ -812,13 +812,13 @@ export class AskUserQuestionPanel {
   private updateTabIndicators(): void {
     if (!this.tabsEl) return;
 
-    const tabs = this.tabsEl.querySelectorAll('.oc-ask-panel-tab');
+    const tabs = this.tabsEl.querySelectorAll('.ocop-ask-panel-tab');
     this.questions.forEach((q, i) => {
       const hasAnswer = this.answers.has(q.question);
       const tab = tabs[i];
       if (tab) {
         tab.classList.toggle('answered', hasAnswer);
-        const check = tab.querySelector('.oc-ask-panel-tab-check');
+        const check = tab.querySelector('.ocop-ask-panel-tab-check');
         if (check) {
           check.textContent = hasAnswer ? '●' : '○';
         }

@@ -1,12 +1,12 @@
 /* External Context Selector */
-.oc-external-context-selector {
+.ocop-external-context-selector {
   position: relative;
   display: flex;
   align-items: center;
   margin-left: 8px;
 }
 
-.oc-external-context-icon-wrapper {
+.ocop-external-context-icon-wrapper {
   position: relative;
   display: flex;
   align-items: center;
@@ -14,7 +14,7 @@
   cursor: pointer;
 }
 
-.oc-external-context-icon {
+.ocop-external-context-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,23 +26,23 @@
   transition: all 0.2s ease;
 }
 
-.oc-external-context-icon-wrapper:hover .oc-external-context-icon {
+.ocop-external-context-icon-wrapper:hover .ocop-external-context-icon {
   background: var(--background-modifier-hover);
   opacity: 0.8;
 }
 
-.oc-external-context-icon.active {
+.ocop-external-context-icon.active {
   color: #67d7ff;
   opacity: 1;
   animation: external-context-glow 2s ease-in-out infinite;
 }
 
-.oc-external-context-icon svg {
+.ocop-external-context-icon svg {
   width: 16px;
   height: 16px;
 }
 
-.oc-external-context-badge {
+.ocop-external-context-badge {
   position: absolute;
   top: 0;
   right: 0;
@@ -54,11 +54,11 @@
   pointer-events: none;
 }
 
-.oc-external-context-badge.visible {
+.ocop-external-context-badge.visible {
   opacity: 1;
 }
 
-.oc-external-context-dropdown {
+.ocop-external-context-dropdown {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -76,12 +76,12 @@
   z-index: 100;
 }
 
-.oc-external-context-selector:hover .oc-external-context-dropdown {
+.ocop-external-context-selector:hover .ocop-external-context-dropdown {
   opacity: 1;
   visibility: visible;
 }
 
-.oc-external-context-header {
+.ocop-external-context-header {
   padding: 10px 12px;
   font-size: 12px;
   font-weight: 600;
@@ -89,12 +89,12 @@
   border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.oc-external-context-list {
+.ocop-external-context-list {
   max-height: 200px;
   overflow-y: auto;
 }
 
-.oc-external-context-empty {
+.ocop-external-context-empty {
   padding: 16px 12px;
   text-align: center;
   color: var(--text-muted);
@@ -102,7 +102,7 @@
   font-style: italic;
 }
 
-.oc-external-context-item {
+.ocop-external-context-item {
   display: flex;
   align-items: center;
   padding: 8px 12px;
@@ -110,11 +110,11 @@
   border-bottom: 1px solid var(--background-modifier-border-focus);
 }
 
-.oc-external-context-item:last-child {
+.ocop-external-context-item:last-child {
   border-bottom: none;
 }
 
-.oc-external-context-text {
+.ocop-external-context-text {
   flex: 1;
   font-size: 12px;
   font-family: var(--font-monospace);
@@ -124,7 +124,7 @@
   white-space: nowrap;
 }
 
-.oc-external-context-remove {
+.ocop-external-context-remove {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -137,13 +137,13 @@
   transition: all 0.15s ease;
 }
 
-.oc-external-context-remove:hover {
+.ocop-external-context-remove:hover {
   background: rgba(220, 53, 69, 0.15);
   color: #dc3545;
   opacity: 1;
 }
 
-.oc-external-context-remove svg {
+.ocop-external-context-remove svg {
   width: 14px;
   height: 14px;
 }

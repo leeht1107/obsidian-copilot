@@ -28,7 +28,7 @@ export class EnvSnippetModal extends Modal {
     this.setTitle(this.snippet ? 'Edit snippet' : 'Save snippet');
 
     // Make modal more compact
-    this.modalEl.addClass('oc-env-snippet-modal');
+    this.modalEl.addClass('ocop-env-snippet-modal');
 
     let nameEl: HTMLInputElement;
     let descEl: HTMLInputElement;
@@ -92,21 +92,21 @@ export class EnvSnippetModal extends Modal {
         text.inputEl.rows = 8;
       });
     // Make textarea full width under the label
-    envVarsSetting.settingEl.addClass('oc-env-snippet-setting');
-    envVarsSetting.controlEl.addClass('oc-env-snippet-control');
+    envVarsSetting.settingEl.addClass('ocop-env-snippet-setting');
+    envVarsSetting.controlEl.addClass('ocop-env-snippet-control');
 
     // Compact button container
-    const buttonContainer = contentEl.createDiv({ cls: 'oc-snippet-buttons' });
+    const buttonContainer = contentEl.createDiv({ cls: 'ocop-snippet-buttons' });
 
     const cancelBtn = buttonContainer.createEl('button', {
       text: 'Cancel',
-      cls: 'oc-cancel-btn'
+      cls: 'ocop-cancel-btn'
     });
     cancelBtn.addEventListener('click', () => this.close());
 
     const saveBtn = buttonContainer.createEl('button', {
       text: this.snippet ? 'Update' : 'Save',
-      cls: 'oc-save-btn'
+      cls: 'ocop-save-btn'
     });
     saveBtn.addEventListener('click', () => saveSnippet());
 
@@ -135,11 +135,11 @@ export class EnvSnippetManager {
     this.containerEl.empty();
 
     // Header with save button
-    const headerEl = this.containerEl.createDiv({ cls: 'oc-snippet-header' });
-    headerEl.createSpan({ text: 'Snippets', cls: 'oc-snippet-label' });
+    const headerEl = this.containerEl.createDiv({ cls: 'ocop-snippet-header' });
+    headerEl.createSpan({ text: 'Snippets', cls: 'ocop-snippet-label' });
 
     const saveBtn = headerEl.createEl('button', {
-      cls: 'oc-settings-action-btn',
+      cls: 'ocop-settings-action-btn',
       attr: { 'aria-label': 'Save current' },
     });
     setIcon(saveBtn, 'plus');
@@ -148,7 +148,7 @@ export class EnvSnippetManager {
     const snippets = this.plugin.settings.envSnippets;
 
     if (snippets.length === 0) {
-      const emptyEl = this.containerEl.createDiv({ cls: 'oc-snippet-empty' });
+      const emptyEl = this.containerEl.createDiv({ cls: 'ocop-snippet-empty' });
       emptyEl.setText('No saved environment snippets yet. Click "Save Current" to save your current environment configuration.');
       return;
     }
@@ -156,26 +156,26 @@ export class EnvSnippetManager {
     // Use snippets as-is (maintain creation order)
     const sortedSnippets = snippets;
 
-    const listEl = this.containerEl.createDiv({ cls: 'oc-snippet-list' });
+    const listEl = this.containerEl.createDiv({ cls: 'ocop-snippet-list' });
 
     for (const snippet of sortedSnippets) {
-      const itemEl = listEl.createDiv({ cls: 'oc-snippet-item' });
+      const itemEl = listEl.createDiv({ cls: 'ocop-snippet-item' });
 
-      const infoEl = itemEl.createDiv({ cls: 'oc-snippet-info' });
+      const infoEl = itemEl.createDiv({ cls: 'ocop-snippet-info' });
 
-      const nameEl = infoEl.createDiv({ cls: 'oc-snippet-name' });
+      const nameEl = infoEl.createDiv({ cls: 'ocop-snippet-name' });
       nameEl.setText(snippet.name);
 
       if (snippet.description) {
-        const descEl = infoEl.createDiv({ cls: 'oc-snippet-description' });
+        const descEl = infoEl.createDiv({ cls: 'ocop-snippet-description' });
         descEl.setText(snippet.description);
       }
 
-      const actionsEl = itemEl.createDiv({ cls: 'oc-snippet-actions' });
+      const actionsEl = itemEl.createDiv({ cls: 'ocop-snippet-actions' });
 
       // Restore button
       const restoreBtn = actionsEl.createEl('button', {
-        cls: 'oc-settings-action-btn',
+        cls: 'ocop-settings-action-btn',
         attr: { 'aria-label': 'Insert' },
       });
       setIcon(restoreBtn, 'clipboard-paste');
@@ -185,7 +185,7 @@ export class EnvSnippetManager {
 
       // Edit button
       const editBtn = actionsEl.createEl('button', {
-        cls: 'oc-settings-action-btn',
+        cls: 'ocop-settings-action-btn',
         attr: { 'aria-label': 'Edit' },
       });
       setIcon(editBtn, 'pencil');
@@ -195,7 +195,7 @@ export class EnvSnippetManager {
 
       // Delete button
       const deleteBtn = actionsEl.createEl('button', {
-        cls: 'oc-settings-action-btn oc-settings-delete-btn',
+        cls: 'ocop-settings-action-btn ocop-settings-delete-btn',
         attr: { 'aria-label': 'Delete' },
       });
       setIcon(deleteBtn, 'trash-2');
@@ -224,7 +224,7 @@ export class EnvSnippetManager {
 
   private async insertSnippet(snippet: EnvSnippet) {
     // Insert the snippet's environment variables into the input field
-    const envTextarea = document.querySelector('.oc-settings-env-textarea') as HTMLTextAreaElement;
+    const envTextarea = document.querySelector('.ocop-settings-env-textarea') as HTMLTextAreaElement;
     if (envTextarea) {
       // Always clear and replace with snippet content
       const snippetContent = snippet.envVars.trim();
@@ -234,7 +234,7 @@ export class EnvSnippetManager {
       await this.plugin.applyEnvironmentVariables(snippetContent);
 
       // Trigger model selector refresh if it exists
-      const view = this.plugin.app.workspace.getLeavesOfType('oc-view')[0]?.view as any;
+      const view = this.plugin.app.workspace.getLeavesOfType('ocop-view')[0]?.view as any;
       if (view?.modelSelector) {
         view.modelSelector.updateDisplay();
         view.modelSelector.renderOptions();
@@ -246,7 +246,7 @@ export class EnvSnippetManager {
       this.render();
 
       // Trigger model selector refresh if it exists
-      const view = this.plugin.app.workspace.getLeavesOfType('oc-view')[0]?.view as any;
+      const view = this.plugin.app.workspace.getLeavesOfType('ocop-view')[0]?.view as any;
       if (view?.modelSelector) {
         view.modelSelector.updateDisplay();
         view.modelSelector.renderOptions();

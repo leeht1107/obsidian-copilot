@@ -296,11 +296,11 @@ describe('FileContextManager', () => {
 
     manager.setCurrentNote('notes/chip.md');
 
-    const indicator = findByClass(containerEl, 'oc-file-indicator');
+    const indicator = findByClass(containerEl, 'ocop-file-indicator');
     expect(indicator).toBeDefined();
     expect(indicator?.style.display).toBe('flex');
 
-    const removeEl = findByClass(containerEl, 'oc-file-chip-remove');
+    const removeEl = findByClass(containerEl, 'ocop-file-chip-remove');
     expect(removeEl).toBeDefined();
 
     removeEl!.click();
@@ -354,7 +354,7 @@ describe('FileContextManager', () => {
     inputEl.selectionEnd = 5;
     manager.handleInputChange();
 
-    const pathEl = findByClass(containerEl, 'oc-mention-path');
+    const pathEl = findByClass(containerEl, 'ocop-mention-path');
     expect(pathEl?.textContent).toBe('clipping/file.md');
 
     manager.handleMentionKeydown({ key: 'Enter', preventDefault: jest.fn() } as any);
@@ -391,7 +391,7 @@ describe('FileContextManager', () => {
     inputEl.selectionEnd = 13;
     manager.handleInputChange();
 
-    const nameEls = findAllByClass(containerEl, 'oc-mention-name-context');
+    const nameEls = findAllByClass(containerEl, 'ocop-mention-name-context');
     expect(nameEls[0]?.textContent).toBe('src/app.md');
 
     manager.handleMentionKeydown({ key: 'Enter', preventDefault: jest.fn() } as any);

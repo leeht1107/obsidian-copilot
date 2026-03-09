@@ -31,7 +31,7 @@ export class SlashCommandModal extends Modal {
 
   onOpen() {
     this.setTitle(this.existingCmd ? 'Edit Slash Command' : 'Add Slash Command');
-    this.modalEl.addClass('oc-slash-modal');
+    this.modalEl.addClass('ocop-slash-modal');
 
     const { contentEl } = this;
 
@@ -88,7 +88,7 @@ export class SlashCommandModal extends Modal {
       .setDesc('Use $ARGUMENTS, $1, $2, @file, !`bash`');
 
     const contentArea = contentEl.createEl('textarea', {
-      cls: 'oc-slash-content-area',
+      cls: 'ocop-slash-content-area',
       attr: {
         rows: '10',
         placeholder: 'Review this code for:\n$ARGUMENTS\n\n@$1',
@@ -100,17 +100,17 @@ export class SlashCommandModal extends Modal {
     contentArea.value = initialContent;
 
     // Button container
-    const buttonContainer = contentEl.createDiv({ cls: 'oc-slash-modal-buttons' });
+    const buttonContainer = contentEl.createDiv({ cls: 'ocop-slash-modal-buttons' });
 
     const cancelBtn = buttonContainer.createEl('button', {
       text: 'Cancel',
-      cls: 'oc-cancel-btn',
+      cls: 'ocop-cancel-btn',
     });
     cancelBtn.addEventListener('click', () => this.close());
 
     const saveBtn = buttonContainer.createEl('button', {
       text: 'Save',
-      cls: 'oc-save-btn',
+      cls: 'ocop-save-btn',
     });
     saveBtn.addEventListener('click', async () => {
       const name = nameInput.value.trim();
@@ -192,27 +192,27 @@ export class SlashCommandSettings {
     this.containerEl.empty();
 
     // Header with add button
-    const headerEl = this.containerEl.createDiv({ cls: 'oc-slash-header' });
-    headerEl.createSpan({ text: 'Slash Commands', cls: 'oc-slash-label' });
+    const headerEl = this.containerEl.createDiv({ cls: 'ocop-slash-header' });
+    headerEl.createSpan({ text: 'Slash Commands', cls: 'ocop-slash-label' });
 
-    const actionsEl = headerEl.createDiv({ cls: 'oc-slash-header-actions' });
+    const actionsEl = headerEl.createDiv({ cls: 'ocop-slash-header-actions' });
 
     const importBtn = actionsEl.createEl('button', {
-      cls: 'oc-settings-action-btn',
+      cls: 'ocop-settings-action-btn',
       attr: { 'aria-label': 'Import' },
     });
     setIcon(importBtn, 'download');
     importBtn.addEventListener('click', () => this.importCommands());
 
     const exportBtn = actionsEl.createEl('button', {
-      cls: 'oc-settings-action-btn',
+      cls: 'ocop-settings-action-btn',
       attr: { 'aria-label': 'Export' },
     });
     setIcon(exportBtn, 'upload');
     exportBtn.addEventListener('click', () => this.exportCommands());
 
     const addBtn = actionsEl.createEl('button', {
-      cls: 'oc-settings-action-btn',
+      cls: 'ocop-settings-action-btn',
       attr: { 'aria-label': 'Add' },
     });
     setIcon(addBtn, 'plus');
@@ -221,12 +221,12 @@ export class SlashCommandSettings {
     const commands = this.plugin.settings.slashCommands;
 
     if (commands.length === 0) {
-      const emptyEl = this.containerEl.createDiv({ cls: 'oc-slash-empty-state' });
+      const emptyEl = this.containerEl.createDiv({ cls: 'ocop-slash-empty-state' });
       emptyEl.setText('No slash commands configured. Click "Add" to create one.');
       return;
     }
 
-    const listEl = this.containerEl.createDiv({ cls: 'oc-slash-list' });
+    const listEl = this.containerEl.createDiv({ cls: 'ocop-slash-list' });
 
     for (const cmd of commands) {
       this.renderCommandItem(listEl, cmd);
@@ -234,36 +234,36 @@ export class SlashCommandSettings {
   }
 
   private renderCommandItem(listEl: HTMLElement, cmd: SlashCommand): void {
-    const itemEl = listEl.createDiv({ cls: 'oc-slash-item-settings' });
+    const itemEl = listEl.createDiv({ cls: 'ocop-slash-item-settings' });
 
-    const infoEl = itemEl.createDiv({ cls: 'oc-slash-info' });
+    const infoEl = itemEl.createDiv({ cls: 'ocop-slash-info' });
 
-    const headerRow = infoEl.createDiv({ cls: 'oc-slash-item-header' });
+    const headerRow = infoEl.createDiv({ cls: 'ocop-slash-item-header' });
 
-    const nameEl = headerRow.createSpan({ cls: 'oc-slash-item-name' });
+    const nameEl = headerRow.createSpan({ cls: 'ocop-slash-item-name' });
     nameEl.setText(`/${cmd.name}`);
 
     if (cmd.argumentHint) {
-      const hintEl = headerRow.createSpan({ cls: 'oc-slash-item-hint' });
+      const hintEl = headerRow.createSpan({ cls: 'ocop-slash-item-hint' });
       hintEl.setText(cmd.argumentHint);
     }
 
     if (cmd.description) {
-      const descEl = infoEl.createDiv({ cls: 'oc-slash-item-desc' });
+      const descEl = infoEl.createDiv({ cls: 'ocop-slash-item-desc' });
       descEl.setText(cmd.description);
     }
 
-    const actionsEl = itemEl.createDiv({ cls: 'oc-slash-item-actions' });
+    const actionsEl = itemEl.createDiv({ cls: 'ocop-slash-item-actions' });
 
     const editBtn = actionsEl.createEl('button', {
-      cls: 'oc-settings-action-btn',
+      cls: 'ocop-settings-action-btn',
       attr: { 'aria-label': 'Edit' },
     });
     setIcon(editBtn, 'pencil');
     editBtn.addEventListener('click', () => this.openCommandModal(cmd));
 
     const deleteBtn = actionsEl.createEl('button', {
-      cls: 'oc-settings-action-btn oc-settings-delete-btn',
+      cls: 'ocop-settings-action-btn ocop-settings-delete-btn',
       attr: { 'aria-label': 'Delete' },
     });
     setIcon(deleteBtn, 'trash-2');
@@ -329,7 +329,7 @@ export class SlashCommandSettings {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'oc-slash-commands.json';
+    a.download = 'ocop-slash-commands.json';
     a.click();
     URL.revokeObjectURL(url);
     new Notice(`Exported ${commands.length} slash command(s)`);

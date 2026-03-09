@@ -68,21 +68,21 @@ class DiffWidget extends WidgetType {
   }
   toDOM(): HTMLElement {
     const span = document.createElement('span');
-    span.className = 'oc-inline-diff-replace';
+    span.className = 'ocop-inline-diff-replace';
     span.innerHTML = this.diffHtml;
 
     // Add accept/reject buttons
     const btns = document.createElement('span');
-    btns.className = 'oc-inline-diff-buttons';
+    btns.className = 'ocop-inline-diff-buttons';
 
     const rejectBtn = document.createElement('button');
-    rejectBtn.className = 'oc-inline-diff-btn reject';
+    rejectBtn.className = 'ocop-inline-diff-btn reject';
     rejectBtn.textContent = '✕';
     rejectBtn.title = 'Reject (Esc)';
     rejectBtn.onclick = () => this.controller.reject();
 
     const acceptBtn = document.createElement('button');
-    acceptBtn.className = 'oc-inline-diff-btn accept';
+    acceptBtn.className = 'ocop-inline-diff-btn accept';
     acceptBtn.textContent = '✓';
     acceptBtn.title = 'Accept (Enter)';
     acceptBtn.onclick = () => this.controller.accept();
@@ -208,8 +208,8 @@ function diffToHtml(ops: DiffOp[]): string {
   return ops.map(op => {
     const escaped = escapeHtml(op.text);
     switch (op.type) {
-      case 'delete': return `<span class="oc-diff-del">${escaped}</span>`;
-      case 'insert': return `<span class="oc-diff-ins">${escaped}</span>`;
+      case 'delete': return `<span class="ocop-diff-del">${escaped}</span>`;
+      case 'insert': return `<span class="ocop-diff-ins">${escaped}</span>`;
       default: return escaped;
     }
   }).join('');
@@ -397,31 +397,31 @@ class InlineEditController {
 
   createInputDOM(): HTMLElement {
     const container = document.createElement('div');
-    container.className = 'oc-inline-input-container';
+    container.className = 'ocop-inline-input-container';
     this.containerEl = container;
 
     // Agent reply area (hidden initially)
     this.agentReplyEl = document.createElement('div');
-    this.agentReplyEl.className = 'oc-inline-agent-reply';
+    this.agentReplyEl.className = 'ocop-inline-agent-reply';
     this.agentReplyEl.style.display = 'none';
     container.appendChild(this.agentReplyEl);
 
     // Input wrapper
     const inputWrap = document.createElement('div');
-    inputWrap.className = 'oc-inline-input-wrap';
+    inputWrap.className = 'ocop-inline-input-wrap';
     container.appendChild(inputWrap);
 
     // Input
     this.inputEl = document.createElement('input');
     this.inputEl.type = 'text';
-    this.inputEl.className = 'oc-inline-input';
+    this.inputEl.className = 'ocop-inline-input';
     this.inputEl.placeholder = this.mode === 'cursor' ? 'Insert instructions...' : 'Edit instructions...';
     this.inputEl.spellcheck = false;
     inputWrap.appendChild(this.inputEl);
 
     // Spinner - inside input wrapper, positioned absolutely
     this.spinnerEl = document.createElement('div');
-    this.spinnerEl.className = 'oc-inline-spinner';
+    this.spinnerEl.className = 'ocop-inline-spinner';
     this.spinnerEl.style.display = 'none';
     inputWrap.appendChild(this.spinnerEl);
 
@@ -644,7 +644,7 @@ class InlineEditController {
 
     // For insertion, it's all new text (no deletions)
     const escaped = escapeHtml(trimmedText);
-    const diffHtml = `<span class="oc-diff-ins">${escaped}</span>`;
+    const diffHtml = `<span class="ocop-diff-ins">${escaped}</span>`;
 
     // Use showInsertion effect (Decoration.widget) for point insertion
     this.editorView.dispatch({

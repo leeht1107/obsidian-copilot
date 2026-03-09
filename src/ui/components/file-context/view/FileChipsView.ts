@@ -27,7 +27,7 @@ export class FileChipsView {
     this.callbacks = callbacks;
 
     const firstChild = this.containerEl.firstChild;
-    this.fileIndicatorEl = this.containerEl.createDiv({ cls: 'oc-file-indicator' });
+    this.fileIndicatorEl = this.containerEl.createDiv({ cls: 'ocop-file-indicator' });
     if (firstChild) {
       this.containerEl.insertBefore(this.fileIndicatorEl, firstChild);
     }
@@ -108,38 +108,38 @@ export class FileChipsView {
   }
 
   private renderFileChip(filePath: string, isCurrentNote: boolean, isPinned: boolean): void {
-    const chipEl = this.fileIndicatorEl.createDiv({ cls: 'oc-file-chip' });
+    const chipEl = this.fileIndicatorEl.createDiv({ cls: 'ocop-file-chip' });
 
     // Add visual distinction for pinned vs unpinned
     if (isPinned) {
-      chipEl.addClass('oc-file-chip-pinned');
+      chipEl.addClass('ocop-file-chip-pinned');
     } else if (isCurrentNote) {
-      chipEl.addClass('oc-file-chip-current');
+      chipEl.addClass('ocop-file-chip-current');
     } else {
-      chipEl.addClass('oc-file-chip-attached');
+      chipEl.addClass('ocop-file-chip-attached');
     }
 
     // File icon
-    const iconEl = chipEl.createSpan({ cls: 'oc-file-chip-icon' });
+    const iconEl = chipEl.createSpan({ cls: 'ocop-file-chip-icon' });
     setIcon(iconEl, 'file-text');
 
     // File name
     const normalizedPath = filePath.replace(/\\/g, '/');
     const filename = normalizedPath.split('/').pop() || filePath;
-    const nameEl = chipEl.createSpan({ cls: 'oc-file-chip-name' });
+    const nameEl = chipEl.createSpan({ cls: 'ocop-file-chip-name' });
     nameEl.setText(filename);
     nameEl.setAttribute('title', filePath);
 
     // Click on chip body to open file
     chipEl.addEventListener('click', (e) => {
       const target = e.target as HTMLElement;
-      if (!target.closest('.oc-file-chip-pin') && !target.closest('.oc-file-chip-remove')) {
+      if (!target.closest('.ocop-file-chip-pin') && !target.closest('.ocop-file-chip-remove')) {
         this.callbacks.onOpenFile(filePath);
       }
     });
 
     // Pin button
-    const pinEl = chipEl.createSpan({ cls: 'oc-file-chip-pin' });
+    const pinEl = chipEl.createSpan({ cls: 'ocop-file-chip-pin' });
     setIcon(pinEl, isPinned ? 'pin-off' : 'pin');
     pinEl.setAttribute('aria-label', isPinned ? 'Unpin (allow auto-change)' : 'Pin (keep attached)');
     pinEl.setAttribute('title', isPinned ? '📌 Pinned - Click to unpin' : 'Click to pin this note');
@@ -150,7 +150,7 @@ export class FileChipsView {
     });
 
     // Remove button
-    const removeEl = chipEl.createSpan({ cls: 'oc-file-chip-remove' });
+    const removeEl = chipEl.createSpan({ cls: 'ocop-file-chip-remove' });
     removeEl.setText('\u00D7');
     removeEl.setAttribute('aria-label', 'Remove');
 

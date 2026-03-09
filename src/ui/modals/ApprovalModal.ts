@@ -42,32 +42,32 @@ export class ApprovalModal extends Modal {
 
   onOpen() {
     const { contentEl } = this;
-    contentEl.addClass('oc-approval-modal');
+    contentEl.addClass('ocop-approval-modal');
     this.setTitle(this.options.title ?? 'Permission required');
 
-    const infoEl = contentEl.createDiv({ cls: 'oc-approval-info' });
+    const infoEl = contentEl.createDiv({ cls: 'ocop-approval-info' });
 
-    const toolEl = infoEl.createDiv({ cls: 'oc-approval-tool' });
-    const iconEl = toolEl.createSpan({ cls: 'oc-approval-icon' });
+    const toolEl = infoEl.createDiv({ cls: 'ocop-approval-tool' });
+    const iconEl = toolEl.createSpan({ cls: 'ocop-approval-icon' });
     iconEl.setAttribute('aria-hidden', 'true');
     setIcon(iconEl, getToolIcon(this.toolName));
-    toolEl.createSpan({ text: this.toolName, cls: 'oc-approval-tool-name' });
+    toolEl.createSpan({ text: this.toolName, cls: 'ocop-approval-tool-name' });
 
-    const descEl = contentEl.createDiv({ cls: 'oc-approval-desc' });
+    const descEl = contentEl.createDiv({ cls: 'ocop-approval-desc' });
     descEl.setText(this.description);
 
-    const buttonsEl = contentEl.createDiv({ cls: 'oc-approval-buttons' });
+    const buttonsEl = contentEl.createDiv({ cls: 'ocop-approval-buttons' });
 
     const denyBtn = buttonsEl.createEl('button', {
       text: 'Deny',
-      cls: 'oc-approval-btn oc-deny-btn',
+      cls: 'ocop-approval-btn ocop-deny-btn',
       attr: { 'aria-label': `Deny ${this.toolName} action` }
     });
     denyBtn.addEventListener('click', () => this.handleDecision('deny'));
 
     const allowBtn = buttonsEl.createEl('button', {
       text: 'Allow once',
-      cls: 'oc-approval-btn oc-allow-btn',
+      cls: 'ocop-approval-btn ocop-allow-btn',
       attr: { 'aria-label': `Allow ${this.toolName} action once` }
     });
     allowBtn.addEventListener('click', () => this.handleDecision('allow'));
@@ -76,7 +76,7 @@ export class ApprovalModal extends Modal {
     if (this.options.showAlwaysAllow ?? true) {
       alwaysBtn = buttonsEl.createEl('button', {
         text: 'Always allow',
-        cls: 'oc-approval-btn oc-always-btn',
+        cls: 'ocop-approval-btn ocop-always-btn',
         attr: { 'aria-label': `Always allow ${this.toolName} actions` }
       });
       alwaysBtn.addEventListener('click', () => this.handleDecision('allow-always'));

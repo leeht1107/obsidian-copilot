@@ -55,11 +55,11 @@ export class MentionDropdownController {
     this.fixed = options.fixed ?? false;
 
     this.dropdown = new SelectableDropdown<MentionItem>(this.containerEl, {
-      listClassName: 'oc-mention-dropdown',
-      itemClassName: 'oc-mention-item',
-      emptyClassName: 'oc-mention-empty',
+      listClassName: 'ocop-mention-dropdown',
+      itemClassName: 'ocop-mention-item',
+      emptyClassName: 'ocop-mention-empty',
       fixed: this.fixed,
-      fixedClassName: 'oc-mention-dropdown-fixed',
+      fixedClassName: 'ocop-mention-dropdown-fixed',
     });
   }
 
@@ -354,7 +354,7 @@ export class MentionDropdownController {
         return undefined;
       },
       renderItem: (item, itemEl) => {
-        const iconEl = itemEl.createSpan({ cls: 'oc-mention-icon' });
+        const iconEl = itemEl.createSpan({ cls: 'ocop-mention-icon' });
         if (item.type === 'mcp-server') {
           iconEl.innerHTML = MCP_ICON_SVG;
         } else if (item.type === 'context-file') {
@@ -365,23 +365,23 @@ export class MentionDropdownController {
           setIcon(iconEl, 'file-text');
         }
 
-        const textEl = itemEl.createSpan({ cls: 'oc-mention-text' });
+        const textEl = itemEl.createSpan({ cls: 'ocop-mention-text' });
 
         if (item.type === 'mcp-server') {
-          const nameEl = textEl.createSpan({ cls: 'oc-mention-name' });
+          const nameEl = textEl.createSpan({ cls: 'ocop-mention-name' });
           nameEl.setText(`@${item.name}`);
         } else if (item.type === 'context-folder') {
           const nameEl = textEl.createSpan({
-            cls: 'oc-mention-name oc-mention-name-folder',
+            cls: 'ocop-mention-name ocop-mention-name-folder',
           });
           nameEl.setText(`@${item.name}/`);
         } else if (item.type === 'context-file') {
           const nameEl = textEl.createSpan({
-            cls: 'oc-mention-name oc-mention-name-context',
+            cls: 'ocop-mention-name ocop-mention-name-context',
           });
           nameEl.setText(item.name);
         } else {
-          const pathEl = textEl.createSpan({ cls: 'oc-mention-path' });
+          const pathEl = textEl.createSpan({ cls: 'ocop-mention-path' });
           pathEl.setText(item.path || item.name);
         }
       },

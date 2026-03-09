@@ -1,18 +1,18 @@
 /* Header */
-.oc-header {
+.ocop-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 4px 12px 14px 12px;
 }
 
-.oc-title {
+.ocop-title {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.oc-logo {
+.ocop-logo {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -24,12 +24,12 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
-.oc-logo svg {
+.ocop-logo svg {
   width: 17px;
   height: 17px;
 }
 
-.oc-header h4 {
+.ocop-header h4 {
   margin: 0;
   font-size: 15px;
   font-weight: 650;
@@ -37,14 +37,14 @@
 }
 
 /* Header actions (right side) */
-.oc-header-actions {
+.ocop-header-actions {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
 /* Header icon buttons (history, new, etc.) */
-.oc-header-btn {
+.ocop-header-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -56,13 +56,13 @@
   transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
-.oc-header-btn:hover {
+.ocop-header-btn:hover {
   background: var(--background-modifier-hover);
   color: var(--text-normal);
   transform: translateY(-1px);
 }
 
-.oc-header-btn svg {
+.ocop-header-btn svg {
   width: 16px;
   height: 16px;
 }

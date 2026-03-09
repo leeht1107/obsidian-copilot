@@ -1,19 +1,19 @@
 /* Settings - Skills List */
-.oc-skills-settings-desc {
+.ocop-skills-settings-desc {
   margin-bottom: 8px;
 }
 
-.oc-skills-installed-desc {
+.ocop-skills-installed-desc {
   margin-top: 16px;
   margin-bottom: 12px;
   padding: 0 12px;
 }
 
-.oc-skills-list {
+.ocop-skills-list {
   margin-bottom: 16px;
 }
 
-.oc-skills-item {
+.ocop-skills-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -23,12 +23,12 @@
   margin-bottom: 8px;
 }
 
-.oc-skills-item-info {
+.ocop-skills-item-info {
   flex: 1;
   min-width: 0;
 }
 
-.oc-skills-item-name {
+.ocop-skills-item-name {
   display: inline-block;
   padding: 2px 8px;
   background: rgba(0, 180, 120, 0.15);
@@ -40,7 +40,7 @@
   font-family: var(--font-monospace);
 }
 
-.oc-skills-item-desc {
+.ocop-skills-item-desc {
   font-size: 12px;
   color: var(--text-muted);
   margin-top: 4px;
@@ -52,7 +52,7 @@
   -webkit-box-orient: vertical;
 }
 
-.oc-skills-remove-btn {
+.ocop-skills-remove-btn {
   padding: 4px 12px;
   font-size: 12px;
   background: var(--background-modifier-error);
@@ -64,11 +64,11 @@
   margin-left: 12px;
 }
 
-.oc-skills-remove-btn:hover {
+.ocop-skills-remove-btn:hover {
   opacity: 0.9;
 }
 
-.oc-skills-empty {
+.ocop-skills-empty {
   padding: 16px;
   text-align: center;
   color: var(--text-muted);
@@ -79,7 +79,7 @@
 }
 
 /* Status badge for skills */
-.oc-skills-status-badge {
+.ocop-skills-status-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -89,18 +89,18 @@
   font-weight: 500;
 }
 
-.oc-skills-status-badge.installed {
+.ocop-skills-status-badge.installed {
   background: rgba(0, 180, 120, 0.15);
   color: #00b478;
 }
 
-.oc-skills-status-badge.not-installed {
+.ocop-skills-status-badge.not-installed {
   background: rgba(255, 170, 0, 0.15);
   color: #ffaa00;
 }
 
 /* Built-in badge for bundled skills */
-.oc-skills-builtin-badge {
+.ocop-skills-builtin-badge {
   display: inline-block;
   padding: 2px 6px;
   background: rgba(100, 100, 100, 0.2);

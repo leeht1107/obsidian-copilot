@@ -1,25 +1,25 @@
 /* Write/Edit Diff Block - Subagent style */
-.oc-write-edit-block {
+.ocop-write-edit-block {
   margin: 4px 0;
   background: transparent;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-.oc-write-edit-block::-webkit-scrollbar {
+.ocop-write-edit-block::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
 
-.oc-text-block+.oc-write-edit-block {
+.ocop-text-block+.ocop-write-edit-block {
   margin-top: 8px;
 }
 
-.oc-write-edit-block+.oc-text-block {
+.ocop-write-edit-block+.ocop-text-block {
   margin-top: 8px;
 }
 
-.oc-write-edit-header {
+.ocop-write-edit-header {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -29,19 +29,19 @@
   background: transparent;
 }
 
-.oc-write-edit-icon {
+.ocop-write-edit-icon {
   width: 16px;
   height: 16px;
   color: var(--text-accent);
   flex-shrink: 0;
 }
 
-.oc-write-edit-icon svg {
+.ocop-write-edit-icon svg {
   width: 16px;
   height: 16px;
 }
 
-.oc-write-edit-label {
+.ocop-write-edit-label {
   flex: 1;
   font-size: 13px;
   font-weight: 500;
@@ -51,68 +51,68 @@
   white-space: nowrap;
 }
 
-.oc-write-edit-stats {
+.ocop-write-edit-stats {
   font-family: var(--font-monospace);
   font-size: 11px;
   flex-shrink: 0;
 }
 
-.oc-write-edit-stats .added {
+.ocop-write-edit-stats .added {
   color: var(--color-green);
 }
 
-.oc-write-edit-stats .removed {
+.ocop-write-edit-stats .removed {
   color: var(--color-red);
   margin-left: 4px;
 }
 
-.oc-write-edit-status {
+.ocop-write-edit-status {
   width: 16px;
   height: 16px;
   flex-shrink: 0;
 }
 
 /* Hide empty status on successful completion so stats align to right edge */
-.oc-write-edit-block.done .oc-write-edit-status:empty {
+.ocop-write-edit-block.done .ocop-write-edit-status:empty {
   display: none;
 }
 
-.oc-write-edit-status svg {
+.ocop-write-edit-status svg {
   width: 16px;
   height: 16px;
 }
 
-.oc-write-edit-status.status-running .oc-spinner {
+.ocop-write-edit-status.status-running .ocop-spinner {
   width: 14px;
   height: 14px;
 }
 
-.oc-write-edit-status.status-completed {
+.ocop-write-edit-status.status-completed {
   color: var(--color-green);
 }
 
-.oc-write-edit-status.status-error,
-.oc-write-edit-status.status-blocked {
+.ocop-write-edit-status.status-error,
+.ocop-write-edit-status.status-blocked {
   color: var(--color-red);
 }
 
-.oc-write-edit-content {
+.ocop-write-edit-content {
   padding: 0;
   background: transparent;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-.oc-write-edit-content::-webkit-scrollbar {
+.ocop-write-edit-content::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
 
-.oc-write-edit-diff-row {
+.ocop-write-edit-diff-row {
   display: flex;
 }
 
-.oc-write-edit-diff {
+.ocop-write-edit-diff {
   flex: 1;
   font-family: var(--font-monospace);
   font-size: 12px;
@@ -125,36 +125,36 @@
   -ms-overflow-style: none;
 }
 
-.oc-write-edit-diff::-webkit-scrollbar {
+.ocop-write-edit-diff::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
 
-.oc-write-edit-loading,
-.oc-write-edit-binary,
-.oc-write-edit-error,
-.oc-write-edit-done-text {
+.ocop-write-edit-loading,
+.ocop-write-edit-binary,
+.ocop-write-edit-error,
+.ocop-write-edit-done-text {
   font-family: var(--font-monospace);
   font-size: 12px;
   color: var(--text-muted);
 }
 
-.oc-write-edit-error {
+.ocop-write-edit-error {
   color: var(--color-red);
 }
 
 /* Diff line styling */
-.oc-diff-hunk {
+.ocop-diff-hunk {
   margin-bottom: 4px;
 }
 
-.oc-diff-line {
+.ocop-diff-line {
   display: flex;
   white-space: pre-wrap;
   word-break: break-all;
 }
 
-.oc-diff-prefix {
+.ocop-diff-prefix {
   flex-shrink: 0;
   width: 16px;
   text-align: center;
@@ -162,36 +162,36 @@
   user-select: none;
 }
 
-.oc-diff-text {
+.ocop-diff-text {
   flex: 1;
   min-width: 0;
 }
 
 /* Diff colors - NO strikethrough for Write/Edit blocks */
-.oc-diff-equal {
+.ocop-diff-equal {
   color: var(--text-muted);
 }
 
-.oc-diff-delete {
+.ocop-diff-delete {
   background: rgba(255, 80, 80, 0.25);
   color: var(--text-normal);
 }
 
-.oc-diff-delete .oc-diff-prefix {
+.ocop-diff-delete .ocop-diff-prefix {
   color: var(--color-red);
 }
 
-.oc-diff-insert {
+.ocop-diff-insert {
   background: rgba(80, 200, 80, 0.25);
   color: var(--text-normal);
 }
 
-.oc-diff-insert .oc-diff-prefix {
+.ocop-diff-insert .ocop-diff-prefix {
   color: var(--color-green);
 }
 
 /* Hunk separator */
-.oc-diff-separator {
+.ocop-diff-separator {
   color: var(--text-muted);
   text-align: center;
   padding: 4px 0;
@@ -202,7 +202,7 @@
   font-size: 11px;
 }
 
-.oc-diff-no-changes {
+.ocop-diff-no-changes {
   color: var(--text-muted);
   font-style: italic;
   padding: 8px;

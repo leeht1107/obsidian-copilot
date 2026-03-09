@@ -149,7 +149,7 @@ class MockElement {
   querySelectorAll(selector: string): MockElement[] {
     const matches: MockElement[] = [];
     const match = (el: MockElement): boolean => {
-      // Handle class selectors like .oc-todo-panel
+      // Handle class selectors like .ocop-todo-panel
       const classMatch = selector.match(/\.([a-zA-Z0-9_-]+)/g);
       if (classMatch) {
         for (const cls of classMatch) {
@@ -203,13 +203,13 @@ describe('TodoPanel', () => {
     it('should create panel element when mounted', () => {
       panel.mount(containerEl as unknown as HTMLElement);
 
-      expect(containerEl.querySelector('.oc-todo-panel')).not.toBeNull();
+      expect(containerEl.querySelector('.ocop-todo-panel')).not.toBeNull();
     });
 
     it('should create hidden todo container initially', () => {
       panel.mount(containerEl as unknown as HTMLElement);
 
-      const todoContainer = containerEl.querySelector('.oc-todo-panel-todos');
+      const todoContainer = containerEl.querySelector('.ocop-todo-panel-todos');
       expect(todoContainer).not.toBeNull();
       expect(todoContainer!.style.display).toBe('none');
     });
@@ -227,7 +227,7 @@ describe('TodoPanel', () => {
 
       panel.updateTodos(todos);
 
-      const todoContainer = containerEl.querySelector('.oc-todo-panel-todos');
+      const todoContainer = containerEl.querySelector('.ocop-todo-panel-todos');
       expect(todoContainer!.style.display).toBe('block');
     });
 
@@ -239,7 +239,7 @@ describe('TodoPanel', () => {
       panel.updateTodos(todos);
       panel.updateTodos(null);
 
-      const todoContainer = containerEl.querySelector('.oc-todo-panel-todos');
+      const todoContainer = containerEl.querySelector('.ocop-todo-panel-todos');
       expect(todoContainer!.style.display).toBe('none');
     });
 
@@ -251,7 +251,7 @@ describe('TodoPanel', () => {
       panel.updateTodos(todos);
       panel.updateTodos([]);
 
-      const todoContainer = containerEl.querySelector('.oc-todo-panel-todos');
+      const todoContainer = containerEl.querySelector('.ocop-todo-panel-todos');
       expect(todoContainer!.style.display).toBe('none');
     });
 
@@ -264,7 +264,7 @@ describe('TodoPanel', () => {
 
       panel.updateTodos(todos);
 
-      const label = containerEl.querySelector('.oc-todo-panel-label');
+      const label = containerEl.querySelector('.ocop-todo-panel-label');
       expect(label?.textContent).toBe('Tasks (1/3)');
     });
 
@@ -276,7 +276,7 @@ describe('TodoPanel', () => {
 
       panel.updateTodos(todos);
 
-      const current = containerEl.querySelector('.oc-todo-panel-current');
+      const current = containerEl.querySelector('.ocop-todo-panel-current');
       expect(current?.textContent).toBe('Working on Task 2');
     });
 
@@ -288,7 +288,7 @@ describe('TodoPanel', () => {
 
       panel.updateTodos(todos);
 
-      const items = containerEl.querySelectorAll('.oc-todo-item');
+      const items = containerEl.querySelectorAll('.ocop-todo-item');
       expect(items.length).toBe(2);
     });
 
@@ -301,9 +301,9 @@ describe('TodoPanel', () => {
 
       panel.updateTodos(todos);
 
-      expect(containerEl.querySelector('.oc-todo-pending')).not.toBeNull();
-      expect(containerEl.querySelector('.oc-todo-in_progress')).not.toBeNull();
-      expect(containerEl.querySelector('.oc-todo-completed')).not.toBeNull();
+      expect(containerEl.querySelector('.ocop-todo-pending')).not.toBeNull();
+      expect(containerEl.querySelector('.ocop-todo-in_progress')).not.toBeNull();
+      expect(containerEl.querySelector('.ocop-todo-completed')).not.toBeNull();
     });
 
     it('should warn if called before mount with todos to display', () => {
@@ -336,8 +336,8 @@ describe('TodoPanel', () => {
     });
 
     it('should expand content on header click', () => {
-      const header = containerEl.querySelector('.oc-todo-panel-header');
-      const content = containerEl.querySelector('.oc-todo-panel-content');
+      const header = containerEl.querySelector('.ocop-todo-panel-header');
+      const content = containerEl.querySelector('.ocop-todo-panel-content');
 
       expect(content!.style.display).toBe('none');
 
@@ -347,8 +347,8 @@ describe('TodoPanel', () => {
     });
 
     it('should collapse content on second click', () => {
-      const header = containerEl.querySelector('.oc-todo-panel-header');
-      const content = containerEl.querySelector('.oc-todo-panel-content');
+      const header = containerEl.querySelector('.ocop-todo-panel-header');
+      const content = containerEl.querySelector('.ocop-todo-panel-content');
 
       header!.click();
       expect(content!.style.display).toBe('block');
@@ -358,24 +358,24 @@ describe('TodoPanel', () => {
     });
 
     it('should show list icon in header', () => {
-      const icon = containerEl.querySelector('.oc-todo-panel-icon');
+      const icon = containerEl.querySelector('.ocop-todo-panel-icon');
       expect(icon).not.toBeNull();
       expect(icon?.getAttribute('data-icon')).toBe('list-checks');
     });
 
     it('should hide current task when expanded', () => {
-      const header = containerEl.querySelector('.oc-todo-panel-header');
+      const header = containerEl.querySelector('.ocop-todo-panel-header');
 
-      expect(containerEl.querySelector('.oc-todo-panel-current')).not.toBeNull();
+      expect(containerEl.querySelector('.ocop-todo-panel-current')).not.toBeNull();
 
       header!.click();
 
-      expect(containerEl.querySelector('.oc-todo-panel-current')).toBeNull();
+      expect(containerEl.querySelector('.ocop-todo-panel-current')).toBeNull();
     });
 
     it('should toggle on Enter key', () => {
-      const header = containerEl.querySelector('.oc-todo-panel-header');
-      const content = containerEl.querySelector('.oc-todo-panel-content');
+      const header = containerEl.querySelector('.ocop-todo-panel-header');
+      const content = containerEl.querySelector('.ocop-todo-panel-content');
 
       const event = { type: 'keydown', key: 'Enter', preventDefault: jest.fn() };
       header!.dispatchEvent(event);
@@ -385,8 +385,8 @@ describe('TodoPanel', () => {
     });
 
     it('should toggle on Space key', () => {
-      const header = containerEl.querySelector('.oc-todo-panel-header');
-      const content = containerEl.querySelector('.oc-todo-panel-content');
+      const header = containerEl.querySelector('.ocop-todo-panel-header');
+      const content = containerEl.querySelector('.ocop-todo-panel-content');
 
       const event = { type: 'keydown', key: ' ', preventDefault: jest.fn() };
       header!.dispatchEvent(event);
@@ -396,8 +396,8 @@ describe('TodoPanel', () => {
     });
 
     it('should not toggle on other keys', () => {
-      const header = containerEl.querySelector('.oc-todo-panel-header');
-      const content = containerEl.querySelector('.oc-todo-panel-content');
+      const header = containerEl.querySelector('.ocop-todo-panel-header');
+      const content = containerEl.querySelector('.ocop-todo-panel-content');
 
       const event = { type: 'keydown', key: 'Tab', preventDefault: jest.fn() };
       header!.dispatchEvent(event);
@@ -413,18 +413,18 @@ describe('TodoPanel', () => {
     });
 
     it('should set tabindex on header', () => {
-      const header = containerEl.querySelector('.oc-todo-panel-header');
+      const header = containerEl.querySelector('.ocop-todo-panel-header');
       expect(header?.getAttribute('tabindex')).toBe('0');
     });
 
     it('should set role button on header', () => {
-      const header = containerEl.querySelector('.oc-todo-panel-header');
+      const header = containerEl.querySelector('.ocop-todo-panel-header');
       expect(header?.getAttribute('role')).toBe('button');
     });
 
     it('should update aria-expanded on toggle', () => {
       panel.updateTodos([{ content: 'Task', status: 'pending', activeForm: 'Task' }]);
-      const header = containerEl.querySelector('.oc-todo-panel-header');
+      const header = containerEl.querySelector('.ocop-todo-panel-header');
 
       expect(header!.getAttribute('aria-expanded')).toBe('false');
 
@@ -441,14 +441,14 @@ describe('TodoPanel', () => {
         { content: 'Task 2', status: 'pending', activeForm: 'Task 2' },
       ]);
 
-      const header = containerEl.querySelector('.oc-todo-panel-header');
+      const header = containerEl.querySelector('.ocop-todo-panel-header');
       expect(header?.getAttribute('aria-label')).toBe('Expand task list - 1 of 2 completed');
     });
 
     it('should hide status icons from screen readers', () => {
       panel.updateTodos([{ content: 'Task', status: 'pending', activeForm: 'Task' }]);
 
-      const icon = containerEl.querySelector('.oc-todo-status-icon');
+      const icon = containerEl.querySelector('.ocop-todo-status-icon');
       expect(icon?.getAttribute('aria-hidden')).toBe('true');
     });
   });
@@ -457,11 +457,11 @@ describe('TodoPanel', () => {
     it('should remove panel from DOM', () => {
       panel.mount(containerEl as unknown as HTMLElement);
 
-      expect(containerEl.querySelector('.oc-todo-panel')).not.toBeNull();
+      expect(containerEl.querySelector('.ocop-todo-panel')).not.toBeNull();
 
       panel.destroy();
 
-      expect(containerEl.querySelector('.oc-todo-panel')).toBeNull();
+      expect(containerEl.querySelector('.ocop-todo-panel')).toBeNull();
     });
 
     it('should be safe to call multiple times', () => {

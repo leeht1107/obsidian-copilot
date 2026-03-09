@@ -1,39 +1,39 @@
 /* MCP Server Modal */
-.oc-mcp-modal .modal-content {
+.ocop-mcp-modal .modal-content {
   width: 480px;
   max-width: 90vw;
 }
 
-.oc-mcp-type-fields {
+.ocop-mcp-type-fields {
   margin: 12px 0;
   padding: 12px;
   background: var(--background-secondary);
   border-radius: 6px;
 }
 
-.oc-mcp-type-fields .setting-item {
+.ocop-mcp-type-fields .setting-item {
   padding: 8px 0;
   border-top: none;
 }
 
-.oc-mcp-type-fields .setting-item:first-child {
+.ocop-mcp-type-fields .setting-item:first-child {
   padding-top: 0;
 }
 
-.oc-mcp-cmd-setting,
-.oc-mcp-env-setting {
+.ocop-mcp-cmd-setting,
+.ocop-mcp-env-setting {
   flex-direction: column;
   align-items: flex-start;
 }
 
-.oc-mcp-cmd-setting .setting-item-control,
-.oc-mcp-env-setting .setting-item-control {
+.ocop-mcp-cmd-setting .setting-item-control,
+.ocop-mcp-env-setting .setting-item-control {
   width: 100%;
   margin-top: 8px;
 }
 
-.oc-mcp-cmd-textarea,
-.oc-mcp-env-textarea {
+.ocop-mcp-cmd-textarea,
+.ocop-mcp-env-textarea {
   width: 100%;
   min-height: 50px;
   resize: vertical;
@@ -45,13 +45,13 @@
   background: var(--background-primary);
 }
 
-.oc-mcp-cmd-textarea:focus,
-.oc-mcp-env-textarea:focus {
+.ocop-mcp-cmd-textarea:focus,
+.ocop-mcp-env-textarea:focus {
   border-color: var(--interactive-accent);
   outline: none;
 }
 
-.oc-mcp-buttons {
+.ocop-mcp-buttons {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
@@ -59,21 +59,21 @@
 }
 
 /* MCP Test Modal */
-.oc-mcp-test-modal {
+.ocop-mcp-test-modal {
   width: 500px;
   max-width: 90vw;
 }
 
-.oc-mcp-test-modal .modal-content {
+.ocop-mcp-test-modal .modal-content {
   padding: 0 20px 20px 20px;
 }
 
-.oc-mcp-test-modal .modal-title {
+.ocop-mcp-test-modal .modal-title {
   padding: 20px 20px 12px 20px;
   margin: 0 -20px;
 }
 
-.oc-mcp-test-loading {
+.ocop-mcp-test-loading {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -82,18 +82,18 @@
   color: var(--text-muted);
 }
 
-.oc-mcp-test-spinner {
+.ocop-mcp-test-spinner {
   width: 20px;
   height: 20px;
-  animation: oc-mcp-spin 1s linear infinite;
+  animation: ocop-mcp-spin 1s linear infinite;
 }
 
-.oc-mcp-test-spinner svg {
+.ocop-mcp-test-spinner svg {
   width: 100%;
   height: 100%;
 }
 
-.oc-mcp-test-status {
+.ocop-mcp-test-status {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -103,29 +103,29 @@
   margin-bottom: 12px;
 }
 
-.oc-mcp-test-icon {
+.ocop-mcp-test-icon {
   display: flex;
   align-items: center;
 }
 
-.oc-mcp-test-icon svg {
+.ocop-mcp-test-icon svg {
   width: 20px;
   height: 20px;
 }
 
-.oc-mcp-test-icon.success {
+.ocop-mcp-test-icon.success {
   color: var(--color-green);
 }
 
-.oc-mcp-test-icon.error {
+.ocop-mcp-test-icon.error {
   color: var(--text-error);
 }
 
-.oc-mcp-test-text {
+.ocop-mcp-test-text {
   font-weight: 500;
 }
 
-.oc-mcp-test-error {
+.ocop-mcp-test-error {
   padding: 10px 12px;
   background: rgba(var(--color-red-rgb), 0.1);
   border: 1px solid var(--text-error);
@@ -135,18 +135,18 @@
   margin-bottom: 12px;
 }
 
-.oc-mcp-test-tools {
+.ocop-mcp-test-tools {
   margin-bottom: 16px;
 }
 
-.oc-mcp-test-tools-header {
+.ocop-mcp-test-tools-header {
   font-weight: 600;
   font-size: 13px;
   margin-bottom: 8px;
   color: var(--text-muted);
 }
 
-.oc-mcp-test-tools-list {
+.ocop-mcp-test-tools-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -154,73 +154,73 @@
   overflow-y: auto;
 }
 
-.oc-mcp-test-tool {
+.ocop-mcp-test-tool {
   padding: 10px 12px;
   background: var(--background-secondary);
   border-radius: 6px;
 }
 
-.oc-mcp-test-tool-header {
+.ocop-mcp-test-tool-header {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.oc-mcp-test-tool-icon {
+.ocop-mcp-test-tool-icon {
   display: flex;
   align-items: center;
   color: var(--text-muted);
 }
 
-.oc-mcp-test-tool-icon svg {
+.ocop-mcp-test-tool-icon svg {
   width: 14px;
   height: 14px;
 }
 
-.oc-mcp-test-tool-name {
+.ocop-mcp-test-tool-name {
   font-weight: 500;
   font-size: 13px;
 }
 
-.oc-mcp-test-tool-toggle {
+.ocop-mcp-test-tool-toggle {
   margin-left: auto;
 }
 
-.oc-mcp-test-tool-toggle .checkbox-container {
+.ocop-mcp-test-tool-toggle .checkbox-container {
   display: flex;
   align-items: center;
 }
 
-.oc-mcp-test-tool-disabled {
+.ocop-mcp-test-tool-disabled {
   opacity: 0.75;
 }
 
-.oc-mcp-test-tool-disabled .oc-mcp-test-tool-name {
+.ocop-mcp-test-tool-disabled .ocop-mcp-test-tool-name {
   text-decoration: line-through;
   color: var(--text-muted);
 }
 
-.oc-mcp-toggle-all-btn {
+.ocop-mcp-toggle-all-btn {
   margin-right: 8px;
 }
 
-.oc-mcp-toggle-all-btn.is-destructive {
+.ocop-mcp-toggle-all-btn.is-destructive {
   background: rgba(var(--color-red-rgb), 0.1);
   border-color: rgba(var(--color-red-rgb), 0.3);
   color: var(--text-error);
 }
 
-.oc-mcp-toggle-all-btn.is-destructive:hover {
+.ocop-mcp-toggle-all-btn.is-destructive:hover {
   background: rgba(var(--color-red-rgb), 0.2);
 }
 
-.oc-mcp-test-tool-desc {
+.ocop-mcp-test-tool-desc {
   font-size: 12px;
   color: var(--text-muted);
   margin-top: 4px;
 }
 
-.oc-mcp-test-no-tools {
+.ocop-mcp-test-no-tools {
   padding: 16px;
   text-align: center;
   color: var(--text-muted);
@@ -230,7 +230,7 @@
   margin-bottom: 16px;
 }
 
-.oc-mcp-test-buttons {
+.ocop-mcp-test-buttons {
   display: flex;
   justify-content: center;
   margin-top: 16px;

@@ -7,29 +7,29 @@
  * Plan Approval Panel (replaces input area)
  * ============================================ */
 
-.oc-plan-approval-panel {
+.ocop-plan-approval-panel {
   /* Match input wrapper padding structure */
-  padding: 10px;  /* Same as .oc-input */
-  min-height: 60px;  /* Same as .oc-input min-height */
+  padding: 10px;  /* Same as .ocop-input */
+  min-height: 60px;  /* Same as .ocop-input min-height */
   outline: none;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.oc-plan-approval-panel:focus {
+.ocop-plan-approval-panel:focus {
   outline: none;
 }
 
 /* Header: "Would you like to proceed?" */
-.oc-plan-approval-header {
+.ocop-plan-approval-header {
   font-size: 13px;
   color: var(--text-muted);
   margin-bottom: 6px;
 }
 
 /* Options list - tighter spacing */
-.oc-plan-approval-options {
+.ocop-plan-approval-options {
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -37,7 +37,7 @@
   font-size: 13px;
 }
 
-.oc-plan-approval-option {
+.ocop-plan-approval-option {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -47,45 +47,45 @@
   line-height: 1.4;
 }
 
-.oc-plan-approval-option:hover {
+.ocop-plan-approval-option:hover {
   color: var(--interactive-accent);
 }
 
-.oc-plan-approval-option.focused {
+.ocop-plan-approval-option.focused {
   color: var(--interactive-accent);
 }
 
 /* Caret - narrower */
-.oc-plan-approval-caret {
+.ocop-plan-approval-caret {
   width: 10px;
   flex-shrink: 0;
   color: var(--interactive-accent);
   font-weight: bold;
 }
 
-.oc-plan-approval-number {
+.ocop-plan-approval-number {
   flex-shrink: 0;
   color: var(--text-muted);
   white-space: nowrap;
 }
 
-.oc-plan-approval-option.focused .oc-plan-approval-caret,
-.oc-plan-approval-option.focused .oc-plan-approval-number {
+.ocop-plan-approval-option.focused .ocop-plan-approval-caret,
+.ocop-plan-approval-option.focused .ocop-plan-approval-number {
   color: var(--interactive-accent);
 }
 
-.oc-plan-approval-option-label {
+.ocop-plan-approval-option-label {
   font-weight: 500;
 }
 
 /* Placeholder text for revise option (muted) */
-.oc-plan-approval-placeholder {
+.ocop-plan-approval-placeholder {
   color: var(--text-muted);
   font-style: italic;
 }
 
 /* Inline revise input - must blend perfectly with option text */
-.oc-plan-approval-revise-inline {
+.ocop-plan-approval-revise-inline {
   flex: 1;
   border: none !important;
   background: transparent !important;
@@ -104,7 +104,7 @@
   height: auto;
 }
 
-.oc-plan-approval-revise-inline::placeholder {
+.ocop-plan-approval-revise-inline::placeholder {
   color: var(--text-muted);
   font-style: italic;
   font-weight: 400;
@@ -114,7 +114,7 @@
  * Plan Message (distinct styling in chat)
  * ============================================ */
 
-.oc-message-plan {
+.ocop-message-plan {
   background: rgba(0, 0, 0, 0.15);
   border-radius: 6px;
   /* Match plan banner horizontal margin (0 12px 8px 12px) */
@@ -132,7 +132,7 @@
  * Approval Indicator (user's choice display)
  * ============================================ */
 
-.oc-approval-indicator {
+.ocop-approval-indicator {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -140,29 +140,29 @@
   font-size: 13px;
 }
 
-.oc-approval-indicator-icon {
+.ocop-approval-indicator-icon {
   flex-shrink: 0;
   display: flex;
   align-items: center;
 }
 
-.oc-approval-indicator-icon svg {
+.ocop-approval-indicator-icon svg {
   width: 14px;
   height: 14px;
 }
 
 /* Text always muted */
-.oc-approval-indicator-text {
+.ocop-approval-indicator-text {
   color: var(--text-muted);
   margin-left: 2px;
 }
 
 /* Green check for approve (icon only) */
-.oc-approval-indicator-approve .oc-approval-indicator-icon {
+.ocop-approval-indicator-approve .ocop-approval-indicator-icon {
   color: var(--color-green);
 }
 
 /* Red x for revise (icon only) */
-.oc-approval-indicator-revise .oc-approval-indicator-icon {
+.ocop-approval-indicator-revise .ocop-approval-indicator-icon {
   color: var(--color-red);
 }

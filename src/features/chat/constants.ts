@@ -8,7 +8,7 @@ export const MCP_ICON_SVG = `<svg fill="currentColor" fill-rule="evenodd" height
 /** Check icon SVG for MCP selector. */
 export const CHECK_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 
-/** ObsidianCode logo SVG configuration (GitHub Copilot style). */
+/** Obsidian Copilot logo SVG configuration. */
 export const LOGO_SVG = {
   viewBox: '0 0 24 24',
   width: '18',
@@ -17,7 +17,7 @@ export const LOGO_SVG = {
   fill: 'currentColor',
 } as const;
 
-/** Random flavor texts shown while Claude is thinking. */
+/** Random flavor texts shown while Copilot is thinking. */
 export const FLAVOR_TEXTS = [
   // Classic
   'Thinking...',

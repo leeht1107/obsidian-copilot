@@ -1,9 +1,9 @@
 /* Environment Snippets Styles */
-.oc-env-snippets-container {
+.ocop-env-snippets-container {
   margin-top: 16px;
 }
 
-.oc-snippet-header {
+.ocop-snippet-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -12,13 +12,13 @@
   padding: 0 12px;
 }
 
-.oc-snippet-label {
+.ocop-snippet-label {
   font-size: var(--font-ui-small);
   color: var(--text-muted);
   font-weight: var(--font-medium);
 }
 
-.oc-save-env-btn {
+.ocop-save-env-btn {
   padding: 6px 16px;
   font-size: 13px;
   background: var(--interactive-accent);
@@ -29,11 +29,11 @@
   transition: opacity 0.2s;
 }
 
-.oc-save-env-btn:hover {
+.ocop-save-env-btn:hover {
   opacity: 0.9;
 }
 
-.oc-snippet-empty {
+.ocop-snippet-empty {
   padding: 20px;
   text-align: center;
   color: var(--text-muted);
@@ -42,14 +42,14 @@
   margin-top: 8px;
 }
 
-.oc-snippet-list {
+.ocop-snippet-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-top: 8px;
 }
 
-.oc-snippet-item {
+.ocop-snippet-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -59,34 +59,34 @@
   transition: background-color 0.2s;
 }
 
-.oc-snippet-item:hover {
+.ocop-snippet-item:hover {
   background: var(--background-modifier-hover);
 }
 
-.oc-snippet-info {
+.ocop-snippet-info {
   flex: 1;
   min-width: 0;
 }
 
-.oc-snippet-name {
+.ocop-snippet-name {
   font-weight: 600;
   margin-bottom: 4px;
   word-break: break-word;
 }
 
-.oc-snippet-description {
+.ocop-snippet-description {
   font-size: 13px;
   color: var(--text-muted);
 }
 
-.oc-snippet-actions {
+.ocop-snippet-actions {
   display: flex;
   gap: 4px;
   margin-left: 16px;
   flex-shrink: 0;
 }
 
-.oc-restore-snippet-btn {
+.ocop-restore-snippet-btn {
   padding: 4px 12px;
   font-size: 12px;
   background: var(--interactive-accent);
@@ -96,11 +96,11 @@
   cursor: pointer;
 }
 
-.oc-restore-snippet-btn:hover {
+.ocop-restore-snippet-btn:hover {
   opacity: 0.9;
 }
 
-.oc-edit-snippet-btn {
+.ocop-edit-snippet-btn {
   padding: 4px 12px;
   font-size: 12px;
   background: var(--background-modifier-border);
@@ -110,11 +110,11 @@
   cursor: pointer;
 }
 
-.oc-edit-snippet-btn:hover {
+.ocop-edit-snippet-btn:hover {
   background: var(--background-modifier-border-hover);
 }
 
-.oc-delete-snippet-btn {
+.ocop-delete-snippet-btn {
   padding: 4px 12px;
   font-size: 12px;
   background: var(--background-modifier-error);
@@ -124,46 +124,46 @@
   cursor: pointer;
 }
 
-.oc-delete-snippet-btn:hover {
+.ocop-delete-snippet-btn:hover {
   opacity: 0.9;
 }
 
 /* Env Snippet Modal */
-.oc-env-snippet-modal .modal-content {
+.ocop-env-snippet-modal .modal-content {
   max-width: 550px;
   width: 550px;
   padding: 16px;
 }
 
-.oc-env-snippet-modal h2 {
+.ocop-env-snippet-modal h2 {
   margin: 0 0 16px 0;
 }
 
-.oc-env-snippet-modal .setting-item {
+.ocop-env-snippet-modal .setting-item {
   padding: 8px 0;
   margin: 0;
 }
 
-.oc-env-snippet-modal .setting-item-info {
+.ocop-env-snippet-modal .setting-item-info {
   margin-bottom: 4px;
 }
 
 /* Full-width env vars textarea setting */
-.oc-env-snippet-setting {
+.ocop-env-snippet-setting {
   flex-direction: column;
   align-items: flex-start;
 }
 
-.oc-env-snippet-setting .setting-item-info {
+.ocop-env-snippet-setting .setting-item-info {
   width: 100%;
   margin-bottom: 8px;
 }
 
-.oc-env-snippet-control {
+.ocop-env-snippet-control {
   width: 100%;
 }
 
-.oc-env-snippet-control textarea {
+.ocop-env-snippet-control textarea {
   width: 100%;
   min-width: 100%;
   font-family: var(--font-monospace);
@@ -171,14 +171,14 @@
   resize: vertical;
 }
 
-.oc-snippet-preview {
+.ocop-snippet-preview {
   margin: 8px 0;
   padding: 6px;
   background: var(--background-secondary);
   border-radius: 6px;
 }
 
-.oc-env-preview {
+.ocop-env-preview {
   background: var(--background-primary);
   padding: 6px;
   border-radius: 4px;
@@ -193,15 +193,15 @@
   margin: 0;
 }
 
-.oc-snippet-buttons {
+.ocop-snippet-buttons {
   display: flex;
   gap: 8px;
   margin-top: 16px;
   justify-content: flex-end;
 }
 
-.oc-cancel-btn,
-.oc-save-btn {
+.ocop-cancel-btn,
+.ocop-save-btn {
   padding: 6px 16px;
   font-size: 13px;
   border: none;
@@ -209,20 +209,20 @@
   cursor: pointer;
 }
 
-.oc-cancel-btn {
+.ocop-cancel-btn {
   background: var(--background-modifier-border);
   color: var(--text-normal);
 }
 
-.oc-cancel-btn:hover {
+.ocop-cancel-btn:hover {
   background: var(--background-modifier-border-hover);
 }
 
-.oc-save-btn {
+.ocop-save-btn {
   background: var(--interactive-accent);
   color: var(--text-on-accent);
 }
 
-.oc-save-btn:hover {
+.ocop-save-btn:hover {
   opacity: 0.9;
 }

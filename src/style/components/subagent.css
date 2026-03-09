@@ -1,26 +1,26 @@
 /* Subagent List (Task tool) - follows TodoList pattern */
-.oc-subagent-list {
+.ocop-subagent-list {
   margin: 8px 0;
 }
 
-.oc-text-block+.oc-subagent-list {
+.ocop-text-block+.ocop-subagent-list {
   margin-top: 8px;
 }
 
-.oc-subagent-list+.oc-text-block {
+.ocop-subagent-list+.ocop-text-block {
   margin-top: 8px;
 }
 
-.oc-tool-call+.oc-subagent-list {
+.ocop-tool-call+.ocop-subagent-list {
   margin-top: 8px;
 }
 
-.oc-subagent-list+.oc-tool-call {
+.ocop-subagent-list+.ocop-tool-call {
   margin-top: 8px;
 }
 
 /* Subagent header */
-.oc-subagent-header {
+.ocop-subagent-header {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -28,61 +28,61 @@
   cursor: pointer;
 }
 
-.oc-subagent-icon {
+.ocop-subagent-icon {
   display: flex;
   align-items: center;
   color: var(--interactive-accent);
   flex-shrink: 0;
 }
 
-.oc-subagent-icon svg {
+.ocop-subagent-icon svg {
   width: 16px;
   height: 16px;
 }
 
-.oc-subagent-label {
+.ocop-subagent-label {
   flex: 1;
   font-size: 13px;
   font-weight: 500;
   color: var(--text-normal);
 }
 
-.oc-subagent-count {
+.ocop-subagent-count {
   font-size: 11px;
   color: var(--text-muted);
   flex-shrink: 0;
 }
 
-.oc-subagent-status {
+.ocop-subagent-status {
   display: flex;
   align-items: center;
   flex-shrink: 0;
 }
 
-.oc-subagent-status svg {
+.ocop-subagent-status svg {
   width: 14px;
   height: 14px;
 }
 
-.oc-subagent-status.status-running {
+.ocop-subagent-status.status-running {
   color: var(--text-accent);
 }
 
-.oc-subagent-status.status-completed {
+.ocop-subagent-status.status-completed {
   color: var(--color-green);
 }
 
-.oc-subagent-status.status-error {
+.ocop-subagent-status.status-error {
   color: var(--color-red);
 }
 
 /* Subagent content */
-.oc-subagent-content {
+.ocop-subagent-content {
   padding: 4px 0 4px 24px;
 }
 
 /* Tree branch indicator */
-.oc-subagent-branch {
+.ocop-subagent-branch {
   font-family: monospace;
   color: var(--text-faint);
   flex-shrink: 0;
@@ -90,20 +90,20 @@
 }
 
 /* Individual tool item container */
-.oc-subagent-tool-item {
+.ocop-subagent-tool-item {
   display: flex;
   flex-direction: column;
   padding: 2px 0;
 }
 
 /* Tool row (branch + label) */
-.oc-subagent-tool-row {
+.ocop-subagent-tool-row {
   display: flex;
   align-items: flex-start;
   gap: 4px;
 }
 
-.oc-subagent-tool-text {
+.ocop-subagent-tool-text {
   font-size: 13px;
   line-height: 1.4;
   flex: 1;
@@ -111,14 +111,14 @@
 }
 
 /* Tool result area nested under tool (max 2 lines) */
-.oc-subagent-tool-result {
+.ocop-subagent-tool-result {
   display: flex;
   align-items: flex-start;
   gap: 4px;
   padding: 2px 0 0 20px;
 }
 
-.oc-subagent-result-text {
+.ocop-subagent-result-text {
   font-size: 12px;
   color: var(--text-muted);
   line-height: 1.4;
@@ -129,14 +129,14 @@
 }
 
 /* DONE indicator */
-.oc-subagent-done {
+.ocop-subagent-done {
   display: flex;
   align-items: flex-start;
   gap: 4px;
   padding: 2px 0;
 }
 
-.oc-subagent-done-text {
+.ocop-subagent-done-text {
   font-size: 12px;
   color: var(--text-faint);
   font-weight: 500;
@@ -145,7 +145,7 @@
 /* Async Subagent (Task tool with run_in_background=true) */
 
 /* Status text display (e.g., "pending", "running agent_123", etc.) */
-.oc-subagent-status-text {
+.ocop-subagent-status-text {
   font-size: 11px;
   font-family: var(--font-monospace);
   color: var(--text-muted);
@@ -154,50 +154,50 @@
 }
 
 /* Async-specific status styling */
-.oc-subagent-list.async.pending .oc-subagent-icon {
+.ocop-subagent-list.async.pending .ocop-subagent-icon {
   color: var(--text-muted);
 }
 
-.oc-subagent-list.async.pending .oc-subagent-status-text {
+.ocop-subagent-list.async.pending .ocop-subagent-status-text {
   color: var(--text-muted);
 }
 
-.oc-subagent-list.async.running .oc-subagent-icon {
+.ocop-subagent-list.async.running .ocop-subagent-icon {
   color: var(--interactive-accent);
 }
 
-.oc-subagent-list.async.running .oc-subagent-status-text {
+.ocop-subagent-list.async.running .ocop-subagent-status-text {
   color: var(--text-accent);
 }
 
-.oc-subagent-list.async.awaiting .oc-subagent-icon {
+.ocop-subagent-list.async.awaiting .ocop-subagent-icon {
   color: var(--color-yellow);
 }
 
-.oc-subagent-list.async.awaiting .oc-subagent-status-text {
+.ocop-subagent-list.async.awaiting .ocop-subagent-status-text {
   color: var(--color-yellow);
 }
 
-.oc-subagent-list.async.completed .oc-subagent-icon {
+.ocop-subagent-list.async.completed .ocop-subagent-icon {
   color: var(--color-green);
 }
 
-.oc-subagent-list.async.completed .oc-subagent-status-text {
+.ocop-subagent-list.async.completed .ocop-subagent-status-text {
   color: var(--color-green);
 }
 
-.oc-subagent-list.async.error .oc-subagent-icon {
+.ocop-subagent-list.async.error .ocop-subagent-icon {
   color: var(--color-red);
 }
 
-.oc-subagent-list.async.error .oc-subagent-status-text {
+.ocop-subagent-list.async.error .ocop-subagent-status-text {
   color: var(--color-red);
 }
 
-.oc-subagent-list.async.orphaned .oc-subagent-icon {
+.ocop-subagent-list.async.orphaned .ocop-subagent-icon {
   color: var(--color-orange);
 }
 
-.oc-subagent-list.async.orphaned .oc-subagent-status-text {
+.ocop-subagent-list.async.orphaned .ocop-subagent-status-text {
   color: var(--color-orange);
 }

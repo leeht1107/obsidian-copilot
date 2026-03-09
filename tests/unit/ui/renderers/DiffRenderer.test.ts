@@ -354,7 +354,7 @@ describe('DiffRenderer', () => {
         { type: 'equal', text: 'line1', oldLineNum: 1, newLineNum: 1 },
       ];
       const html = diffLinesToHtml(diffLines);
-      expect(html).toContain('oc-diff-no-changes');
+      expect(html).toContain('ocop-diff-no-changes');
       expect(html).toContain('No changes');
     });
 
@@ -363,7 +363,7 @@ describe('DiffRenderer', () => {
         { type: 'insert', text: 'new line', newLineNum: 1 },
       ];
       const html = diffLinesToHtml(diffLines);
-      expect(html).toContain('oc-diff-insert');
+      expect(html).toContain('ocop-diff-insert');
       expect(html).toContain('+');
       expect(html).toContain('new line');
     });
@@ -373,7 +373,7 @@ describe('DiffRenderer', () => {
         { type: 'delete', text: 'old line', oldLineNum: 1 },
       ];
       const html = diffLinesToHtml(diffLines);
-      expect(html).toContain('oc-diff-delete');
+      expect(html).toContain('ocop-diff-delete');
       expect(html).toContain('-');
       expect(html).toContain('old line');
     });
@@ -384,7 +384,7 @@ describe('DiffRenderer', () => {
         { type: 'insert', text: 'new', newLineNum: 2 },
       ];
       const html = diffLinesToHtml(diffLines);
-      expect(html).toContain('oc-diff-equal');
+      expect(html).toContain('ocop-diff-equal');
     });
 
     it('should escape HTML special characters', () => {
@@ -413,7 +413,7 @@ describe('DiffRenderer', () => {
       }
 
       const html = diffLinesToHtml(lines, 3);
-      expect(html).toContain('oc-diff-separator');
+      expect(html).toContain('ocop-diff-separator');
       expect(html).toContain('...');
     });
 
@@ -423,7 +423,7 @@ describe('DiffRenderer', () => {
       ];
       const html = diffLinesToHtml(diffLines);
       // Should render space for empty line
-      expect(html).toContain('oc-diff-text');
+      expect(html).toContain('ocop-diff-text');
     });
   });
 

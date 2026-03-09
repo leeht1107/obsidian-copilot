@@ -41,7 +41,7 @@ export class ModelSelector {
 
   constructor(parentEl: HTMLElement, callbacks: ToolbarCallbacks) {
     this.callbacks = callbacks;
-    this.container = parentEl.createDiv({ cls: 'oc-model-selector' });
+    this.container = parentEl.createDiv({ cls: 'ocop-model-selector' });
     this.render();
   }
 
@@ -59,9 +59,9 @@ export class ModelSelector {
 
   private render() {
     this.container.empty();
-    this.buttonEl = this.container.createDiv({ cls: 'oc-model-btn' });
+    this.buttonEl = this.container.createDiv({ cls: 'ocop-model-btn' });
     this.updateDisplay();
-    this.dropdownEl = this.container.createDiv({ cls: 'oc-model-dropdown' });
+    this.dropdownEl = this.container.createDiv({ cls: 'ocop-model-dropdown' });
     this.renderOptions();
   }
 
@@ -72,7 +72,7 @@ export class ModelSelector {
     const modelInfo = models.find((model) => model.value === currentModel) ?? models[0];
 
     this.buttonEl.empty();
-    this.buttonEl.createSpan({ cls: 'oc-model-label', text: modelInfo?.label || 'Unknown' });
+    this.buttonEl.createSpan({ cls: 'ocop-model-label', text: modelInfo?.label || 'Unknown' });
   }
 
   renderOptions() {
@@ -83,7 +83,7 @@ export class ModelSelector {
     const models = this.getAvailableModels();
 
     for (const model of [...models].reverse()) {
-      const option = this.dropdownEl.createDiv({ cls: 'oc-model-option' });
+      const option = this.dropdownEl.createDiv({ cls: 'ocop-model-option' });
       if (model.value === currentModel) {
         option.addClass('selected');
       }
@@ -91,7 +91,7 @@ export class ModelSelector {
       option.createSpan({ text: model.label });
       if (model.description) {
         option.setAttribute('title', model.description);
-        option.createSpan({ cls: 'oc-model-desc', text: model.description });
+        option.createSpan({ cls: 'ocop-model-desc', text: model.description });
       }
 
       option.addEventListener('click', async (event) => {
@@ -111,14 +111,14 @@ export class ThinkingBudgetSelector {
 
   constructor(parentEl: HTMLElement, callbacks: ToolbarCallbacks) {
     this.callbacks = callbacks;
-    this.container = parentEl.createDiv({ cls: 'oc-thinking-selector' });
+    this.container = parentEl.createDiv({ cls: 'ocop-thinking-selector' });
     this.render();
   }
 
   private render() {
     this.container.empty();
-    this.container.createSpan({ cls: 'oc-thinking-label-text', text: 'Thinking:' });
-    this.gearsEl = this.container.createDiv({ cls: 'oc-thinking-gears' });
+    this.container.createSpan({ cls: 'ocop-thinking-label-text', text: 'Thinking:' });
+    this.gearsEl = this.container.createDiv({ cls: 'ocop-thinking-gears' });
     this.renderGears();
   }
 
@@ -128,11 +128,11 @@ export class ThinkingBudgetSelector {
 
     const currentBudget = this.callbacks.getSettings().thinkingBudget;
     const currentBudgetInfo = THINKING_BUDGETS.find((budget) => budget.value === currentBudget);
-    this.gearsEl.createDiv({ cls: 'oc-thinking-current', text: currentBudgetInfo?.label || 'Off' });
+    this.gearsEl.createDiv({ cls: 'ocop-thinking-current', text: currentBudgetInfo?.label || 'Off' });
 
-    const optionsEl = this.gearsEl.createDiv({ cls: 'oc-thinking-options' });
+    const optionsEl = this.gearsEl.createDiv({ cls: 'ocop-thinking-options' });
     for (const budget of [...THINKING_BUDGETS].reverse()) {
-      const gearEl = optionsEl.createDiv({ cls: 'oc-thinking-gear' });
+      const gearEl = optionsEl.createDiv({ cls: 'ocop-thinking-gear' });
       gearEl.setText(budget.label);
       gearEl.setAttribute('title', budget.tokens > 0 ? `${budget.tokens.toLocaleString()} tokens` : 'Disabled');
       if (budget.value === currentBudget) {
@@ -161,14 +161,14 @@ export class PermissionToggle {
 
   constructor(parentEl: HTMLElement, callbacks: ToolbarCallbacks) {
     this.callbacks = callbacks;
-    this.container = parentEl.createDiv({ cls: 'oc-permission-toggle' });
+    this.container = parentEl.createDiv({ cls: 'ocop-permission-toggle' });
     this.render();
   }
 
   private render() {
     this.container.empty();
-    this.labelEl = this.container.createSpan({ cls: 'oc-permission-label' });
-    this.toggleEl = this.container.createDiv({ cls: 'oc-toggle-switch' });
+    this.labelEl = this.container.createSpan({ cls: 'ocop-permission-label' });
+    this.toggleEl = this.container.createDiv({ cls: 'ocop-toggle-switch' });
     this.updateDisplay();
     this.container.addEventListener('click', () => {
       void this.toggle();
@@ -205,7 +205,7 @@ export class PermissionToggle {
     if (mode === 'plan') {
       this.container.addClass('plan-mode');
       this.toggleEl.removeClass('active');
-      const iconEl = this.labelEl.createSpan({ cls: 'oc-plan-mode-icon' });
+      const iconEl = this.labelEl.createSpan({ cls: 'ocop-plan-mode-icon' });
       iconEl.textContent = '▎▎';
       iconEl.style.fontSize = '0.8em';
       iconEl.style.letterSpacing = '-4px';
@@ -255,7 +255,7 @@ export class ExternalContextSelector {
   private onChangeCallback: ((paths: string[]) => void) | null = null;
 
   constructor(parentEl: HTMLElement) {
-    this.container = parentEl.createDiv({ cls: 'oc-external-context-selector' });
+    this.container = parentEl.createDiv({ cls: 'ocop-external-context-selector' });
     this.render();
   }
 
@@ -282,10 +282,10 @@ export class ExternalContextSelector {
   private render() {
     this.container.empty();
 
-    const iconWrapper = this.container.createDiv({ cls: 'oc-external-context-icon-wrapper' });
-    this.iconEl = iconWrapper.createDiv({ cls: 'oc-external-context-icon' });
+    const iconWrapper = this.container.createDiv({ cls: 'ocop-external-context-icon-wrapper' });
+    this.iconEl = iconWrapper.createDiv({ cls: 'ocop-external-context-icon' });
     setIcon(this.iconEl, 'folder');
-    this.badgeEl = iconWrapper.createDiv({ cls: 'oc-external-context-badge' });
+    this.badgeEl = iconWrapper.createDiv({ cls: 'ocop-external-context-badge' });
     this.updateDisplay();
 
     iconWrapper.addEventListener('click', (event) => {
@@ -293,7 +293,7 @@ export class ExternalContextSelector {
       void this.openFolderPicker();
     });
 
-    this.dropdownEl = this.container.createDiv({ cls: 'oc-external-context-dropdown' });
+    this.dropdownEl = this.container.createDiv({ cls: 'ocop-external-context-dropdown' });
     this.renderDropdown();
   }
 
@@ -341,21 +341,21 @@ export class ExternalContextSelector {
     if (!this.dropdownEl) return;
     this.dropdownEl.empty();
 
-    this.dropdownEl.createDiv({ cls: 'oc-external-context-header', text: 'External Contexts' });
-    const listEl = this.dropdownEl.createDiv({ cls: 'oc-external-context-list' });
+    this.dropdownEl.createDiv({ cls: 'ocop-external-context-header', text: 'External Contexts' });
+    const listEl = this.dropdownEl.createDiv({ cls: 'ocop-external-context-list' });
 
     if (this.externalContextPaths.length === 0) {
-      listEl.createDiv({ cls: 'oc-external-context-empty', text: 'Click folder icon to add' });
+      listEl.createDiv({ cls: 'ocop-external-context-empty', text: 'Click folder icon to add' });
       return;
     }
 
     for (const pathStr of this.externalContextPaths) {
-      const itemEl = listEl.createDiv({ cls: 'oc-external-context-item' });
-      const pathTextEl = itemEl.createSpan({ cls: 'oc-external-context-text' });
+      const itemEl = listEl.createDiv({ cls: 'ocop-external-context-item' });
+      const pathTextEl = itemEl.createSpan({ cls: 'ocop-external-context-text' });
       pathTextEl.setText(this.shortenPath(pathStr));
       pathTextEl.setAttribute('title', pathStr);
 
-      const removeBtn = itemEl.createSpan({ cls: 'oc-external-context-remove' });
+      const removeBtn = itemEl.createSpan({ cls: 'ocop-external-context-remove' });
       setIcon(removeBtn, 'x');
       removeBtn.setAttribute('title', 'Remove path');
       removeBtn.addEventListener('click', (event) => {
@@ -418,7 +418,7 @@ export class McpServerSelector {
   private onChangeCallback: ((enabled: Set<string>) => void) | null = null;
 
   constructor(parentEl: HTMLElement) {
-    this.container = parentEl.createDiv({ cls: 'oc-mcp-selector' });
+    this.container = parentEl.createDiv({ cls: 'ocop-mcp-selector' });
     this.render();
   }
 
@@ -481,12 +481,12 @@ export class McpServerSelector {
 
   private render() {
     this.container.empty();
-    const iconWrapper = this.container.createDiv({ cls: 'oc-mcp-selector-icon-wrapper' });
-    this.iconEl = iconWrapper.createDiv({ cls: 'oc-mcp-selector-icon' });
+    const iconWrapper = this.container.createDiv({ cls: 'ocop-mcp-selector-icon-wrapper' });
+    this.iconEl = iconWrapper.createDiv({ cls: 'ocop-mcp-selector-icon' });
     this.iconEl.innerHTML = MCP_ICON_SVG;
-    this.badgeEl = iconWrapper.createDiv({ cls: 'oc-mcp-selector-badge' });
+    this.badgeEl = iconWrapper.createDiv({ cls: 'ocop-mcp-selector-badge' });
     this.updateDisplay();
-    this.dropdownEl = this.container.createDiv({ cls: 'oc-mcp-selector-dropdown' });
+    this.dropdownEl = this.container.createDiv({ cls: 'ocop-mcp-selector-dropdown' });
     this.renderDropdown();
     this.container.addEventListener('mouseenter', () => {
       this.renderDropdown();
@@ -497,14 +497,14 @@ export class McpServerSelector {
     if (!this.dropdownEl) return;
     this.pruneEnabledServers();
     this.dropdownEl.empty();
-    this.dropdownEl.createDiv({ cls: 'oc-mcp-selector-header', text: 'MCP Servers' });
-    const listEl = this.dropdownEl.createDiv({ cls: 'oc-mcp-selector-list' });
+    this.dropdownEl.createDiv({ cls: 'ocop-mcp-selector-header', text: 'MCP Servers' });
+    const listEl = this.dropdownEl.createDiv({ cls: 'ocop-mcp-selector-list' });
     const allServers = this.mcpService?.getServers() || [];
     const servers = allServers.filter((server) => server.enabled);
 
     if (servers.length === 0) {
       listEl.createDiv({
-        cls: 'oc-mcp-selector-empty',
+        cls: 'ocop-mcp-selector-empty',
         text: allServers.length === 0 ? 'No MCP servers configured' : 'All MCP servers disabled',
       });
       return;
@@ -516,23 +516,23 @@ export class McpServerSelector {
   }
 
   private renderServerItem(listEl: HTMLElement, server: ObsidianCodeMcpServer) {
-    const itemEl = listEl.createDiv({ cls: 'oc-mcp-selector-item' });
+    const itemEl = listEl.createDiv({ cls: 'ocop-mcp-selector-item' });
     itemEl.dataset.serverName = server.name;
     const isEnabled = this.enabledServers.has(server.name);
     if (isEnabled) {
       itemEl.addClass('enabled');
     }
 
-    const checkEl = itemEl.createDiv({ cls: 'oc-mcp-selector-check' });
+    const checkEl = itemEl.createDiv({ cls: 'ocop-mcp-selector-check' });
     if (isEnabled) {
       checkEl.innerHTML = CHECK_ICON_SVG;
     }
 
-    const infoEl = itemEl.createDiv({ cls: 'oc-mcp-selector-item-info' });
-    infoEl.createSpan({ cls: 'oc-mcp-selector-item-name', text: server.name });
+    const infoEl = itemEl.createDiv({ cls: 'ocop-mcp-selector-item-info' });
+    infoEl.createSpan({ cls: 'ocop-mcp-selector-item-name', text: server.name });
 
     if (server.contextSaving) {
-      const csEl = infoEl.createSpan({ cls: 'oc-mcp-selector-cs-badge', text: '@' });
+      const csEl = infoEl.createSpan({ cls: 'ocop-mcp-selector-cs-badge', text: '@' });
       csEl.setAttribute('title', 'Context-saving: can also enable via @' + server.name);
     }
 
@@ -551,7 +551,7 @@ export class McpServerSelector {
     }
 
     const isEnabled = this.enabledServers.has(name);
-    const checkEl = itemEl.querySelector('.oc-mcp-selector-check') as HTMLElement | null;
+    const checkEl = itemEl.querySelector('.ocop-mcp-selector-check') as HTMLElement | null;
     if (isEnabled) {
       itemEl.addClass('enabled');
       if (checkEl) checkEl.innerHTML = CHECK_ICON_SVG;
@@ -601,7 +601,7 @@ export class ContextUsageMeter {
   private circumference = 0;
 
   constructor(parentEl: HTMLElement) {
-    this.container = parentEl.createDiv({ cls: 'oc-context-meter' });
+    this.container = parentEl.createDiv({ cls: 'ocop-context-meter' });
     this.render();
     this.container.style.display = 'none';
   }
@@ -624,20 +624,20 @@ export class ContextUsageMeter {
     const x2 = cx + radius * Math.cos(endRad);
     const y2 = cy + radius * Math.sin(endRad);
 
-    const gaugeEl = this.container.createDiv({ cls: 'oc-context-meter-gauge' });
+    const gaugeEl = this.container.createDiv({ cls: 'ocop-context-meter-gauge' });
     gaugeEl.innerHTML = `
       <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-        <path class="oc-meter-bg"
+        <path class="ocop-meter-bg"
           d="M ${x1} ${y1} A ${radius} ${radius} 0 1 1 ${x2} ${y2}"
           fill="none" stroke-width="${strokeWidth}" stroke-linecap="round"/>
-        <path class="oc-meter-fill"
+        <path class="ocop-meter-fill"
           d="M ${x1} ${y1} A ${radius} ${radius} 0 1 1 ${x2} ${y2}"
           fill="none" stroke-width="${strokeWidth}" stroke-linecap="round"
           stroke-dasharray="${this.circumference}" stroke-dashoffset="${this.circumference}"/>
       </svg>
     `;
-    this.fillPath = gaugeEl.querySelector('.oc-meter-fill');
-    this.percentEl = this.container.createSpan({ cls: 'oc-context-meter-percent' });
+    this.fillPath = gaugeEl.querySelector('.ocop-meter-fill');
+    this.percentEl = this.container.createSpan({ cls: 'ocop-context-meter-percent' });
   }
 
   update(usage: UsageInfo | null): void {

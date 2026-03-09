@@ -61,35 +61,35 @@ export class InstructionModal extends Modal {
 
   onOpen() {
     const { contentEl } = this;
-    contentEl.addClass('oc-instruction-modal');
+    contentEl.addClass('ocop-instruction-modal');
     this.setTitle('Add Custom Instruction');
 
     // User input section (always visible)
-    const inputSection = contentEl.createDiv({ cls: 'oc-instruction-section' });
-    const inputLabel = inputSection.createDiv({ cls: 'oc-instruction-label' });
+    const inputSection = contentEl.createDiv({ cls: 'ocop-instruction-section' });
+    const inputLabel = inputSection.createDiv({ cls: 'ocop-instruction-label' });
     inputLabel.setText('Your input:');
-    const inputText = inputSection.createDiv({ cls: 'oc-instruction-original' });
+    const inputText = inputSection.createDiv({ cls: 'ocop-instruction-original' });
     inputText.setText(this.rawInstruction);
 
     // Main content section (changes based on state)
-    this.contentSectionEl = contentEl.createDiv({ cls: 'oc-instruction-content-section' });
+    this.contentSectionEl = contentEl.createDiv({ cls: 'ocop-instruction-content-section' });
 
     // Loading state
-    this.loadingEl = this.contentSectionEl.createDiv({ cls: 'oc-instruction-loading' });
-    this.loadingEl.createDiv({ cls: 'oc-instruction-spinner' });
+    this.loadingEl = this.contentSectionEl.createDiv({ cls: 'ocop-instruction-loading' });
+    this.loadingEl.createDiv({ cls: 'ocop-instruction-spinner' });
     this.loadingEl.createSpan({ text: 'Processing your instruction...' });
 
     // Clarification state (hidden initially)
-    this.clarificationEl = this.contentSectionEl.createDiv({ cls: 'oc-instruction-clarification-section' });
+    this.clarificationEl = this.contentSectionEl.createDiv({ cls: 'ocop-instruction-clarification-section' });
     this.clarificationEl.style.display = 'none';
-    this.clarificationTextEl = this.clarificationEl.createDiv({ cls: 'oc-instruction-clarification' });
+    this.clarificationTextEl = this.clarificationEl.createDiv({ cls: 'ocop-instruction-clarification' });
 
-    const responseSection = this.clarificationEl.createDiv({ cls: 'oc-instruction-section' });
-    const responseLabel = responseSection.createDiv({ cls: 'oc-instruction-label' });
+    const responseSection = this.clarificationEl.createDiv({ cls: 'ocop-instruction-section' });
+    const responseLabel = responseSection.createDiv({ cls: 'ocop-instruction-label' });
     responseLabel.setText('Your response:');
 
     this.responseTextarea = new TextAreaComponent(responseSection);
-    this.responseTextarea.inputEl.addClass('oc-instruction-response-textarea');
+    this.responseTextarea.inputEl.addClass('ocop-instruction-response-textarea');
     this.responseTextarea.inputEl.rows = 3;
     this.responseTextarea.inputEl.placeholder = 'Provide more details...';
 
@@ -101,24 +101,24 @@ export class InstructionModal extends Modal {
     });
 
     // Confirmation state (hidden initially)
-    this.confirmationEl = this.contentSectionEl.createDiv({ cls: 'oc-instruction-confirmation-section' });
+    this.confirmationEl = this.contentSectionEl.createDiv({ cls: 'ocop-instruction-confirmation-section' });
     this.confirmationEl.style.display = 'none';
 
     // Refined instruction display/edit
-    const refinedSection = this.confirmationEl.createDiv({ cls: 'oc-instruction-section' });
-    const refinedLabel = refinedSection.createDiv({ cls: 'oc-instruction-label' });
+    const refinedSection = this.confirmationEl.createDiv({ cls: 'ocop-instruction-section' });
+    const refinedLabel = refinedSection.createDiv({ cls: 'ocop-instruction-label' });
     refinedLabel.setText('Refined snippet:');
 
-    this.refinedDisplayEl = refinedSection.createDiv({ cls: 'oc-instruction-refined' });
-    this.editContainerEl = refinedSection.createDiv({ cls: 'oc-instruction-edit-container' });
+    this.refinedDisplayEl = refinedSection.createDiv({ cls: 'ocop-instruction-refined' });
+    this.editContainerEl = refinedSection.createDiv({ cls: 'ocop-instruction-edit-container' });
     this.editContainerEl.style.display = 'none';
 
     this.editTextarea = new TextAreaComponent(this.editContainerEl);
-    this.editTextarea.inputEl.addClass('oc-instruction-edit-textarea');
+    this.editTextarea.inputEl.addClass('ocop-instruction-edit-textarea');
     this.editTextarea.inputEl.rows = 4;
 
     // Buttons (changes based on state)
-    this.buttonsEl = contentEl.createDiv({ cls: 'oc-instruction-buttons' });
+    this.buttonsEl = contentEl.createDiv({ cls: 'ocop-instruction-buttons' });
     this.updateButtons();
 
     // Start in loading state
@@ -163,7 +163,7 @@ export class InstructionModal extends Modal {
   showClarificationLoading() {
     this.isSubmitting = true;
     if (this.loadingEl) {
-      this.loadingEl.querySelector('.oc-instruction-spinner');
+      this.loadingEl.querySelector('.ocop-instruction-spinner');
       const text = this.loadingEl.querySelector('span');
       if (text) text.textContent = 'Processing...';
     }
@@ -192,7 +192,7 @@ export class InstructionModal extends Modal {
 
     const cancelBtn = this.buttonsEl.createEl('button', {
       text: 'Cancel',
-      cls: 'oc-instruction-btn oc-instruction-reject-btn',
+      cls: 'ocop-instruction-btn ocop-instruction-reject-btn',
       attr: { 'aria-label': 'Cancel' }
     });
     cancelBtn.addEventListener('click', () => this.handleReject());
@@ -200,21 +200,21 @@ export class InstructionModal extends Modal {
     if (this.state === 'clarification') {
       const submitBtn = this.buttonsEl.createEl('button', {
         text: 'Submit',
-        cls: 'oc-instruction-btn oc-instruction-accept-btn',
+        cls: 'ocop-instruction-btn ocop-instruction-accept-btn',
         attr: { 'aria-label': 'Submit response' }
       });
       submitBtn.addEventListener('click', () => this.submitClarification());
     } else if (this.state === 'confirmation') {
       this.editBtnEl = this.buttonsEl.createEl('button', {
         text: 'Edit',
-        cls: 'oc-instruction-btn oc-instruction-edit-btn',
+        cls: 'ocop-instruction-btn ocop-instruction-edit-btn',
         attr: { 'aria-label': 'Edit instruction' }
       });
       this.editBtnEl.addEventListener('click', () => this.toggleEdit());
 
       const acceptBtn = this.buttonsEl.createEl('button', {
         text: 'Accept',
-        cls: 'oc-instruction-btn oc-instruction-accept-btn',
+        cls: 'ocop-instruction-btn ocop-instruction-accept-btn',
         attr: { 'aria-label': 'Accept instruction' }
       });
       acceptBtn.addEventListener('click', () => this.handleAccept());

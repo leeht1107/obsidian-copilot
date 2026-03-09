@@ -6,17 +6,17 @@
  * Question Panel (replaces input area)
  * ============================================ */
 
-.oc-ask-panel {
+.ocop-ask-panel {
   padding: 12px 0;
   outline: none;
 }
 
-.oc-ask-panel:focus {
+.ocop-ask-panel:focus {
   outline: none;
 }
 
 /* Tab navigation row */
-.oc-ask-panel-tabs {
+.ocop-ask-panel-tabs {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -25,17 +25,17 @@
   font-size: 13px;
 }
 
-.oc-ask-panel-nav {
+.ocop-ask-panel-nav {
   color: var(--text-muted);
   cursor: pointer;
   user-select: none;
 }
 
-.oc-ask-panel-nav:hover {
+.ocop-ask-panel-nav:hover {
   color: var(--text-normal);
 }
 
-.oc-ask-panel-tab {
+.ocop-ask-panel-tab {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -59,43 +59,43 @@
   text-shadow: none !important;
 }
 
-.oc-ask-panel-tab:hover {
+.ocop-ask-panel-tab:hover {
   color: var(--text-normal);
   background: none !important;
   box-shadow: none !important;
   border: none !important;
 }
 
-.oc-ask-panel-tab:focus {
+.ocop-ask-panel-tab:focus {
   outline: none !important;
   box-shadow: none !important;
   border: none !important;
 }
 
-.oc-ask-panel-tab.active {
+.ocop-ask-panel-tab.active {
   color: var(--interactive-accent);
   background: none !important;
   border: none !important;
 }
 
-.oc-ask-panel-tab-check {
+.ocop-ask-panel-tab-check {
   font-family: monospace;
 }
 
 /* Green dot for answered tabs */
-.oc-ask-panel-tab.answered .oc-ask-panel-tab-check {
+.ocop-ask-panel-tab.answered .ocop-ask-panel-tab-check {
   color: var(--color-green);
 }
 
 
 /* Question content */
-.oc-ask-panel-content {
+.ocop-ask-panel-content {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.oc-ask-panel-question {
+.ocop-ask-panel-question {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-normal);
@@ -103,7 +103,7 @@
 }
 
 /* Options list */
-.oc-ask-panel-options {
+.ocop-ask-panel-options {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -111,7 +111,7 @@
   font-size: 13px;
 }
 
-.oc-ask-panel-option {
+.ocop-ask-panel-option {
   display: flex;
   align-items: flex-start;
   gap: 8px;
@@ -120,20 +120,20 @@
   color: var(--text-normal);
 }
 
-.oc-ask-panel-option:hover {
+.ocop-ask-panel-option:hover {
   color: var(--interactive-accent);
 }
 
-.oc-ask-panel-option.focused {
+.ocop-ask-panel-option.focused {
   color: var(--interactive-accent);
 }
 
-.oc-ask-panel-option.selected {
+.ocop-ask-panel-option.selected {
   color: var(--interactive-accent);
 }
 
 /* Caret indicator (> or space) */
-.oc-ask-panel-caret {
+.ocop-ask-panel-caret {
   width: 12px;
   flex-shrink: 0;
   color: var(--interactive-accent);
@@ -141,58 +141,58 @@
 }
 
 /* Number/checkbox indicator */
-.oc-ask-panel-indicator {
+.ocop-ask-panel-indicator {
   flex-shrink: 0;
   color: var(--text-muted);
   white-space: nowrap;
 }
 
-.oc-ask-panel-option.focused .oc-ask-panel-caret {
+.ocop-ask-panel-option.focused .ocop-ask-panel-caret {
   color: var(--interactive-accent);
 }
 
-.oc-ask-panel-option.focused .oc-ask-panel-indicator {
+.ocop-ask-panel-option.focused .ocop-ask-panel-indicator {
   color: var(--interactive-accent);
 }
 
 /* Green checkmark for selected items */
-.oc-ask-panel-option.selected .oc-ask-panel-indicator {
+.ocop-ask-panel-option.selected .ocop-ask-panel-indicator {
   color: var(--color-green);
 }
 
-.oc-ask-panel-option-text {
+.ocop-ask-panel-option-text {
   display: flex;
   flex-direction: column;
   gap: 0;
 }
 
-.oc-ask-panel-label-row {
+.ocop-ask-panel-label-row {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.oc-ask-panel-option-label {
+.ocop-ask-panel-option-label {
   font-weight: 500;
 }
 
 /* Checkmark after label for single-select */
-.oc-ask-panel-checkmark {
+.ocop-ask-panel-checkmark {
   color: var(--color-green);
   font-weight: bold;
 }
 
-.oc-ask-panel-option-desc {
+.ocop-ask-panel-option-desc {
   color: var(--text-muted);
   font-weight: normal;
 }
 
 /* Other option */
-.oc-ask-panel-other {
+.ocop-ask-panel-other {
   flex-wrap: wrap;
 }
 
-.oc-ask-panel-other-input {
+.ocop-ask-panel-other-input {
   flex: 1;
   min-width: 150px;
   padding: 2px 4px;
@@ -204,24 +204,24 @@
   font-size: 13px;
 }
 
-.oc-ask-panel-other-input:focus {
+.ocop-ask-panel-other-input:focus {
   outline: none;
   border-bottom-color: var(--interactive-accent);
 }
 
-.oc-ask-panel-other-input::placeholder {
+.ocop-ask-panel-other-input::placeholder {
   color: var(--text-faint);
 }
 
 /* Keyboard hint */
-.oc-ask-panel-hint {
+.ocop-ask-panel-hint {
   margin-top: 12px;
   font-size: 12px;
   color: var(--text-muted);
 }
 
 /* Submit review panel */
-.oc-ask-panel-summary {
+.ocop-ask-panel-summary {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -230,27 +230,27 @@
   font-size: 13px;
 }
 
-.oc-ask-panel-summary-item {
+.ocop-ask-panel-summary-item {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.oc-ask-panel-summary-question {
+.ocop-ask-panel-summary-question {
   color: var(--text-normal);
 }
 
-.oc-ask-panel-summary-answer {
+.ocop-ask-panel-summary-answer {
   color: var(--color-green);
   padding-left: 8px;
 }
 
-.oc-ask-panel-summary-answer.unanswered {
+.ocop-ask-panel-summary-answer.unanswered {
   color: var(--text-muted);
   font-style: italic;
 }
 
-.oc-ask-panel-submit-prompt {
+.ocop-ask-panel-submit-prompt {
   font-size: 13px;
   color: var(--text-muted);
   margin-bottom: 8px;
@@ -260,16 +260,16 @@
  * Tool Call Result Block - matches toolcalls.css style
  * ============================================ */
 
-.oc-ask-question-block {
+.ocop-ask-question-block {
   margin: 8px 0;
 }
 
-.oc-ask-question-block.oc-ask-question-pending {
+.ocop-ask-question-block.ocop-ask-question-pending {
   display: none;
 }
 
 /* Header - transparent like other tool calls */
-.oc-ask-question-header {
+.ocop-ask-question-header {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -277,19 +277,19 @@
   cursor: pointer;
 }
 
-.oc-ask-question-icon {
+.ocop-ask-question-icon {
   display: flex;
   align-items: center;
   flex-shrink: 0;
   color: var(--text-accent);
 }
 
-.oc-ask-question-icon svg {
+.ocop-ask-question-icon svg {
   width: 16px;
   height: 16px;
 }
 
-.oc-ask-question-label {
+.ocop-ask-question-label {
   flex: 1;
   font-size: 13px;
   font-weight: 500;
@@ -299,50 +299,50 @@
   white-space: nowrap;
 }
 
-.oc-ask-question-count {
+.ocop-ask-question-count {
   font-size: 12px;
   color: var(--text-muted);
 }
 
-.oc-ask-question-status {
+.ocop-ask-question-status {
   display: flex;
   align-items: center;
   flex-shrink: 0;
 }
 
-.oc-ask-question-status svg {
+.ocop-ask-question-status svg {
   width: 14px;
   height: 14px;
 }
 
-.oc-ask-question-status.status-completed {
+.ocop-ask-question-status.status-completed {
   color: var(--color-green);
 }
 
-.oc-ask-question-status.status-error,
-.oc-ask-question-status.status-blocked {
+.ocop-ask-question-status.status-error,
+.ocop-ask-question-status.status-blocked {
   color: var(--color-red);
 }
 
 /* Content - indented to align under label */
-.oc-ask-question-content {
+.ocop-ask-question-content {
   padding: 4px 0 4px 24px;
 }
 
 /* Q&A pairs */
-.oc-ask-question-qa {
+.ocop-ask-question-qa {
   display: flex;
   flex-direction: column;
   gap: 4px;
   padding: 6px 0;
 }
 
-.oc-ask-question-qa + .oc-ask-question-qa {
+.ocop-ask-question-qa + .ocop-ask-question-qa {
   border-top: 1px solid var(--background-modifier-border);
   padding-top: 10px;
 }
 
-.oc-ask-question-q-header {
+.ocop-ask-question-q-header {
   font-size: 11px;
   font-weight: 600;
   color: var(--text-muted);
@@ -350,47 +350,47 @@
   letter-spacing: 0.5px;
 }
 
-.oc-ask-question-answer {
+.ocop-ask-question-answer {
   font-size: 13px;
   color: var(--text-normal);
   padding-left: 8px;
   border-left: 2px solid var(--interactive-accent);
 }
 
-.oc-ask-question-error {
+.ocop-ask-question-error {
   font-size: 12px;
   color: var(--color-red);
   font-style: italic;
 }
 
 /* Q&A list - tree symbol + aligned container */
-.oc-ask-question-list {
+.ocop-ask-question-list {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   gap: 8px;
 }
 
-.oc-ask-question-tree {
+.ocop-ask-question-tree {
   flex-shrink: 0;
   font-size: 13px;
   color: var(--text-muted);
 }
 
-.oc-ask-question-aligned {
+.ocop-ask-question-aligned {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.oc-ask-question-item {
+.ocop-ask-question-item {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.oc-ask-question-q {
+.ocop-ask-question-q {
   font-size: 13px;
   color: var(--text-muted);
   /* Hanging indent: wrapped lines align with text after "Q: " */
@@ -398,7 +398,7 @@
   text-indent: -1.5em;
 }
 
-.oc-ask-question-a {
+.ocop-ask-question-a {
   font-size: 13px;
   color: var(--color-green);
   /* Hanging indent: wrapped lines align with text after "A: " */

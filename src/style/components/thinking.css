@@ -1,5 +1,5 @@
 /* Thinking indicator */
-.oc-thinking {
+.ocop-thinking {
   color: #67d7ff;
   font-style: italic;
   padding: 4px 0;
@@ -7,34 +7,34 @@
   animation: thinking-pulse 1.5s ease-in-out infinite;
 }
 
-.oc-thinking-hint {
+.ocop-thinking-hint {
   color: var(--text-muted);
   font-style: normal;
 }
 
 /* Thinking block (extended thinking) */
-.oc-thinking-block {
+.ocop-thinking-block {
   margin: 8px 0;
 }
 
-.oc-text-block+.oc-thinking-block {
+.ocop-text-block+.ocop-thinking-block {
   margin-top: 8px;
 }
 
-.oc-thinking-block+.oc-text-block {
+.ocop-thinking-block+.ocop-text-block {
   margin-top: 8px;
 }
 
-.oc-thinking-block+.oc-tool-call {
+.ocop-thinking-block+.ocop-tool-call {
   margin-top: 8px;
 }
 
-.oc-tool-call+.oc-thinking-block {
+.ocop-tool-call+.ocop-thinking-block {
   margin-top: 8px;
 }
 
 /* Thinking block header - transparent */
-.oc-thinking-header {
+.ocop-thinking-header {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -42,7 +42,7 @@
   cursor: pointer;
 }
 
-.oc-thinking-label {
+.ocop-thinking-label {
   flex: 1;
   font-size: 13px;
   font-weight: 500;
@@ -50,7 +50,7 @@
 }
 
 /* Thinking block content - tree-branch style */
-.oc-thinking-content {
+.ocop-thinking-content {
   padding: 4px 0 4px 24px;
   font-size: 13px;
   line-height: 1.5;
@@ -61,25 +61,25 @@
   margin-left: 7px;
 }
 
-.oc-thinking-content p {
+.ocop-thinking-content p {
   margin: 0 0 8px 0;
 }
 
-.oc-thinking-content p:last-child {
+.ocop-thinking-content p:last-child {
   margin-bottom: 0;
 }
 
 /* Thinking content code blocks - inherits from wrapper, adjust spacing */
-.oc-thinking-content .oc-code-wrapper {
+.ocop-thinking-content .ocop-code-wrapper {
   margin: 8px 0;
 }
 
-.oc-thinking-content .oc-code-wrapper pre {
+.ocop-thinking-content .ocop-code-wrapper pre {
   padding: 8px 10px;
   border-radius: 4px;
 }
 
-.oc-thinking-content code {
+.ocop-thinking-content code {
   font-family: var(--font-monospace);
   font-size: 12px;
 }
