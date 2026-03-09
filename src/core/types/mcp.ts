@@ -36,7 +36,7 @@ export type McpServerConfig =
 export type McpServerType = 'stdio' | 'sse' | 'http';
 
 /** Extended server configuration with Obsidian Code-specific options. */
-export interface ObsidianCodeMcpServer {
+export interface CopilotMcpServer {
   /** Unique server name (key in mcpServers record). */
   name: string;
   /** Server configuration. */
@@ -57,7 +57,7 @@ export interface McpConfigFile {
 }
 
 /** Extended config file with Obsidian Code metadata. */
-export interface ObsidianCodeMcpConfigFile extends McpConfigFile {
+export interface CopilotMcpConfigFile extends McpConfigFile {
   _obsidianCode?: {
     /** Per-server Obsidian Code-specific settings. */
     servers: Record<
@@ -109,7 +109,7 @@ export function inferMcpServerType(config: McpServerConfig): McpServerType {
 }
 
 /** Default values for a new MCP server. */
-export const DEFAULT_MCP_SERVER: Omit<ObsidianCodeMcpServer, 'name' | 'config'> = {
+export const DEFAULT_MCP_SERVER: Omit<CopilotMcpServer, 'name' | 'config'> = {
   enabled: true,
   contextSaving: true,
 };

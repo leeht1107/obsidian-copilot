@@ -8,7 +8,7 @@
  * Machine-specific state (lastEnvHash, model tracking) stays in Obsidian's data.json.
  */
 
-import type { ObsidianCodeSettings, PlatformBlockedCommands } from '../types';
+import type { ObsidianCopilotSettings, PlatformBlockedCommands } from '../types';
 import { DEFAULT_SETTINGS, getDefaultBlockedCommands } from '../types';
 import type { VaultFileAdapter } from './VaultFileAdapter';
 
@@ -18,7 +18,7 @@ type StateFields =
   | 'lastEnvHash';
 
 /** Settings stored in .copilot/settings.json (user-facing, shareable). */
-export type StoredSettings = Omit<ObsidianCodeSettings, StateFields>;
+export type StoredSettings = Omit<ObsidianCopilotSettings, StateFields>;
 
 /** Path to settings file relative to vault root. */
 export const SETTINGS_PATH = '.copilot/settings.json';

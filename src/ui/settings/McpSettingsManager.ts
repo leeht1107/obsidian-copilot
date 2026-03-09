@@ -8,20 +8,20 @@
 import { Notice, setIcon } from 'obsidian';
 
 import { McpStorage } from '../../core/storage';
-import type { ObsidianCodeMcpServer, McpServerConfig, McpServerType } from '../../core/types';
+import type { CopilotMcpServer, McpServerConfig, McpServerType } from '../../core/types';
 import { DEFAULT_MCP_SERVER, getMcpServerType } from '../../core/types';
 import { testMcpServer } from '../../features/mcp/McpTester';
-import type ObsidianCodePlugin from '../../main';
+import type ObsidianCopilotPlugin from '../../main';
 import { McpServerModal } from '../modals/McpServerModal';
 import { McpTestModal } from '../modals/McpTestModal';
 
 /** Component for managing MCP servers in settings tab. */
 export class McpSettingsManager {
   private containerEl: HTMLElement;
-  private plugin: ObsidianCodePlugin;
-  private servers: ObsidianCodeMcpServer[] = [];
+  private plugin: ObsidianCopilotPlugin;
+  private servers: CopilotMcpServer[] = [];
 
-  constructor(containerEl: HTMLElement, plugin: ObsidianCodePlugin) {
+  constructor(containerEl: HTMLElement, plugin: ObsidianCopilotPlugin) {
     this.containerEl = containerEl;
     this.plugin = plugin;
     this.loadAndRender();
@@ -98,7 +98,7 @@ export class McpSettingsManager {
     }
   }
 
-  private renderServerItem(listEl: HTMLElement, server: ObsidianCodeMcpServer) {
+  private renderServerItem(listEl: HTMLElement, server: CopilotMcpServer) {
     const itemEl = listEl.createDiv({ cls: 'ocop-mcp-item' });
     if (!server.enabled) {
       itemEl.addClass('ocop-mcp-item-disabled');
@@ -175,7 +175,7 @@ export class McpSettingsManager {
     deleteBtn.addEventListener('click', () => this.deleteServer(server));
   }
 
-  private async testServer(server: ObsidianCodeMcpServer) {
+  private async testServer(server: CopilotMcpServer) {
     const modal = new McpTestModal(
       this.plugin.app,
       server.name,
@@ -202,7 +202,7 @@ export class McpSettingsManager {
    * Rolls back on save failure; warns on reload failure (since save succeeded).
    */
   private async updateServerDisabledTools(
-    server: ObsidianCodeMcpServer,
+    server: CopilotMcpServer,
     newDisabledTools: string[] | undefined
   ): Promise<void> {
     const previous = server.disabledTools ? [...server.disabledTools] : undefined;
@@ -225,7 +225,7 @@ export class McpSettingsManager {
   }
 
   private async updateDisabledTool(
-    server: ObsidianCodeMcpServer,
+    server: CopilotMcpServer,
     toolName: string,
     enabled: boolean
   ) {
@@ -241,14 +241,14 @@ export class McpSettingsManager {
     );
   }
 
-  private async updateAllDisabledTools(server: ObsidianCodeMcpServer, disabledTools: string[]) {
+  private async updateAllDisabledTools(server: CopilotMcpServer, disabledTools: string[]) {
     await this.updateServerDisabledTools(
       server,
       disabledTools.length > 0 ? disabledTools : undefined
     );
   }
 
-  private getServerPreview(server: ObsidianCodeMcpServer, type: McpServerType): string {
+  private getServerPreview(server: CopilotMcpServer, type: McpServerType): string {
     if (type === 'stdio') {
       const config = server.config as { command: string; args?: string[] };
       const args = config.args?.join(' ') || '';
@@ -259,7 +259,7 @@ export class McpSettingsManager {
     }
   }
 
-  private openModal(existing: ObsidianCodeMcpServer | null, initialType?: McpServerType) {
+  private openModal(existing: CopilotMcpServer | null, initialType?: McpServerType) {
     const modal = new McpServerModal(
       this.plugin.app,
       this.plugin,
@@ -314,7 +314,7 @@ export class McpSettingsManager {
     }
   }
 
-  private async saveServer(server: ObsidianCodeMcpServer, existing: ObsidianCodeMcpServer | null) {
+  private async saveServer(server: CopilotMcpServer, existing: CopilotMcpServer | null) {
     if (existing) {
       // Update existing server
       const index = this.servers.findIndex((s) => s.name === existing.name);
@@ -387,7 +387,7 @@ export class McpSettingsManager {
     new Notice(message);
   }
 
-  private async toggleServer(server: ObsidianCodeMcpServer) {
+  private async toggleServer(server: CopilotMcpServer) {
     server.enabled = !server.enabled;
     await this.plugin.storage.mcp.save(this.servers);
     await this.plugin.agentService.reloadMcpServers();
@@ -395,7 +395,7 @@ export class McpSettingsManager {
     new Notice(`MCP server "${server.name}" ${server.enabled ? 'enabled' : 'disabled'}`);
   }
 
-  private async deleteServer(server: ObsidianCodeMcpServer) {
+  private async deleteServer(server: CopilotMcpServer) {
     if (!confirm(`Delete MCP server "${server.name}"?`)) {
       return;
     }

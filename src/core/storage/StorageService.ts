@@ -12,7 +12,7 @@
 
 import type { App, Plugin } from 'obsidian';
 
-import type { ObsidianCodeSettings, Conversation, SlashCommand } from '../types';
+import type { ObsidianCopilotSettings, Conversation, SlashCommand } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
 import { McpStorage } from './McpStorage';
 import { SESSIONS_PATH, SessionStorage } from './SessionStorage';
@@ -33,7 +33,7 @@ const DEFAULT_STATE: PluginState = {
 };
 
 /** Legacy data format (pre-migration). */
-interface LegacyData extends ObsidianCodeSettings {
+interface LegacyData extends ObsidianCopilotSettings {
   conversations?: Conversation[];
   activeConversationId?: string;
   migrationVersion?: number;

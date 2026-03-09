@@ -7,14 +7,14 @@
  */
 
 import { McpServerManager } from '../../core/mcp';
-import type { ObsidianCodeMcpServer, McpServerConfig } from '../../core/types';
-import type ObsidianCodePlugin from '../../main';
+import type { CopilotMcpServer, McpServerConfig } from '../../core/types';
+import type ObsidianCopilotPlugin from '../../main';
 import { extractMcpMentions, transformMcpMentions } from '../../utils/mcp';
 
 export class McpService {
   private manager: McpServerManager;
 
-  constructor(plugin: ObsidianCodePlugin) {
+  constructor(plugin: ObsidianCopilotPlugin) {
     this.manager = new McpServerManager(plugin.storage.mcp);
   }
 
@@ -28,7 +28,7 @@ export class McpService {
   }
 
   /** Get all loaded servers. */
-  getServers(): ObsidianCodeMcpServer[] {
+  getServers(): CopilotMcpServer[] {
     return this.manager.getServers();
   }
 
@@ -62,7 +62,7 @@ export class McpService {
   }
 
   /** Get servers with context-saving enabled (for @-mention autocomplete). */
-  getContextSavingServers(): ObsidianCodeMcpServer[] {
+  getContextSavingServers(): CopilotMcpServer[] {
     return this.manager.getServers().filter((s) => s.enabled && s.contextSaving);
   }
 

@@ -1,6 +1,6 @@
 import type {
   ChatMessage,
-  ObsidianCodeSettings,
+  ObsidianCopilotSettings,
   Conversation,
   ConversationMeta,
   EnvSnippet, StreamChunk,
@@ -66,9 +66,9 @@ describe('types.ts', () => {
 
   });
 
-  describe('ObsidianCodeSettings type', () => {
+  describe('ObsidianCopilotSettings type', () => {
     it('should be assignable with valid settings', () => {
-      const settings: ObsidianCodeSettings = {
+      const settings: ObsidianCopilotSettings = {
         userName: '',
         enableBlocklist: false,
         blockedCommands: { unix: ['test'], windows: ['test-win'] },
@@ -96,7 +96,7 @@ describe('types.ts', () => {
     });
 
     it('should accept custom model strings', () => {
-      const settings: ObsidianCodeSettings = {
+      const settings: ObsidianCopilotSettings = {
         userName: '',
         enableBlocklist: true,
         blockedCommands: { unix: [], windows: [] },

@@ -8,15 +8,15 @@ import type { App} from 'obsidian';
 import { Modal, Notice, setIcon, Setting } from 'obsidian';
 
 import type { EnvSnippet } from '../../core/types';
-import type ObsidianCodePlugin from '../../main';
+import type ObsidianCopilotPlugin from '../../main';
 
 /** Modal for creating/editing environment variable snippets. */
 export class EnvSnippetModal extends Modal {
-  plugin: ObsidianCodePlugin;
+  plugin: ObsidianCopilotPlugin;
   snippet: EnvSnippet | null;
   onSave: (snippet: EnvSnippet) => void;
 
-  constructor(app: App, plugin: ObsidianCodePlugin, snippet: EnvSnippet | null, onSave: (snippet: EnvSnippet) => void) {
+  constructor(app: App, plugin: ObsidianCopilotPlugin, snippet: EnvSnippet | null, onSave: (snippet: EnvSnippet) => void) {
     super(app);
     this.plugin = plugin;
     this.snippet = snippet;
@@ -123,9 +123,9 @@ export class EnvSnippetModal extends Modal {
 /** Component for managing environment variable snippets. */
 export class EnvSnippetManager {
   private containerEl: HTMLElement;
-  private plugin: ObsidianCodePlugin;
+  private plugin: ObsidianCopilotPlugin;
 
-  constructor(containerEl: HTMLElement, plugin: ObsidianCodePlugin) {
+  constructor(containerEl: HTMLElement, plugin: ObsidianCopilotPlugin) {
     this.containerEl = containerEl;
     this.plugin = plugin;
     this.render();

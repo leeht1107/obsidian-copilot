@@ -15,7 +15,7 @@ import { isCommandBlocked } from '../../core/security/BlocklistChecker';
 import { TOOL_BASH } from '../../core/tools/toolNames';
 import { getBashToolBlockedCommands } from '../../core/types';
 import { type InlineEditMode, InlineEditService } from '../../features/inline-edit/InlineEditService';
-import type ObsidianCodePlugin from '../../main';
+import type ObsidianCopilotPlugin from '../../main';
 import { type CursorContext } from '../../utils/editor';
 import { escapeHtml, normalizeInsertionText } from '../../utils/inlineEdit';
 import { getVaultPath, isPathWithinVault, normalizePathForFilesystem } from '../../utils/path';
@@ -222,7 +222,7 @@ export class InlineEditModal {
 
   constructor(
     private app: App,
-    private plugin: ObsidianCodePlugin,
+    private plugin: ObsidianCopilotPlugin,
     private editContext: InlineEditContext,
     private notePath: string
   ) {}
@@ -281,7 +281,7 @@ class InlineEditController {
 
   constructor(
     private app: App,
-    private plugin: ObsidianCodePlugin,
+    private plugin: ObsidianCopilotPlugin,
     private editorView: EditorView,
     private editor: Editor,
     editContext: InlineEditContext,

@@ -2,7 +2,7 @@ import { Notice, setIcon } from 'obsidian';
 
 import type {
   CopilotModel,
-  ObsidianCodeMcpServer,
+  CopilotMcpServer,
   PermissionMode,
   ThinkingBudget,
   UsageInfo,
@@ -506,7 +506,7 @@ export class McpServerSelector {
     }
   }
 
-  private renderServerItem(listEl: HTMLElement, server: ObsidianCodeMcpServer) {
+  private renderServerItem(listEl: HTMLElement, server: CopilotMcpServer) {
     const itemEl = listEl.createDiv({ cls: 'ocop-mcp-selector-item' });
     itemEl.dataset.serverName = server.name;
     const isEnabled = this.enabledServers.has(server.name);

@@ -38,7 +38,7 @@ export {
 
 // Settings types
 export {
-  type ObsidianCodeSettings,
+  type ObsidianCopilotSettings,
   DEFAULT_SETTINGS,
   type EnvSnippet,
   getBashToolBlockedCommands,
@@ -66,8 +66,8 @@ export {
 
 // MCP types
 export {
-  type ObsidianCodeMcpConfigFile,
-  type ObsidianCodeMcpServer,
+  type CopilotMcpConfigFile,
+  type CopilotMcpServer,
   DEFAULT_MCP_SERVER,
   getMcpServerType,
   inferMcpServerType,

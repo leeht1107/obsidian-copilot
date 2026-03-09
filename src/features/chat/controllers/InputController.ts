@@ -13,7 +13,7 @@ import { isCommandBlocked } from '../../../core/security/BlocklistChecker';
 import { TOOL_BASH } from '../../../core/tools/toolNames';
 import type { AskUserQuestionInput, ChatMessage, ExitPlanModeDecision, ImageAttachment } from '../../../core/types';
 import { getBashToolBlockedCommands } from '../../../core/types';
-import type ObsidianCodePlugin from '../../../main';
+import type ObsidianCopilotPlugin from '../../../main';
 import {
   ApprovalModal,
   type FileContextManager,
@@ -43,7 +43,7 @@ const PLAN_MODE_REQUEST_PREFIX =
 
 /** Dependencies for InputController. */
 export interface InputControllerDeps {
-  plugin: ObsidianCodePlugin;
+  plugin: ObsidianCopilotPlugin;
   state: ChatState;
   renderer: MessageRenderer;
   streamController: StreamController;

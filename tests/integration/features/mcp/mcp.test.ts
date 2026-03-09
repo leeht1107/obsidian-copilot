@@ -11,7 +11,7 @@ import { ReadableStream } from 'stream/web';
 
 import { MCP_CONFIG_PATH, McpStorage } from '@/core/storage/McpStorage';
 import type {
-  ObsidianCodeMcpServer,
+  CopilotMcpServer,
   McpHttpServerConfig,
   McpServerConfig,
   McpSSEServerConfig,
@@ -350,7 +350,7 @@ describe('McpStorage', () => {
       };
       const { storage, files } = createMemoryStorage(initial);
 
-      const servers: ObsidianCodeMcpServer[] = [
+      const servers: CopilotMcpServer[] = [
         {
           name: 'new-server',
           config: {
@@ -398,7 +398,7 @@ describe('McpStorage', () => {
       };
       const { storage, files } = createMemoryStorage(initial);
 
-      const servers: ObsidianCodeMcpServer[] = [
+      const servers: CopilotMcpServer[] = [
         {
           name: 'default-meta',
           config: { command: 'npx' },
@@ -457,7 +457,7 @@ describe('McpStorage', () => {
       };
       const { storage } = createMemoryStorage(initial);
 
-      let servers: ObsidianCodeMcpServer[] = [];
+      let servers: CopilotMcpServer[] = [];
       try {
         servers = await storage.load();
         expect(warnSpy).toHaveBeenCalledWith(
@@ -486,7 +486,7 @@ describe('McpStorage', () => {
       };
       const { storage, files } = createMemoryStorage(initial);
 
-      const servers: ObsidianCodeMcpServer[] = [
+      const servers: CopilotMcpServer[] = [
         {
           name: 'legacy',
           config: { command: 'node' },
@@ -889,7 +889,7 @@ describe('McpTester', () => {
   it('should test stdio server and return tools', async () => {
     const child = createMockChildProcess();
     const spawnSpy = jest.spyOn(childProcess, 'spawn').mockReturnValue(child as any);
-    const server: ObsidianCodeMcpServer = {
+    const server: CopilotMcpServer = {
       name: 'local',
       config: { command: 'node', args: ['server'] },
       enabled: true,
@@ -937,7 +937,7 @@ describe('McpTester', () => {
     const spawnSpy = jest.spyOn(childProcess, 'spawn').mockImplementation(() => {
       throw new Error('spawn should not be called');
     });
-    const server: ObsidianCodeMcpServer = {
+    const server: CopilotMcpServer = {
       name: 'missing',
       config: { command: '' },
       enabled: true,
@@ -963,7 +963,7 @@ describe('McpTester', () => {
         body: JSON.stringify({ result: { tools: [{ name: 'tool-b' }] } }),
       },
     ]);
-    const server: ObsidianCodeMcpServer = {
+    const server: CopilotMcpServer = {
       name: 'http',
       config: { type: 'http', url: 'http://localhost:3000/mcp', headers: { Authorization: 'token' } },
       enabled: true,
@@ -989,7 +989,7 @@ describe('McpTester', () => {
         body: JSON.stringify({ error: { message: 'init failed' } }),
       },
     ]);
-    const server: ObsidianCodeMcpServer = {
+    const server: CopilotMcpServer = {
       name: 'http',
       config: { type: 'http', url: 'http://localhost:3000/mcp' },
       enabled: true,
@@ -1046,7 +1046,7 @@ describe('McpTester', () => {
     globalThis.fetch = fetchMock as any;
 
     try {
-      const server: ObsidianCodeMcpServer = {
+      const server: CopilotMcpServer = {
         name: 'sse',
         config: { type: 'sse', url: 'http://localhost:3000/sse' },
         enabled: true,
@@ -1075,7 +1075,7 @@ describe('McpTester', () => {
 // ============================================================================
 
 describe('McpService', () => {
-  function createService(servers: ObsidianCodeMcpServer[]): McpService {
+  function createService(servers: CopilotMcpServer[]): McpService {
     const mockPlugin = {
       storage: {
         mcp: {
@@ -1090,7 +1090,7 @@ describe('McpService', () => {
   }
 
   describe('getActiveServers', () => {
-    const servers: ObsidianCodeMcpServer[] = [
+    const servers: CopilotMcpServer[] = [
       {
         name: 'always-on',
         config: { command: 'server1' },
@@ -1149,7 +1149,7 @@ describe('McpService', () => {
     });
 
     it('should return empty object for all disabled servers', () => {
-      const disabledServers: ObsidianCodeMcpServer[] = [
+      const disabledServers: CopilotMcpServer[] = [
         { name: 's1', config: { command: 'c1' }, enabled: false, contextSaving: false },
         { name: 's2', config: { command: 'c2' }, enabled: false, contextSaving: true },
       ];
@@ -1162,7 +1162,7 @@ describe('McpService', () => {
   });
 
   describe('isValidMcpMention', () => {
-    const servers: ObsidianCodeMcpServer[] = [
+    const servers: CopilotMcpServer[] = [
       { name: 'enabled-context', config: { command: 'c1' }, enabled: true, contextSaving: true },
       { name: 'enabled-no-context', config: { command: 'c2' }, enabled: true, contextSaving: false },
       { name: 'disabled-context', config: { command: 'c3' }, enabled: false, contextSaving: true },
@@ -1190,7 +1190,7 @@ describe('McpService', () => {
   });
 
   describe('getContextSavingServers', () => {
-    const servers: ObsidianCodeMcpServer[] = [
+    const servers: CopilotMcpServer[] = [
       { name: 's1', config: { command: 'c1' }, enabled: true, contextSaving: true },
       { name: 's2', config: { command: 'c2' }, enabled: true, contextSaving: false },
       { name: 's3', config: { command: 'c3' }, enabled: false, contextSaving: true },
@@ -1207,7 +1207,7 @@ describe('McpService', () => {
   });
 
   describe('extractMentions', () => {
-    const servers: ObsidianCodeMcpServer[] = [
+    const servers: CopilotMcpServer[] = [
       { name: 'context7', config: { command: 'c1' }, enabled: true, contextSaving: true },
       { name: 'always-on', config: { command: 'c2' }, enabled: true, contextSaving: false },
       { name: 'disabled', config: { command: 'c3' }, enabled: false, contextSaving: true },
@@ -1231,7 +1231,7 @@ describe('McpService', () => {
 
   describe('helper methods', () => {
     it('should report server lists and enabled counts', () => {
-      const servers: ObsidianCodeMcpServer[] = [
+      const servers: CopilotMcpServer[] = [
         { name: 's1', config: { command: 'c1' }, enabled: true, contextSaving: true },
         { name: 's2', config: { command: 'c2' }, enabled: true, contextSaving: false },
         { name: 's3', config: { command: 'c3' }, enabled: false, contextSaving: true },

@@ -8,7 +8,7 @@ import {
   DEFAULT_THINKING_BUDGET,
   VIEW_TYPE_OBSIDIAN_CODE,
 } from '../../core/types';
-import type ObsidianCodePlugin from '../../main';
+import type ObsidianCopilotPlugin from '../../main';
 import {
   cleanupThinkingBlock,
   type ContextUsageMeter,
@@ -42,7 +42,7 @@ import { TitleGenerationService } from './services/TitleGenerationService';
 import { ChatState } from './state';
 
 export class ObsidianCodeView extends ItemView {
-  private plugin: ObsidianCodePlugin;
+  private plugin: ObsidianCopilotPlugin;
   public readonly state: ChatState;
 
   private selectionController: SelectionController | null = null;
@@ -78,7 +78,7 @@ export class ObsidianCodeView extends ItemView {
   private planBanner: PlanBanner | null = null;
   private todoPanel: TodoPanel | null = null;
 
-  constructor(leaf: WorkspaceLeaf, plugin: ObsidianCodePlugin) {
+  constructor(leaf: WorkspaceLeaf, plugin: ObsidianCopilotPlugin) {
     super(leaf);
     this.plugin = plugin;
     this.state = new ChatState({

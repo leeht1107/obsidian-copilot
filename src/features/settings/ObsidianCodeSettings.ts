@@ -5,7 +5,7 @@ import { Notice, PluginSettingTab, Setting } from 'obsidian';
 
 import { getCurrentPlatformKey } from '../../core/types';
 import { COPILOT_MODELS } from '../../core/types/models';
-import type ObsidianCodePlugin from '../../main';
+import type ObsidianCopilotPlugin from '../../main';
 import { EnvSnippetManager, McpSettingsManager, SlashCommandSettings } from '../../ui';
 import { expandHomePath } from '../../utils/path';
 import { buildNavMappingText, parseNavMappings } from './keyboardNavigation';
@@ -55,9 +55,9 @@ function getHotkeyForCommand(app: App, commandId: string): string | null {
 }
 
 export class ObsidianCodeSettingTab extends PluginSettingTab {
-  plugin: ObsidianCodePlugin;
+  plugin: ObsidianCopilotPlugin;
 
-  constructor(app: App, plugin: ObsidianCodePlugin) {
+  constructor(app: App, plugin: ObsidianCopilotPlugin) {
     super(app, plugin);
     this.plugin = plugin;
   }

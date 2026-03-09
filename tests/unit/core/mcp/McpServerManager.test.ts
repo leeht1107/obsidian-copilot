@@ -1,8 +1,8 @@
 import { McpServerManager } from '@/core/mcp';
-import type { ObsidianCodeMcpServer } from '@/core/types';
+import type { CopilotMcpServer } from '@/core/types';
 
 describe('McpServerManager.getDisallowedMcpTools', () => {
-  const createManager = async (servers: ObsidianCodeMcpServer[]) => {
+  const createManager = async (servers: CopilotMcpServer[]) => {
     const manager = new McpServerManager({
       load: async () => servers,
     });

@@ -14,7 +14,7 @@ import { CopilotBridgeService } from './core/agent/CopilotBridgeService';
 import { deleteCachedImages } from './core/images/imageCache';
 import { StorageService } from './core/storage';
 import type {
-  ObsidianCodeSettings,
+  ObsidianCopilotSettings,
   Conversation,
   ConversationMeta
 } from './core/types';
@@ -35,7 +35,7 @@ import { buildCursorContext } from './utils/editor';
  * Handles plugin lifecycle, settings persistence, and conversation management.
  */
 export default class ObsidianCopilotPlugin extends Plugin {
-  settings: ObsidianCodeSettings;
+  settings: ObsidianCopilotSettings;
   agentService: CopilotBridgeService;
   storage: StorageService;
   mcpService: McpService;

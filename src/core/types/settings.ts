@@ -125,7 +125,7 @@ export interface KeyboardNavigationSettings {
 }
 
 /** Plugin settings persisted to disk. */
-export interface ObsidianCodeSettings {
+export interface ObsidianCopilotSettings {
   userName: string;
   enableBlocklist: boolean;
   blockedCommands: PlatformBlockedCommands;
@@ -150,7 +150,7 @@ export interface ObsidianCodeSettings {
 }
 
 /** Default plugin settings. */
-export const DEFAULT_SETTINGS: ObsidianCodeSettings = {
+export const DEFAULT_SETTINGS: ObsidianCopilotSettings = {
   userName: '',
   enableBlocklist: true,
   blockedCommands: getDefaultBlockedCommands(),

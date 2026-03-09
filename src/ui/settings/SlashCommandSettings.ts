@@ -8,18 +8,18 @@ import type { App} from 'obsidian';
 import { Modal, Notice, setIcon, Setting } from 'obsidian';
 
 import type { SlashCommand } from '../../core/types';
-import type ObsidianCodePlugin from '../../main';
+import type ObsidianCopilotPlugin from '../../main';
 import { parseSlashCommandContent } from '../../utils/slashCommand';
 
 /** Modal for creating/editing slash commands. */
 export class SlashCommandModal extends Modal {
-  private plugin: ObsidianCodePlugin;
+  private plugin: ObsidianCopilotPlugin;
   private existingCmd: SlashCommand | null;
   private onSave: (cmd: SlashCommand) => void;
 
   constructor(
     app: App,
-    plugin: ObsidianCodePlugin,
+    plugin: ObsidianCopilotPlugin,
     existingCmd: SlashCommand | null,
     onSave: (cmd: SlashCommand) => void
   ) {
@@ -180,9 +180,9 @@ export class SlashCommandModal extends Modal {
 /** Component for managing slash commands in settings. */
 export class SlashCommandSettings {
   private containerEl: HTMLElement;
-  private plugin: ObsidianCodePlugin;
+  private plugin: ObsidianCopilotPlugin;
 
-  constructor(containerEl: HTMLElement, plugin: ObsidianCodePlugin) {
+  constructor(containerEl: HTMLElement, plugin: ObsidianCopilotPlugin) {
     this.containerEl = containerEl;
     this.plugin = plugin;
     this.render();

@@ -18,8 +18,8 @@
  */
 
 import type {
-  ObsidianCodeMcpConfigFile,
-  ObsidianCodeMcpServer,
+  CopilotMcpConfigFile,
+  CopilotMcpServer,
   McpServerConfig,
   ParsedMcpConfig,
 } from '../types';
@@ -33,21 +33,21 @@ export class McpStorage {
   constructor(private adapter: VaultFileAdapter) {}
 
   /** Load MCP servers from .copilot/mcp.json. */
-  async load(): Promise<ObsidianCodeMcpServer[]> {
+  async load(): Promise<CopilotMcpServer[]> {
     try {
       if (!(await this.adapter.exists(MCP_CONFIG_PATH))) {
         return [];
       }
 
       const content = await this.adapter.read(MCP_CONFIG_PATH);
-      const file = JSON.parse(content) as ObsidianCodeMcpConfigFile;
+      const file = JSON.parse(content) as CopilotMcpConfigFile;
 
       if (!file.mcpServers || typeof file.mcpServers !== 'object') {
         return [];
       }
 
       const obsidianCodeMeta = file._obsidianCode?.servers ?? {};
-      const servers: ObsidianCodeMcpServer[] = [];
+      const servers: CopilotMcpServer[] = [];
 
       for (const [name, config] of Object.entries(file.mcpServers)) {
         if (!isValidMcpServerConfig(config)) {
@@ -80,7 +80,7 @@ export class McpStorage {
   }
 
   /** Save MCP servers to .copilot/mcp.json. */
-  async save(servers: ObsidianCodeMcpServer[]): Promise<void> {
+  async save(servers: CopilotMcpServer[]): Promise<void> {
     try {
       const mcpServers: Record<string, McpServerConfig> = {};
       const obsidianCodeServers: Record<

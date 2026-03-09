@@ -7,7 +7,7 @@
 
 import { isPlanModeTool, isWriteEditTool, TOOL_AGENT_OUTPUT, TOOL_ASK_USER_QUESTION, TOOL_TASK, TOOL_TODO_WRITE } from '../../../core/tools/toolNames';
 import type { ChatMessage, StreamChunk, SubagentInfo, ToolCallInfo } from '../../../core/types';
-import type ObsidianCodePlugin from '../../../main';
+import type ObsidianCopilotPlugin from '../../../main';
 import {
   addSubagentToolCall,
   appendThinkingContent,
@@ -41,7 +41,7 @@ import type { ChatState } from '../state/ChatState';
 
 /** Dependencies for StreamController. */
 export interface StreamControllerDeps {
-  plugin: ObsidianCodePlugin;
+  plugin: ObsidianCopilotPlugin;
   state: ChatState;
   renderer: MessageRenderer;
   asyncSubagentManager: AsyncSubagentManager;

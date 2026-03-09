@@ -5,16 +5,16 @@
  * No UI or @-mention logic - those belong in features/mcp/.
  */
 
-import type { ObsidianCodeMcpServer, McpServerConfig } from '../types';
+import type { CopilotMcpServer, McpServerConfig } from '../types';
 
 /** Storage interface for loading MCP servers. */
 export interface McpStorageAdapter {
-  load(): Promise<ObsidianCodeMcpServer[]>;
+  load(): Promise<CopilotMcpServer[]>;
 }
 
 /** Manages MCP server configurations. */
 export class McpServerManager {
-  private servers: ObsidianCodeMcpServer[] = [];
+  private servers: CopilotMcpServer[] = [];
   private storage: McpStorageAdapter;
 
   constructor(storage: McpStorageAdapter) {
@@ -27,7 +27,7 @@ export class McpServerManager {
   }
 
   /** Get all loaded servers. */
-  getServers(): ObsidianCodeMcpServer[] {
+  getServers(): CopilotMcpServer[] {
     return this.servers;
   }
 

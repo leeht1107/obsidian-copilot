@@ -9,7 +9,7 @@ import type { App } from 'obsidian';
 import { Modal, Notice, Setting } from 'obsidian';
 
 import type {
-  ObsidianCodeMcpServer,
+  CopilotMcpServer,
   McpHttpServerConfig,
   McpServerConfig,
   McpServerType,
@@ -17,13 +17,13 @@ import type {
   McpStdioServerConfig,
 } from '../../core/types';
 import { DEFAULT_MCP_SERVER, getMcpServerType } from '../../core/types';
-import type ObsidianCodePlugin from '../../main';
+import type ObsidianCopilotPlugin from '../../main';
 
 /** Modal for creating/editing MCP server configurations. */
 export class McpServerModal extends Modal {
-  private plugin: ObsidianCodePlugin;
-  private existingServer: ObsidianCodeMcpServer | null;
-  private onSave: (server: ObsidianCodeMcpServer) => void;
+  private plugin: ObsidianCopilotPlugin;
+  private existingServer: CopilotMcpServer | null;
+  private onSave: (server: CopilotMcpServer) => void;
 
   // Form state
   private serverName = '';
@@ -45,9 +45,9 @@ export class McpServerModal extends Modal {
 
   constructor(
     app: App,
-    plugin: ObsidianCodePlugin,
-    existingServer: ObsidianCodeMcpServer | null,
-    onSave: (server: ObsidianCodeMcpServer) => void,
+    plugin: ObsidianCopilotPlugin,
+    existingServer: CopilotMcpServer | null,
+    onSave: (server: CopilotMcpServer) => void,
     initialType?: McpServerType,
     prefillConfig?: { name: string; config: McpServerConfig }
   ) {
@@ -322,7 +322,7 @@ export class McpServerModal extends Modal {
       }
     }
 
-    const server: ObsidianCodeMcpServer = {
+    const server: CopilotMcpServer = {
       name,
       config,
       enabled: this.enabled,

@@ -8,7 +8,7 @@
 import { setIcon } from 'obsidian';
 
 import type { Conversation } from '../../../core/types';
-import type ObsidianCodePlugin from '../../../main';
+import type ObsidianCopilotPlugin from '../../../main';
 import { type ExternalContextSelector, extractLastTodosFromMessages, type FileContextManager, type ImageContextManager, type McpServerSelector, type TodoPanel } from '../../../ui';
 import type { MessageRenderer } from '../rendering/MessageRenderer';
 import type { AsyncSubagentManager } from '../services/AsyncSubagentManager';
@@ -24,7 +24,7 @@ export interface ConversationCallbacks {
 
 /** Dependencies for ConversationController. */
 export interface ConversationControllerDeps {
-  plugin: ObsidianCodePlugin;
+  plugin: ObsidianCopilotPlugin;
   state: ChatState;
   renderer: MessageRenderer;
   asyncSubagentManager: AsyncSubagentManager;
