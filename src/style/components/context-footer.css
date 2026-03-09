@@ -54,13 +54,13 @@
 }
 
 .oc-meter-fill {
-  stroke: #D97757;
+  stroke: #67d7ff;
   transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;
 }
 
 .oc-context-meter-percent {
   font-size: 11px;
-  color: #D97757;
+  color: #67d7ff;
   min-width: 24px;
   text-align: right;
   transition: color 0.3s ease;

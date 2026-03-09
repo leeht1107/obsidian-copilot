@@ -45,7 +45,7 @@ export interface StoredSelection {
 export interface PlanModeState {
   /** Whether plan mode is currently active. */
   isActive: boolean;
-  /** Path to the current plan file (e.g., .claude/plan/123456.md). */
+  /** Path to the current plan file (e.g., .copilot/plan/123456.md). */
   planFilePath: string | null;
   /** The plan content once written/read. */
   planContent: string | null;

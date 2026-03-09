@@ -22,7 +22,7 @@
 .oc-thinking-current {
   padding: 3px 8px;
   font-size: 11px;
-  color: #D97757;
+  color: #67d7ff;
   font-weight: 500;
   cursor: pointer;
   border-radius: 3px;
@@ -71,6 +71,6 @@
 
 .oc-thinking-gear.selected {
   background: rgba(217, 119, 87, 0.15);
-  color: #D97757;
+  color: #67d7ff;
   font-weight: 500;
 }

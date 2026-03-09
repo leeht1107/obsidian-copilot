@@ -681,7 +681,12 @@ export function getPathAccessType(
     return 'vault';
   }
 
-  // Allow full access to ~/.claude/ (agent's native directory)
+  // Allow full access to ~/.copilot/ and ~/.claude/ for compatibility.
+  const copilotDir = normalizePathForComparison(resolveRealPath(path.join(os.homedir(), '.copilot')));
+  if (resolvedCandidate === copilotDir || resolvedCandidate.startsWith(copilotDir + '/')) {
+    return 'vault';
+  }
+
   const claudeDir = normalizePathForComparison(resolveRealPath(path.join(os.homedir(), '.claude')));
   if (resolvedCandidate === claudeDir || resolvedCandidate.startsWith(claudeDir + '/')) {
     return 'vault';

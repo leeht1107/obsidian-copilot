@@ -1,10 +1,11 @@
 /**
  * Obsidian Skills Installer
  * 
- * Installs pre-bundled Obsidian skills to the vault's .claude/skills folder.
+ * Installs pre-bundled Obsidian skills to the vault's .copilot/skills folder.
  */
 
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 
 import type { App } from 'obsidian';
@@ -310,8 +311,11 @@ export interface InstalledSkill {
   name: string;
   description: string;
   path: string;
-  isBuiltIn: boolean;  // true for obsidian-markdown and json-canvas
+  isBuiltIn: boolean;
+  isGlobal: boolean;
 }
+
+const GLOBAL_SKILLS_PATH = path.join(os.homedir(), '.copilot', 'skills');
 
 /** Built-in skill names (bundled with the plugin) */
 const BUILT_IN_SKILLS = ['obsidian-markdown', 'json-canvas'];
@@ -321,19 +325,43 @@ export function isObsidianSkillsInstalled(app: App): boolean {
   const vaultPath = getVaultPath(app);
   if (!vaultPath) return false;
 
-  const skillsPath = path.join(vaultPath, '.claude', 'skills', 'obsidian-markdown');
+  const skillsPath = path.join(vaultPath, '.copilot', 'skills', 'obsidian-markdown');
   return fs.existsSync(skillsPath);
 }
 
 /** Get all installed skills in the vault */
 export function getInstalledSkills(app: App): InstalledSkill[] {
   const vaultPath = getVaultPath(app);
-  if (!vaultPath) return [];
 
-  const skillsBasePath = path.join(vaultPath, '.claude', 'skills');
-  if (!fs.existsSync(skillsBasePath)) return [];
+  const globalSkills = loadSkillsFromPath(GLOBAL_SKILLS_PATH, true);
+  const vaultSkills: InstalledSkill[] = [];
 
+  if (vaultPath) {
+    const skillsBasePath = path.join(vaultPath, '.copilot', 'skills');
+    vaultSkills.push(...loadSkillsFromPath(skillsBasePath, false));
+  }
+
+  const vaultNames = new Set(vaultSkills.map((skill) => skill.name));
+  const mergedSkills = [
+    ...globalSkills.filter((skill) => !vaultNames.has(skill.name)),
+    ...vaultSkills,
+  ];
+
+  return mergedSkills.sort((a, b) => {
+    if (a.isBuiltIn && !b.isBuiltIn) return -1;
+    if (!a.isBuiltIn && b.isBuiltIn) return 1;
+    if (a.isGlobal && !b.isGlobal) return -1;
+    if (!a.isGlobal && b.isGlobal) return 1;
+    return a.name.localeCompare(b.name);
+  });
+}
+
+function loadSkillsFromPath(skillsBasePath: string, isGlobal: boolean): InstalledSkill[] {
   const skills: InstalledSkill[] = [];
+
+  if (!fs.existsSync(skillsBasePath)) {
+    return skills;
+  }
 
   try {
     const entries = fs.readdirSync(skillsBasePath, { withFileTypes: true });
@@ -343,10 +371,8 @@ export function getInstalledSkills(app: App): InstalledSkill[] {
 
       const skillDir = path.join(skillsBasePath, entry.name);
       const skillFilePath = path.join(skillDir, 'SKILL.md');
-
       if (!fs.existsSync(skillFilePath)) continue;
 
-      // Read skill file to extract description
       let description = '';
       try {
         const content = fs.readFileSync(skillFilePath, 'utf-8');
@@ -355,7 +381,6 @@ export function getInstalledSkills(app: App): InstalledSkill[] {
           description = descMatch[1].trim();
         }
       } catch {
-        // Ignore read errors
       }
 
       skills.push({
@@ -363,18 +388,13 @@ export function getInstalledSkills(app: App): InstalledSkill[] {
         description: description || 'No description available',
         path: skillDir,
         isBuiltIn: BUILT_IN_SKILLS.includes(entry.name),
+        isGlobal,
       });
     }
   } catch {
-    // Ignore directory read errors
   }
 
-  // Sort: built-in skills first, then alphabetically
-  return skills.sort((a, b) => {
-    if (a.isBuiltIn && !b.isBuiltIn) return -1;
-    if (!a.isBuiltIn && b.isBuiltIn) return 1;
-    return a.name.localeCompare(b.name);
-  });
+  return skills;
 }
 
 /** Remove a specific skill by name */
@@ -386,7 +406,7 @@ export async function removeSkill(app: App, skillName: string): Promise<boolean>
   }
 
   try {
-    const skillPath = path.join(vaultPath, '.claude', 'skills', skillName);
+    const skillPath = path.join(vaultPath, '.copilot', 'skills', skillName);
 
     if (!fs.existsSync(skillPath)) {
       new Notice(`Skill "${skillName}" not found`);
@@ -413,7 +433,7 @@ export async function installObsidianSkills(app: App): Promise<boolean> {
 
   try {
     // Create directories
-    const skillsBasePath = path.join(vaultPath, '.claude', 'skills');
+    const skillsBasePath = path.join(vaultPath, '.copilot', 'skills');
     const obsidianMarkdownPath = path.join(skillsBasePath, 'obsidian-markdown');
     const jsonCanvasPath = path.join(skillsBasePath, 'json-canvas');
 
@@ -452,7 +472,7 @@ export async function uninstallObsidianSkills(app: App): Promise<boolean> {
   }
 
   try {
-    const skillsBasePath = path.join(vaultPath, '.claude', 'skills');
+    const skillsBasePath = path.join(vaultPath, '.copilot', 'skills');
     const obsidianMarkdownPath = path.join(skillsBasePath, 'obsidian-markdown');
     const jsonCanvasPath = path.join(skillsBasePath, 'json-canvas');
 
@@ -601,7 +621,7 @@ export async function installSkillFromUrl(app: App, url: string): Promise<boolea
       throw new Error('Could not determine skill name. Please ensure the SKILL.md has a "name" field in frontmatter.');
     }
 
-    const skillsBasePath = path.join(vaultPath, '.claude', 'skills');
+    const skillsBasePath = path.join(vaultPath, '.copilot', 'skills');
     const skillDir = path.join(skillsBasePath, skillName);
 
     if (!fs.existsSync(skillDir)) {

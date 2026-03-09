@@ -1,5 +1,5 @@
 /**
- * McpStorage - Handles .claude/mcp.json read/write
+ * McpStorage - Handles .copilot/mcp.json read/write
  *
  * MCP server configurations are stored in Claude Code-compatible format
  * with optional ObsidianCode-specific metadata in _obsidianCode field.
@@ -27,12 +27,12 @@ import { DEFAULT_MCP_SERVER, isValidMcpServerConfig } from '../types';
 import type { VaultFileAdapter } from './VaultFileAdapter';
 
 /** Path to MCP config file relative to vault root. */
-export const MCP_CONFIG_PATH = '.claude/mcp.json';
+export const MCP_CONFIG_PATH = '.copilot/mcp.json';
 
 export class McpStorage {
   constructor(private adapter: VaultFileAdapter) {}
 
-  /** Load MCP servers from .claude/mcp.json. */
+  /** Load MCP servers from .copilot/mcp.json. */
   async load(): Promise<ObsidianCodeMcpServer[]> {
     try {
       if (!(await this.adapter.exists(MCP_CONFIG_PATH))) {
@@ -79,7 +79,7 @@ export class McpStorage {
     }
   }
 
-  /** Save MCP servers to .claude/mcp.json. */
+  /** Save MCP servers to .copilot/mcp.json. */
   async save(servers: ObsidianCodeMcpServer[]): Promise<void> {
     try {
       const mcpServers: Record<string, McpServerConfig> = {};

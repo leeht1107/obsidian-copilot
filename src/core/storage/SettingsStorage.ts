@@ -1,12 +1,16 @@
 /**
- * SettingsStorage - Handles settings.json read/write in vault/.claude/
+ * SettingsStorage - Handles settings.json read/write in vault/.copilot/
  *
- * Settings are stored as JSON in the vault's .claude/settings.json file.
+ * Settings are stored as JSON in the vault's .copilot/settings.json file.
  * This replaces the previous approach of storing settings in Obsidian's data.json.
  *
  * User-facing settings go here (including permissions, like Claude Code).
  * Machine-specific state (lastEnvHash, model tracking) stays in Obsidian's data.json.
  */
+
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 
 import type { ObsidianCodeSettings, PlatformBlockedCommands } from '../types';
 import { DEFAULT_SETTINGS, getDefaultBlockedCommands } from '../types';
@@ -19,11 +23,12 @@ type StateFields =
   | 'lastClaudeModel'
   | 'lastCustomModel';
 
-/** Settings stored in .claude/settings.json (user-facing, shareable). */
+/** Settings stored in .copilot/settings.json (user-facing, shareable). */
 export type StoredSettings = Omit<ObsidianCodeSettings, StateFields>;
 
 /** Path to settings file relative to vault root. */
-export const SETTINGS_PATH = '.claude/settings.json';
+export const SETTINGS_PATH = '.copilot/settings.json';
+export const GLOBAL_SETTINGS_PATH = path.join(os.homedir(), '.copilot', 'settings.json');
 
 function normalizeCommandList(value: unknown, fallback: string[]): string[] {
   if (!Array.isArray(value)) {
@@ -61,35 +66,53 @@ function normalizeBlockedCommands(value: unknown): PlatformBlockedCommands {
 export class SettingsStorage {
   constructor(private adapter: VaultFileAdapter) {}
 
-  /** Load settings from .claude/settings.json, merging with defaults. */
+  /** Load settings from .copilot/settings.json, merging with defaults. */
   async load(): Promise<StoredSettings> {
     try {
-      if (!(await this.adapter.exists(SETTINGS_PATH))) {
-        return this.getDefaults();
+      const defaults = this.getDefaults();
+      let stored: Record<string, unknown> = {};
+
+      if (await this.adapter.exists(SETTINGS_PATH)) {
+        const content = await this.adapter.read(SETTINGS_PATH);
+        stored = JSON.parse(content) as Record<string, unknown>;
       }
 
-      const content = await this.adapter.read(SETTINGS_PATH);
-      const stored = JSON.parse(content) as Record<string, unknown>;
-      const blockedCommands = normalizeBlockedCommands(stored.blockedCommands);
+      let globalStored: Record<string, unknown> = {};
+      const shouldLoadGlobal = (stored.loadUserClaudeSettings as boolean | undefined) ?? defaults.loadUserClaudeSettings;
+      if (shouldLoadGlobal && fs.existsSync(GLOBAL_SETTINGS_PATH)) {
+        try {
+          globalStored = JSON.parse(fs.readFileSync(GLOBAL_SETTINGS_PATH, 'utf-8')) as Record<string, unknown>;
+        } catch (error) {
+          console.error('[ObsidianCopilot] Failed to load global Copilot settings:', error);
+        }
+      }
+
+      const merged = {
+        ...defaults,
+        ...globalStored,
+        ...stored,
+      } as Record<string, unknown>;
+      const blockedCommands = normalizeBlockedCommands(merged.blockedCommands);
 
       return {
-        ...this.getDefaults(),
+        ...defaults,
+        ...globalStored,
         ...stored,
         blockedCommands,
       } as StoredSettings;
     } catch (error) {
-      console.error('[ObsidianCode] Failed to load settings:', error);
+      console.error('[ObsidianCopilot] Failed to load settings:', error);
       return this.getDefaults();
     }
   }
 
-  /** Save settings to .claude/settings.json. */
+  /** Save settings to .copilot/settings.json. */
   async save(settings: StoredSettings): Promise<void> {
     try {
       const content = JSON.stringify(settings, null, 2);
       await this.adapter.write(SETTINGS_PATH, content);
     } catch (error) {
-      console.error('[ObsidianCode] Failed to save settings:', error);
+      console.error('[ObsidianCopilot] Failed to save settings:', error);
       throw error;
     }
   }
