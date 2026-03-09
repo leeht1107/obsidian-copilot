@@ -249,7 +249,40 @@ export class CopilotBridgeService {
     this.abortController = new AbortController();
 
     try {
-      yield* this.spawnCopilot(copilotPath, args, this.getCustomEnv(copilotPath));
+      const isPlanMode = queryOptions?.planMode === true;
+      let bufferedPlanText = '';
+      let sawDone = false;
+
+      for await (const chunk of this.spawnCopilot(copilotPath, args, this.getCustomEnv(copilotPath))) {
+        if (isPlanMode) {
+          if (chunk.type === 'text') {
+            bufferedPlanText += chunk.content;
+            continue;
+          }
+
+          if (chunk.type === 'done') {
+            sawDone = true;
+            continue;
+          }
+        }
+
+        yield chunk;
+      }
+
+      if (isPlanMode) {
+        const trimmedPlan = bufferedPlanText.trim();
+        if (!this.wasInterrupted && trimmedPlan) {
+          if (this.exitPlanModeCallback) {
+            await this.exitPlanModeCallback(trimmedPlan);
+          } else {
+            yield { type: 'text', content: bufferedPlanText };
+          }
+        }
+
+        if (sawDone) {
+          yield { type: 'done' };
+        }
+      }
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Unknown error';
       yield { type: 'error', content: msg };
