@@ -9,6 +9,7 @@ import { spawn, type ChildProcess } from 'child_process';
 
 import type ObsidianCopilotPlugin from '../../main';
 import type { ChatMessage, StreamChunk } from '../types';
+import { findCopilotCLIPath } from '../../utils/copilotCli';
 
 /** Options for query execution. */
 export interface QueryOptions {
@@ -82,8 +83,8 @@ export class CopilotBridgeService {
       return settingsPath.trim();
     }
 
-    // Default to 'copilot' in PATH
-    return 'copilot';
+    // Auto-discover copilot binary
+    return findCopilotCLIPath();
   }
 
   /**
