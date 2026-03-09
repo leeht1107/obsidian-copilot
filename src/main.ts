@@ -5,8 +5,8 @@
  * Manages conversation persistence and environment variable configuration.
  */
 
-import type { Editor, MarkdownView, WorkspaceLeaf } from 'obsidian';
-import { ItemView, Notice, Plugin } from 'obsidian';
+import type { Editor, MarkdownView } from 'obsidian';
+import { Notice, Plugin } from 'obsidian';
 
 import { CopilotBridgeService } from './core/agent/CopilotBridgeService';
 import { deleteCachedImages } from './core/images/imageCache';
@@ -21,7 +21,10 @@ import {
   VIEW_TYPE_OBSIDIAN_CODE,
 } from './core/types';
 import type { ObsidianCodeView } from './features/chat/ObsidianCodeView';
+import { ObsidianCodeView as ObsidianCodeViewImpl } from './features/chat/ObsidianCodeView';
+import { ObsidianCodeSettingTab } from './features/settings/ObsidianCodeSettings';
 import type { InlineEditContext } from './ui/modals/InlineEditModal';
+import { InlineEditModal } from './ui/modals/InlineEditModal';
 import { buildCursorContext } from './utils/editor';
 
 class McpServiceStub {
@@ -51,27 +54,6 @@ class McpServiceStub {
   getAllServerStatus(): Map<string, string> { return new Map(); }
   reloadServers(): Promise<void> { return Promise.resolve(); }
   dispose(): void {}
-}
-
-class StartupErrorView extends ItemView {
-  constructor(leaf: WorkspaceLeaf, private errorMessage: string) {
-    super(leaf);
-  }
-
-  getViewType(): string {
-    return VIEW_TYPE_OBSIDIAN_CODE;
-  }
-
-  getDisplayText(): string {
-    return 'Obsidian Copilot';
-  }
-
-  async onOpen(): Promise<void> {
-    const container = this.containerEl.children[1] as HTMLElement;
-    container.empty();
-    container.createEl('h3', { text: 'Obsidian Copilot failed to load' });
-    container.createEl('p', { text: this.errorMessage });
-  }
 }
 
 /**
@@ -106,17 +88,7 @@ export default class ObsidianCopilotPlugin extends Plugin {
 
     this.registerView(
       VIEW_TYPE_OBSIDIAN_CODE,
-      (leaf) => {
-        try {
-          const { ObsidianCodeView } = require('./features/chat/ObsidianCodeView');
-          return new ObsidianCodeView(leaf, this);
-        } catch (error) {
-          const message = error instanceof Error ? error.message : String(error);
-          console.error('[ObsidianCopilot] Failed to create chat view:', error);
-          new Notice(`Obsidian Copilot view failed to load: ${message}`, 10000);
-          return new StartupErrorView(leaf, message);
-        }
-      }
+      (leaf) => new ObsidianCodeViewImpl(leaf, this)
     );
 
     this.addRibbonIcon('bot', 'Open Obsidian Copilot', () => {
@@ -154,7 +126,6 @@ export default class ObsidianCopilotPlugin extends Plugin {
           editContext = { mode: 'cursor', cursorContext };
         }
 
-        const { InlineEditModal } = require('./ui/modals/InlineEditModal');
         const modal = new InlineEditModal(this.app, this, editContext, notePath);
         const result = await modal.openAndWait();
 
@@ -186,14 +157,7 @@ export default class ObsidianCopilotPlugin extends Plugin {
       },
     });
 
-    try {
-      const { ObsidianCodeSettingTab } = require('./features/settings/ObsidianCodeSettings');
-      this.addSettingTab(new ObsidianCodeSettingTab(this.app, this));
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.error('[ObsidianCopilot] Failed to register settings tab:', error);
-      new Notice(`Obsidian Copilot settings failed to load: ${message}`, 10000);
-    }
+    this.addSettingTab(new ObsidianCodeSettingTab(this.app, this));
   }
 
   onunload() {
