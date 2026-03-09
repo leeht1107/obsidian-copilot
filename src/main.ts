@@ -83,7 +83,7 @@ export default class ObsidianCopilotPlugin extends Plugin {
 
     this.addCommand({
       id: 'open-view',
-      name: 'Open chat view',
+      name: 'Obsidian Copilot: Open chat view',
       callback: () => {
         this.activateView();
       },
@@ -91,7 +91,7 @@ export default class ObsidianCopilotPlugin extends Plugin {
 
     this.addCommand({
       id: 'inline-edit',
-      name: 'Inline edit',
+      name: 'Obsidian Copilot: Inline edit',
       editorCallback: async (editor: Editor, view: MarkdownView) => {
         const selectedText = editor.getSelection();
         const notePath = view.file?.path || 'unknown';
@@ -123,7 +123,7 @@ export default class ObsidianCopilotPlugin extends Plugin {
 
     this.addCommand({
       id: 'attach-current-note',
-      name: 'Attach current note to chat',
+      name: 'Obsidian Copilot: Attach current note to chat',
       checkCallback: (checking: boolean) => {
         const activeFile = this.app.workspace.getActiveFile();
         if (!activeFile) return false;
