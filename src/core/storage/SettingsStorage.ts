@@ -8,10 +8,6 @@
  * Machine-specific state (lastEnvHash, model tracking) stays in Obsidian's data.json.
  */
 
-import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
-
 import type { ObsidianCodeSettings, PlatformBlockedCommands } from '../types';
 import { DEFAULT_SETTINGS, getDefaultBlockedCommands } from '../types';
 import type { VaultFileAdapter } from './VaultFileAdapter';
@@ -28,7 +24,6 @@ export type StoredSettings = Omit<ObsidianCodeSettings, StateFields>;
 
 /** Path to settings file relative to vault root. */
 export const SETTINGS_PATH = '.copilot/settings.json';
-export const GLOBAL_SETTINGS_PATH = path.join(os.homedir(), '.copilot', 'settings.json');
 
 function normalizeCommandList(value: unknown, fallback: string[]): string[] {
   if (!Array.isArray(value)) {
@@ -69,34 +64,16 @@ export class SettingsStorage {
   /** Load settings from .copilot/settings.json, merging with defaults. */
   async load(): Promise<StoredSettings> {
     try {
-      const defaults = this.getDefaults();
-      let stored: Record<string, unknown> = {};
-
-      if (await this.adapter.exists(SETTINGS_PATH)) {
-        const content = await this.adapter.read(SETTINGS_PATH);
-        stored = JSON.parse(content) as Record<string, unknown>;
+      if (!(await this.adapter.exists(SETTINGS_PATH))) {
+        return this.getDefaults();
       }
 
-      let globalStored: Record<string, unknown> = {};
-      const shouldLoadGlobal = (stored.loadUserClaudeSettings as boolean | undefined) ?? defaults.loadUserClaudeSettings;
-      if (shouldLoadGlobal && fs.existsSync(GLOBAL_SETTINGS_PATH)) {
-        try {
-          globalStored = JSON.parse(fs.readFileSync(GLOBAL_SETTINGS_PATH, 'utf-8')) as Record<string, unknown>;
-        } catch (error) {
-          console.error('[ObsidianCopilot] Failed to load global Copilot settings:', error);
-        }
-      }
-
-      const merged = {
-        ...defaults,
-        ...globalStored,
-        ...stored,
-      } as Record<string, unknown>;
-      const blockedCommands = normalizeBlockedCommands(merged.blockedCommands);
+      const content = await this.adapter.read(SETTINGS_PATH);
+      const stored = JSON.parse(content) as Record<string, unknown>;
+      const blockedCommands = normalizeBlockedCommands(stored.blockedCommands);
 
       return {
-        ...defaults,
-        ...globalStored,
+        ...this.getDefaults(),
         ...stored,
         blockedCommands,
       } as StoredSettings;
