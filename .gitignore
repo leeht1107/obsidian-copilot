@@ -100,6 +100,7 @@ test-results/
 # Development files
 dev/archive
 sandbox/
+그림1.png
 .agents/archive
 .sisyphus/
 docs/
