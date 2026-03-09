@@ -67,7 +67,19 @@ export default class ObsidianCopilotPlugin extends Plugin {
   private activeConversationId: string | null = null;
 
   async onload() {
-    await this.loadSettings();
+    try {
+      await this.loadSettings();
+    } catch (error) {
+      console.error('[ObsidianCopilot] Failed to load settings during startup:', error);
+      this.storage = new StorageService(this);
+      this.settings = {
+        ...DEFAULT_SETTINGS,
+        slashCommands: [],
+      };
+      this.conversations = [];
+      this.activeConversationId = null;
+      new Notice('Obsidian Copilot loaded with default settings due to a startup error.');
+    }
 
     this.agentService = new CopilotBridgeService(this);
     this.mcpService = new McpServiceStub();
@@ -201,7 +213,11 @@ export default class ObsidianCopilotPlugin extends Plugin {
 
     // Persist backfilled conversations to their session files
     for (const conv of backfilledConversations) {
-      await this.storage.sessions.saveConversation(conv);
+      try {
+        await this.storage.sessions.saveConversation(conv);
+      } catch (error) {
+        console.error(`[ObsidianCopilot] Failed to persist backfilled conversation ${conv.id}:`, error);
+      }
     }
   }
 
