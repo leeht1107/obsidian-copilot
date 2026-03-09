@@ -92,7 +92,7 @@ export class ObsidianCodeView extends ItemView {
     this.wireEventHandlers();
 
     this.selectionController?.start();
-    await this.conversationController?.loadActive();
+    await this.conversationController?.createNew();
   }
 
   async onClose() {
