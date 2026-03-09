@@ -10,10 +10,16 @@ const CURRENT_NOTE_PREFIX_REGEX = /^<current_note>\n[\s\S]*?<\/current_note>\n\n
 export function formatCurrentNote(notePath: string): string {
   return `<current_note>\n${notePath}\n</current_note>`;
 }
+export function formatCurrentNoteContent(notePath: string, content: string): string {
+  return `<current_note_content path="${notePath}">\n${content}\n</current_note_content>`;
+}
 
 /** Prepends current note to a prompt. */
 export function prependCurrentNote(prompt: string, notePath: string): string {
   return `${formatCurrentNote(notePath)}\n\n${prompt}`;
+}
+export function prependCurrentNoteContent(prompt: string, notePath: string, content: string): string {
+  return `${formatCurrentNoteContent(notePath, content)}\n\n${prompt}`;
 }
 
 /** Strips current note prefix from a prompt. */

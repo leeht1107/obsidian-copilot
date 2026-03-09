@@ -6,7 +6,7 @@
  */
 
 import type { Component } from 'obsidian';
-import { Notice } from 'obsidian';
+import { Notice, TFile } from 'obsidian';
 
 import type { SlashCommandManager } from '../../../core/commands';
 import { isCommandBlocked } from '../../../core/security/BlocklistChecker';
@@ -25,7 +25,7 @@ import {
   showAskUserQuestionPanel,
   showPlanApprovalPanel,
 } from '../../../ui';
-import { prependCurrentNote } from '../../../utils/context';
+import { prependCurrentNote, prependCurrentNoteContent } from '../../../utils/context';
 import { type EditorSelectionContext, prependEditorContext } from '../../../utils/editor';
 import { appendMarkdownSnippet } from '../../../utils/markdown';
 import { formatSlashCommandWarnings } from '../../../utils/slashCommand';
@@ -40,6 +40,15 @@ import type { StreamController } from './StreamController';
 
 const PLAN_MODE_REQUEST_PREFIX =
   'User requested plan mode. Call EnterPlanMode before responding.';
+
+const CURRENT_NOTE_ONLY_PATTERNS = [
+  /현재\s*노트/u,
+  /이\s*노트/u,
+  /current\s+note/i,
+  /this\s+note/i,
+  /summari[sz]e.*note/i,
+  /what(?:'s| is).*note/i,
+] as const;
 
 /** Dependencies for InputController. */
 export interface InputControllerDeps {
@@ -219,6 +228,7 @@ export class InputController {
 
     const currentNotePath = fileContextManager?.getCurrentNotePath() || null;
     const shouldSendCurrentNote = fileContextManager?.shouldSendCurrentNote(currentNotePath) ?? false;
+    const shouldForceCurrentNoteScope = this.shouldUseCurrentNoteOnlyScope(displayContent);
 
     const editorContextOverride = options?.editorContextOverride;
     const editorContext = editorContextOverride !== undefined
@@ -235,7 +245,20 @@ export class InputController {
     }
 
     if (shouldSendCurrentNote && currentNotePath) {
-      promptToSend = prependCurrentNote(promptToSend, currentNotePath);
+      if (shouldForceCurrentNoteScope) {
+        const currentNoteContent = await this.readCurrentNoteContent(currentNotePath);
+        if (currentNoteContent !== null) {
+          promptToSend = prependCurrentNoteContent(promptToSend, currentNotePath, currentNoteContent);
+          queryOptions = {
+            ...queryOptions,
+            allowedTools: ['view'],
+          };
+        } else {
+          promptToSend = prependCurrentNote(promptToSend, currentNotePath);
+        }
+      } else {
+        promptToSend = prependCurrentNote(promptToSend, currentNotePath);
+      }
       currentNoteForMessage = currentNotePath;
     }
 
@@ -343,6 +366,24 @@ export class InputController {
       await this.triggerTitleGeneration();
 
       this.processQueuedMessage();
+    }
+  }
+
+  private shouldUseCurrentNoteOnlyScope(content: string): boolean {
+    const trimmed = content.trim();
+    return CURRENT_NOTE_ONLY_PATTERNS.some((pattern) => pattern.test(trimmed));
+  }
+
+  private async readCurrentNoteContent(notePath: string): Promise<string | null> {
+    const file = this.deps.plugin.app.vault.getAbstractFileByPath(notePath);
+    if (!(file instanceof TFile)) {
+      return null;
+    }
+
+    try {
+      return await this.deps.plugin.app.vault.cachedRead(file);
+    } catch {
+      return null;
     }
   }
 
