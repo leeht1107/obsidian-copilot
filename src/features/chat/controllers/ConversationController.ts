@@ -107,9 +107,15 @@ export class ConversationController {
     // Remount TodoPanel after clearing (messagesEl.empty() removes it from DOM)
     this.deps.getTodoPanel()?.remount();
 
-    // Recreate welcome element after clearing messages
-    const welcomeEl = messagesEl.createDiv({ cls: 'ocop-welcome' });
-    welcomeEl.createDiv({ cls: 'ocop-welcome-greeting', text: this.getGreeting() });
+    const rendererWithWelcome = this.deps.renderer as MessageRenderer & {
+      createWelcomeElement?: (greeting: string) => HTMLElement;
+    };
+    const welcomeEl = typeof rendererWithWelcome.createWelcomeElement === 'function'
+      ? rendererWithWelcome.createWelcomeElement(this.getGreeting())
+      : messagesEl.createDiv({ cls: 'ocop-welcome' });
+    if (!welcomeEl.querySelector('.ocop-welcome-greeting')) {
+      welcomeEl.createDiv({ cls: 'ocop-welcome-greeting', text: this.getGreeting() });
+    }
     this.deps.setWelcomeEl(welcomeEl);
 
     this.deps.getInputEl().value = '';

@@ -459,6 +459,24 @@ export class ObsidianCopilotView extends ItemView {
       this.historyDropdown?.removeClass('visible');
     });
 
+    this.registerDomEvent(this.containerEl, 'click', (event) => {
+      const target = event.target as HTMLElement | null;
+      const suggestion = target?.closest('.ocop-welcome-suggestion') as HTMLButtonElement | null;
+      if (!suggestion || !this.inputEl) {
+        return;
+      }
+
+      const prompt = suggestion.dataset.prompt?.trim() || suggestion.textContent?.trim();
+      if (!prompt) {
+        return;
+      }
+
+      this.inputEl.value = prompt;
+      this.inputEl.dispatchEvent(new Event('input'));
+      this.inputEl.focus();
+      this.inputEl.setSelectionRange(prompt.length, prompt.length);
+    });
+
     this.registerDomEvent(document, 'keydown', (e: KeyboardEvent) => {
       if (e.key === 'Escape' && this.state.isStreaming) {
         e.preventDefault();

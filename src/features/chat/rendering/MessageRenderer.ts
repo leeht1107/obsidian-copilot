@@ -24,6 +24,12 @@ import { processFileLinks, registerFileLinkHandler } from '../../../utils/fileLi
 /** Render content function type for callbacks. */
 export type RenderContentFn = (el: HTMLElement, markdown: string) => Promise<void>;
 
+const WELCOME_SUGGESTIONS = [
+  'Summarize the current note and suggest next steps.',
+  'Help me plan changes before editing this vault.',
+  'Review attached files and explain the key differences.',
+] as const;
+
 /**
  * MessageRenderer handles all message DOM rendering.
  *
@@ -129,9 +135,7 @@ export class MessageRenderer {
     const existingTodoPanel = this.messagesEl.querySelector('.ocop-todo-panel') as HTMLElement | null;
     this.messagesEl.empty();
 
-    // Recreate welcome element after clearing
-    const newWelcomeEl = this.messagesEl.createDiv({ cls: 'ocop-welcome' });
-    newWelcomeEl.createDiv({ cls: 'ocop-welcome-greeting', text: getGreeting() });
+    const newWelcomeEl = this.createWelcomeElement(getGreeting());
 
     for (const msg of messages) {
       this.renderStoredMessage(msg);
@@ -140,6 +144,26 @@ export class MessageRenderer {
     this.ensureTodoPanelAtBottom(existingTodoPanel);
     this.scrollToBottom();
     return newWelcomeEl;
+  }
+
+  createWelcomeElement(greeting: string): HTMLElement {
+    const welcomeEl = this.messagesEl.createDiv({ cls: 'ocop-welcome' });
+    welcomeEl.createDiv({ cls: 'ocop-welcome-greeting', text: greeting });
+    welcomeEl.createDiv({
+      cls: 'ocop-welcome-subtitle',
+      text: 'Copilot can search notes, inspect code, and help you plan or implement changes.',
+    });
+
+    const suggestionsEl = welcomeEl.createDiv({ cls: 'ocop-welcome-suggestions' });
+    for (const prompt of WELCOME_SUGGESTIONS) {
+      const button = suggestionsEl.createEl('button', {
+        cls: 'ocop-welcome-suggestion',
+        text: prompt,
+      });
+      button.type = 'button';
+    }
+
+    return welcomeEl;
   }
 
   /**
