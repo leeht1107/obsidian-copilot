@@ -38,6 +38,17 @@ export type ExitPlanModeCallback = (planContent: string) => Promise<ExitPlanMode
 export type EnterPlanModeCallback = () => Promise<void>;
 
 const MCP_CONFIG_RELATIVE_PATH = '.copilot/mcp.json';
+const PLAN_MODE_ALLOWED_TOOLS = [
+  'view',
+  'grep',
+  'glob',
+  'ls',
+  'task',
+  'agent_output',
+  'report_intent',
+  'webfetch',
+  'websearch',
+] as const;
 
 interface CopilotJsonEvent {
   type: string;
@@ -199,8 +210,11 @@ export class CopilotBridgeService {
 
   private addToolArgs(args: string[], queryOptions?: QueryOptions): void {
     const requestedTools = queryOptions?.allowedTools?.map((tool) => tool.trim()).filter(Boolean) ?? [];
-    if (requestedTools.length > 0) {
-      args.push('--available-tools', ...requestedTools);
+    const effectiveTools = queryOptions?.planMode && requestedTools.length === 0
+      ? [...PLAN_MODE_ALLOWED_TOOLS]
+      : requestedTools;
+    if (effectiveTools.length > 0) {
+      args.push('--available-tools', ...effectiveTools);
     }
   }
 
