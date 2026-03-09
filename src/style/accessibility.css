@@ -1,0 +1,94 @@
+/* Accessibility - Focus Visible Styles */
+
+/* Collapsible headers - keyboard focus indicators */
+.oc-tool-header:focus-visible,
+.oc-thinking-header:focus-visible,
+.oc-subagent-header:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Header buttons focus indicators */
+.oc-header-btn:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Action buttons in history dropdown */
+.oc-action-btn:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+/* History items focus indicator */
+.oc-history-item-content:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+/* Approval modal buttons */
+.oc-approval-btn:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+/* Toggle switch focus indicator */
+.oc-toggle-switch:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+/* Model selector button */
+.oc-model-btn:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Thinking budget selector */
+.oc-thinking-current:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* File chips focus indicator */
+.oc-file-chip:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+/* Image chips focus indicator */
+.oc-image-chip:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+/* Remove buttons focus indicator */
+.oc-file-chip-remove:focus-visible,
+.oc-image-remove:focus-visible,
+.oc-image-modal-close:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+/* Settings buttons */
+.oc-approved-remove-btn:focus-visible,
+.oc-save-env-btn:focus-visible,
+.oc-restore-snippet-btn:focus-visible,
+.oc-edit-snippet-btn:focus-visible,
+.oc-delete-snippet-btn:focus-visible,
+.oc-cancel-btn:focus-visible,
+.oc-save-btn:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}
+
+/* Code language label (copy button) */
+.oc-code-lang-label:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 2px;
+}

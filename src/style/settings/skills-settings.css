@@ -1,0 +1,113 @@
+/* Settings - Skills List */
+.oc-skills-settings-desc {
+  margin-bottom: 8px;
+}
+
+.oc-skills-installed-desc {
+  margin-top: 16px;
+  margin-bottom: 12px;
+  padding: 0 12px;
+}
+
+.oc-skills-list {
+  margin-bottom: 16px;
+}
+
+.oc-skills-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: var(--background-secondary);
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.oc-skills-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.oc-skills-item-name {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(0, 180, 120, 0.15);
+  color: #00b478;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 8px;
+  font-family: var(--font-monospace);
+}
+
+.oc-skills-item-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.oc-skills-remove-btn {
+  padding: 4px 12px;
+  font-size: 12px;
+  background: var(--background-modifier-error);
+  color: var(--text-on-accent);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.oc-skills-remove-btn:hover {
+  opacity: 0.9;
+}
+
+.oc-skills-empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--background-secondary);
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* Status badge for skills */
+.oc-skills-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.oc-skills-status-badge.installed {
+  background: rgba(0, 180, 120, 0.15);
+  color: #00b478;
+}
+
+.oc-skills-status-badge.not-installed {
+  background: rgba(255, 170, 0, 0.15);
+  color: #ffaa00;
+}
+
+/* Built-in badge for bundled skills */
+.oc-skills-builtin-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  background: rgba(100, 100, 100, 0.2);
+  color: var(--text-muted);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  margin-left: 6px;
+  vertical-align: middle;
+}

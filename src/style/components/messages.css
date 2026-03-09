@@ -1,0 +1,130 @@
+/* Messages area */
+.oc-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Focusable messages panel for vim-style navigation */
+.oc-messages-focusable:focus {
+  outline: none;
+}
+
+/* Welcome message - claude.ai style */
+.oc-welcome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+  min-height: 200px;
+}
+
+.oc-welcome-greeting {
+  font-family: 'Copernicus', 'Tiempos Headline', 'Tiempos', Georgia, 'Times New Roman', serif;
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--text-muted);
+  letter-spacing: -0.01em;
+}
+
+/* Individual messages */
+.oc-message {
+  padding: 10px 14px;
+  border-radius: 8px;
+  max-width: 95%;
+  word-wrap: break-word;
+}
+
+.oc-message-user {
+  background: rgba(80, 80, 80, 0.5);
+  color: #ffffff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+/* Text selection in user messages - visible highlight */
+.oc-message-user ::selection {
+  background: rgba(255, 255, 255, 0.35);
+  color: inherit;
+}
+
+.oc-message-user ::-moz-selection {
+  background: rgba(255, 255, 255, 0.35);
+  color: inherit;
+}
+
+.oc-message-assistant {
+  background: transparent;
+  align-self: stretch;
+  width: 100%;
+  max-width: 100%;
+  border-bottom-left-radius: 4px;
+  text-align: left;
+}
+
+/* Message content */
+.oc-message-content {
+  line-height: 1.5;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Interrupted message */
+.oc-interrupted {
+  color: #d45d5d;
+}
+
+.oc-interrupted-hint {
+  color: var(--text-muted);
+}
+
+/* Text blocks within message content */
+.oc-text-block {
+  margin: 0;
+}
+
+.oc-text-block+.oc-tool-call {
+  margin-top: 8px;
+}
+
+.oc-tool-call+.oc-text-block {
+  margin-top: 8px;
+}
+
+.oc-message-content p {
+  margin: 0 0 8px 0;
+}
+
+.oc-message-content p:last-child {
+  margin-bottom: 0;
+}
+
+.oc-message-content ul,
+.oc-message-content ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+/* Scrollbar styling */
+.oc-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.oc-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.oc-messages::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 3px;
+}
+
+.oc-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--background-modifier-border-hover);
+}

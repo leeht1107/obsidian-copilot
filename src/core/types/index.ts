@@ -1,0 +1,88 @@
+/**
+ * Obsidian Code - Type definitions barrel export.
+ *
+ * Re-exports all types from modular type files.
+ */
+
+// Chat types
+export {
+  type ChatMessage,
+  type ContentBlock,
+  type Conversation,
+  type ConversationMeta,
+  type ImageAttachment,
+  type ImageMediaType,
+  type StreamChunk,
+  type UsageInfo,
+  VIEW_TYPE_OBSIDIAN_CODE,
+} from './chat';
+
+// Model types
+export {
+  type ClaudeModel,
+  DEFAULT_CLAUDE_MODELS,
+  DEFAULT_THINKING_BUDGET,
+  THINKING_BUDGETS,
+  type ThinkingBudget,
+} from './models';
+
+// SDK types
+export {
+  type ModelUsageInfo,
+  type SDKContentBlock,
+  type SDKMessage,
+  type SDKMessageContent,
+  type SDKStreamEvent,
+} from './sdk';
+
+// Settings types
+export {
+  type ObsidianCodeSettings,
+  DEFAULT_SETTINGS,
+  type EnvSnippet,
+  getBashToolBlockedCommands,
+  getCurrentPlatformBlockedCommands,
+  getCurrentPlatformKey,
+  getDefaultBlockedCommands,
+  type InstructionRefineResult,
+  type KeyboardNavigationSettings,
+  type NonPlanPermissionMode,
+  type Permission,
+  type PermissionMode,
+  type PlatformBlockedCommands,
+  type SlashCommand,
+} from './settings';
+
+// Tool types
+export {
+  type AsyncSubagentStatus,
+  type SubagentInfo,
+  type SubagentMode,
+  type ToolCallInfo,
+  type ToolDiffData,
+} from './tools';
+
+// MCP types
+export {
+  type ObsidianCodeMcpConfigFile,
+  type ObsidianCodeMcpServer,
+  DEFAULT_MCP_SERVER,
+  getMcpServerType,
+  inferMcpServerType,
+  isValidMcpServerConfig,
+  type McpConfigFile,
+  type McpHttpServerConfig,
+  type McpServerConfig,
+  type McpServerType,
+  type McpSSEServerConfig,
+  type McpStdioServerConfig,
+  type ParsedMcpConfig,
+} from './mcp';
+
+// AskUserQuestion types
+export {
+  type AskUserQuestionCallback,
+  type AskUserQuestionInput,
+  type AskUserQuestionOption,
+  type AskUserQuestionQuestion,
+} from './askUserQuestion';

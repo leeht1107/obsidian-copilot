@@ -1,0 +1,94 @@
+import { WorkspaceLeaf } from 'obsidian';
+
+import type { ChatMessage, ImageAttachment } from '@/core/types';
+import { ObsidianCodeView } from '@/features/chat/ObsidianCodeView';
+
+function createMockPlugin() {
+  return {
+    settings: {
+      enableBlocklist: true,
+      blockedCommands: { unix: [], windows: [] },
+      model: 'haiku',
+      thinkingBudget: 'off',
+      permissionMode: 'yolo',
+      permissions: [],
+      excludedTags: [],
+      mediaFolder: '',
+    },
+    app: {
+      vault: {
+        adapter: {
+          basePath: '/test/vault',
+        },
+      },
+      workspace: {
+        getLeavesOfType: jest.fn().mockReturnValue([]),
+        getRightLeaf: jest.fn().mockReturnValue(null),
+        revealLeaf: jest.fn(),
+        on: jest.fn(),
+      },
+      metadataCache: {
+        on: jest.fn(),
+        getFileCache: jest.fn().mockReturnValue(null),
+      },
+    },
+    agentService: {
+      query: jest.fn(),
+      cancel: jest.fn(),
+      resetSession: jest.fn(),
+      setApprovalCallback: jest.fn(),
+      setSessionId: jest.fn(),
+      getSessionId: jest.fn().mockReturnValue(null),
+    },
+    saveSettings: jest.fn().mockResolvedValue(undefined),
+    createConversation: jest.fn().mockResolvedValue({
+      id: 'conv-1',
+      title: 'Test',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      sessionId: null,
+      messages: [],
+    }),
+    switchConversation: jest.fn().mockResolvedValue(null),
+    updateConversation: jest.fn().mockResolvedValue(undefined),
+    getActiveEnvironmentVariables: jest.fn().mockReturnValue(''),
+  } as any;
+}
+
+describe('ObsidianCodeView persistence', () => {
+  it('strips base64 data when persisting messages but keeps references', () => {
+    const plugin = createMockPlugin();
+    const view = new ObsidianCodeView(new WorkspaceLeaf(), plugin);
+
+    const images: ImageAttachment[] = [
+      {
+        id: 'img-1',
+        name: 'cached.png',
+        mediaType: 'image/png',
+        size: 10,
+        cachePath: '.oc-cache/images/cached.png',
+        filePath: 'images/cached.png',
+        data: 'YmFzZTY0',
+        source: 'paste',
+      },
+    ];
+
+    const messages: ChatMessage[] = [
+      {
+        id: 'msg-1',
+        role: 'user',
+        content: 'hello',
+        timestamp: Date.now(),
+        images,
+      },
+    ];
+
+    view.state.messages = messages;
+
+    const persisted = view.state.getPersistedMessages();
+
+    expect(persisted[0].images?.[0].data).toBeUndefined();
+    expect(persisted[0].images?.[0].cachePath).toBe('.oc-cache/images/cached.png');
+    expect(persisted[0].images?.[0].filePath).toBe('images/cached.png');
+  });
+});

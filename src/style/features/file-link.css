@@ -1,0 +1,22 @@
+/* Clickable file links that open files in Obsidian */
+.oc-file-link {
+  color: var(--text-accent);
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: color 0.15s ease;
+}
+
+.oc-file-link:hover {
+  color: var(--text-accent-hover);
+  text-decoration: underline;
+}
+
+/* File link inside inline code */
+code .oc-file-link {
+  color: var(--text-accent);
+}
+
+code .oc-file-link:hover {
+  color: var(--text-accent-hover);
+}

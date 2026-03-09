@@ -1,0 +1,53 @@
+/* Header */
+.oc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px 12px 12px;
+}
+
+.oc-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.oc-logo {
+  display: flex;
+  align-items: center;
+}
+
+.oc-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Header actions (right side) */
+.oc-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Header icon buttons (history, new, etc.) */
+.oc-header-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.oc-header-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.oc-header-btn svg {
+  width: 16px;
+  height: 16px;
+}

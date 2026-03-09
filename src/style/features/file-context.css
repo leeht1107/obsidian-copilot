@@ -1,0 +1,130 @@
+/* @ Mention dropdown */
+.oc-mention-dropdown {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  margin-bottom: 4px;
+  background: var(--background-secondary);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.oc-mention-dropdown.visible {
+  display: block;
+}
+
+/* Fixed positioning for inline editor */
+.oc-mention-dropdown-fixed {
+  position: fixed;
+  z-index: 10001;
+}
+
+.oc-mention-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.oc-mention-item:hover,
+.oc-mention-item.selected {
+  background: var(--background-modifier-hover);
+}
+
+.oc-mention-icon {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.oc-mention-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.oc-mention-path {
+  font-size: 13px;
+  color: var(--text-normal);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oc-mention-empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* Scrollbar for mention dropdown */
+.oc-mention-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.oc-mention-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.oc-mention-dropdown::-webkit-scrollbar-thumb {
+  background: var(--background-modifier-border);
+  border-radius: 3px;
+}
+
+/* MCP items in @-mention dropdown */
+.oc-mention-item.mcp-server .oc-mention-icon {
+  color: var(--interactive-accent);
+}
+
+.oc-mention-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.oc-mention-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--interactive-accent);
+}
+
+.oc-mention-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Context file items in @-mention dropdown */
+.oc-mention-item.context-file .oc-mention-icon {
+  color: #D97757;
+}
+
+/* Context folder filter items in @-mention dropdown */
+.oc-mention-item.context-folder .oc-mention-icon {
+  color: #D97757;
+}
+
+.oc-mention-name-folder {
+  color: #D97757;
+  font-weight: 600;
+}
+
+.oc-mention-name-context {
+  color: var(--text-normal);
+}
+

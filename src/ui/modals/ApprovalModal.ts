@@ -1,0 +1,171 @@
+/**
+ * ObsidianCode - Approval modal for Safe mode tool permission prompts.
+ */
+
+import type { App } from 'obsidian';
+import { Modal, setIcon } from 'obsidian';
+
+import { getToolIcon } from '../../core/tools/toolIcons';
+
+export type ApprovalDecision = 'allow' | 'allow-always' | 'deny' | 'cancel';
+
+export interface ApprovalModalOptions {
+  showAlwaysAllow?: boolean;
+  title?: string;
+}
+
+/** Modal dialog for approving tool actions in Safe mode. */
+export class ApprovalModal extends Modal {
+  private toolName: string;
+  private description: string;
+  private resolve: (value: ApprovalDecision) => void;
+  private resolved = false;
+  private options: ApprovalModalOptions;
+  private buttons: HTMLButtonElement[] = [];
+  private currentButtonIndex = 0;
+  private documentKeydownHandler: ((e: KeyboardEvent) => void) | null = null;
+
+  constructor(
+    app: App,
+    toolName: string,
+    _input: Record<string, unknown>,
+    description: string,
+    resolve: (value: ApprovalDecision) => void,
+    options: ApprovalModalOptions = {}
+  ) {
+    super(app);
+    this.toolName = toolName;
+    this.description = description;
+    this.resolve = resolve;
+    this.options = options;
+  }
+
+  onOpen() {
+    const { contentEl } = this;
+    contentEl.addClass('oc-approval-modal');
+    this.setTitle(this.options.title ?? 'Permission required');
+
+    const infoEl = contentEl.createDiv({ cls: 'oc-approval-info' });
+
+    const toolEl = infoEl.createDiv({ cls: 'oc-approval-tool' });
+    const iconEl = toolEl.createSpan({ cls: 'oc-approval-icon' });
+    iconEl.setAttribute('aria-hidden', 'true');
+    setIcon(iconEl, getToolIcon(this.toolName));
+    toolEl.createSpan({ text: this.toolName, cls: 'oc-approval-tool-name' });
+
+    const descEl = contentEl.createDiv({ cls: 'oc-approval-desc' });
+    descEl.setText(this.description);
+
+    const buttonsEl = contentEl.createDiv({ cls: 'oc-approval-buttons' });
+
+    const denyBtn = buttonsEl.createEl('button', {
+      text: 'Deny',
+      cls: 'oc-approval-btn oc-deny-btn',
+      attr: { 'aria-label': `Deny ${this.toolName} action` }
+    });
+    denyBtn.addEventListener('click', () => this.handleDecision('deny'));
+
+    const allowBtn = buttonsEl.createEl('button', {
+      text: 'Allow once',
+      cls: 'oc-approval-btn oc-allow-btn',
+      attr: { 'aria-label': `Allow ${this.toolName} action once` }
+    });
+    allowBtn.addEventListener('click', () => this.handleDecision('allow'));
+
+    let alwaysBtn: HTMLButtonElement | null = null;
+    if (this.options.showAlwaysAllow ?? true) {
+      alwaysBtn = buttonsEl.createEl('button', {
+        text: 'Always allow',
+        cls: 'oc-approval-btn oc-always-btn',
+        attr: { 'aria-label': `Always allow ${this.toolName} actions` }
+      });
+      alwaysBtn.addEventListener('click', () => this.handleDecision('allow-always'));
+    }
+
+    this.buttons = [denyBtn, allowBtn];
+    if (alwaysBtn) {
+      this.buttons.push(alwaysBtn);
+    }
+    this.currentButtonIndex = 0;
+    this.focusCurrentButton();
+    this.attachDocumentHandler();
+  }
+
+  private handleDecision(decision: ApprovalDecision) {
+    if (!this.resolved) {
+      this.resolved = true;
+      this.resolve(decision);
+      this.close();
+    }
+  }
+
+  private attachDocumentHandler(): void {
+    this.detachDocumentHandler();
+    this.documentKeydownHandler = (e: KeyboardEvent) => {
+      if (!this.isNavigationKey(e)) {
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      this.handleNavigationKey(e);
+    };
+    document.addEventListener('keydown', this.documentKeydownHandler, true);
+  }
+
+  private detachDocumentHandler(): void {
+    if (this.documentKeydownHandler) {
+      document.removeEventListener('keydown', this.documentKeydownHandler, true);
+      this.documentKeydownHandler = null;
+    }
+  }
+
+  private isNavigationKey(e: KeyboardEvent): boolean {
+    return (
+      e.key === 'ArrowUp' ||
+      e.key === 'ArrowDown' ||
+      e.key === 'ArrowLeft' ||
+      e.key === 'ArrowRight' ||
+      e.key === 'Tab'
+    );
+  }
+
+  private handleNavigationKey(e: KeyboardEvent): void {
+    if (!this.buttons.length) return;
+
+    let direction = 0;
+    switch (e.key) {
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        direction = -1;
+        break;
+      case 'ArrowDown':
+      case 'ArrowRight':
+        direction = 1;
+        break;
+      case 'Tab':
+        direction = e.shiftKey ? -1 : 1;
+        break;
+      default:
+        return;
+    }
+
+    const total = this.buttons.length;
+    this.currentButtonIndex = (this.currentButtonIndex + direction + total) % total;
+    this.focusCurrentButton();
+  }
+
+  private focusCurrentButton(): void {
+    const button = this.buttons[this.currentButtonIndex];
+    button?.focus();
+  }
+
+  onClose() {
+    this.detachDocumentHandler();
+    if (!this.resolved) {
+      this.resolved = true;
+      // User pressed Escape or clicked outside - cancel/interrupt
+      this.resolve('cancel');
+    }
+    this.contentEl.empty();
+  }
+}

@@ -1,0 +1,85 @@
+/* Thinking indicator */
+.oc-thinking {
+  color: #D97757;
+  font-style: italic;
+  padding: 4px 0;
+  text-align: left;
+  animation: thinking-pulse 1.5s ease-in-out infinite;
+}
+
+.oc-thinking-hint {
+  color: var(--text-muted);
+  font-style: normal;
+}
+
+/* Thinking block (extended thinking) */
+.oc-thinking-block {
+  margin: 8px 0;
+}
+
+.oc-text-block+.oc-thinking-block {
+  margin-top: 8px;
+}
+
+.oc-thinking-block+.oc-text-block {
+  margin-top: 8px;
+}
+
+.oc-thinking-block+.oc-tool-call {
+  margin-top: 8px;
+}
+
+.oc-tool-call+.oc-thinking-block {
+  margin-top: 8px;
+}
+
+/* Thinking block header - transparent */
+.oc-thinking-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.oc-thinking-label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: #D97757;
+}
+
+/* Thinking block content - tree-branch style */
+.oc-thinking-content {
+  padding: 4px 0 4px 24px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+  max-height: 400px;
+  overflow-y: auto;
+  border-left: 2px solid var(--background-modifier-border);
+  margin-left: 7px;
+}
+
+.oc-thinking-content p {
+  margin: 0 0 8px 0;
+}
+
+.oc-thinking-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Thinking content code blocks - inherits from wrapper, adjust spacing */
+.oc-thinking-content .oc-code-wrapper {
+  margin: 8px 0;
+}
+
+.oc-thinking-content .oc-code-wrapper pre {
+  padding: 8px 10px;
+  border-radius: 4px;
+}
+
+.oc-thinking-content code {
+  font-family: var(--font-monospace);
+  font-size: 12px;
+}

@@ -1,0 +1,76 @@
+/* Context usage meter (inline in toolbar) */
+
+.oc-context-meter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  cursor: default;
+}
+
+/* Custom tooltip */
+.oc-context-meter::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--text-normal);
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.oc-context-meter:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.oc-context-meter-gauge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.oc-context-meter-gauge svg {
+  width: 16px;
+  height: 16px;
+}
+
+.oc-meter-bg {
+  stroke: var(--background-modifier-border);
+}
+
+.oc-meter-fill {
+  stroke: #D97757;
+  transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;
+}
+
+.oc-context-meter-percent {
+  font-size: 11px;
+  color: #D97757;
+  min-width: 24px;
+  text-align: right;
+  transition: color 0.3s ease;
+}
+
+/* Warning state (> 80%) - pale red */
+.oc-context-meter.warning .oc-meter-fill {
+  stroke: #E57373;
+}
+
+.oc-context-meter.warning .oc-context-meter-percent {
+  color: #E57373;
+}
