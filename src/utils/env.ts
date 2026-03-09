@@ -324,9 +324,14 @@ export function parseEnvironmentVariables(input: string): Record<string, string>
         value = value.slice(1, -1);
       }
       if (key) {
-        // Validation: Ignore placeholder values for API key
-        if (key === 'ANTHROPIC_API_KEY' &&
-          (value === 'your_api_key_here' || value === 'your-key' || value.includes('your_api_key'))) {
+        const tokenKeys = new Set(['GITHUB_TOKEN', 'GH_TOKEN', 'COPILOT_GITHUB_TOKEN']);
+        const normalizedPlaceholder = value.toLowerCase();
+        if (tokenKeys.has(key) &&
+          (normalizedPlaceholder === 'your_api_key_here' ||
+            normalizedPlaceholder === 'your-key' ||
+            normalizedPlaceholder.includes('your_api_key') ||
+            normalizedPlaceholder.includes('your_github_token') ||
+            normalizedPlaceholder.includes('your_copilot_token'))) {
           continue;
         }
         result[key] = value;

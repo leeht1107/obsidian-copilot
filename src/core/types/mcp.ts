@@ -58,8 +58,19 @@ export interface McpConfigFile {
 
 /** Extended config file with Obsidian Code metadata. */
 export interface CopilotMcpConfigFile extends McpConfigFile {
-  _obsidianCode?: {
+  _obsidianCopilot?: {
     /** Per-server Obsidian Code-specific settings. */
+    servers: Record<
+      string,
+      {
+        enabled?: boolean;
+        contextSaving?: boolean;
+        disabledTools?: string[];
+        description?: string;
+      }
+    >;
+  };
+  _obsidianCode?: {
     servers: Record<
       string,
       {

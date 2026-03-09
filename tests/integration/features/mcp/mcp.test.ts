@@ -335,12 +335,12 @@ describe('McpStorage', () => {
   });
 
   describe('load/save', () => {
-    it('should preserve unknown top-level keys and merge _obsidianCode', async () => {
+  it('should preserve unknown top-level keys and merge _obsidianCopilot', async () => {
       const initial = {
         mcpServers: {
           legacy: { command: 'node' },
         },
-        _obsidianCode: {
+      _obsidianCopilot: {
           servers: {
             legacy: { enabled: false },
           },
@@ -375,7 +375,7 @@ describe('McpStorage', () => {
           headers: { Authorization: 'Bearer token' },
         },
       });
-      expect(saved._obsidianCode).toEqual({
+    expect(saved._obsidianCopilot).toEqual({
         extra: { keep: true },
         servers: {
           'new-server': {
@@ -387,12 +387,12 @@ describe('McpStorage', () => {
       });
     });
 
-    it('should keep existing _obsidianCode fields when metadata is defaulted', async () => {
+  it('should keep existing _obsidianCopilot fields when metadata is defaulted', async () => {
       const initial = {
         mcpServers: {
           legacy: { command: 'node' },
         },
-        _obsidianCode: {
+      _obsidianCopilot: {
           extra: { keep: true },
         },
       };
@@ -410,7 +410,7 @@ describe('McpStorage', () => {
       await storage.save(servers);
 
       const saved = JSON.parse(files.get(MCP_CONFIG_PATH) || '{}') as Record<string, unknown>;
-      expect(saved._obsidianCode).toEqual({ extra: { keep: true } });
+    expect(saved._obsidianCopilot).toEqual({ extra: { keep: true } });
       expect(saved.mcpServers).toEqual({ 'default-meta': { command: 'npx' } });
     });
 
@@ -420,7 +420,7 @@ describe('McpStorage', () => {
           stdio: { command: 'npx' },
           remote: { type: 'sse', url: 'http://localhost:3000/sse' },
         },
-        _obsidianCode: {
+      _obsidianCopilot: {
           servers: {
             stdio: { enabled: false, contextSaving: false, description: 'Local tools' },
           },
@@ -449,7 +449,7 @@ describe('McpStorage', () => {
           valid: { command: 'npx' },
           invalid: { foo: 'bar' },
         },
-        _obsidianCode: {
+      _obsidianCopilot: {
           servers: {
             invalid: { enabled: false },
           },
@@ -473,12 +473,12 @@ describe('McpStorage', () => {
       expect(servers[0].contextSaving).toBe(true);
     });
 
-    it('should remove _obsidianCode when only servers metadata exists', async () => {
+  it('should remove _obsidianCopilot when only servers metadata exists', async () => {
       const initial = {
         mcpServers: {
           legacy: { command: 'node' },
         },
-        _obsidianCode: {
+      _obsidianCopilot: {
           servers: {
             legacy: { enabled: false },
           },
@@ -498,7 +498,7 @@ describe('McpStorage', () => {
       await storage.save(servers);
 
       const saved = JSON.parse(files.get(MCP_CONFIG_PATH) || '{}') as Record<string, unknown>;
-      expect(saved._obsidianCode).toBeUndefined();
+    expect(saved._obsidianCopilot).toBeUndefined();
     });
   });
 });

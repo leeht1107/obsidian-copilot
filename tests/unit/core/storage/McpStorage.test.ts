@@ -33,12 +33,12 @@ describe('McpStorage', () => {
       expect(servers).toEqual([]);
     });
 
-    it('loads servers with disabledTools from _obsidianCode metadata', async () => {
+    it('loads servers with disabledTools from _obsidianCopilot metadata', async () => {
       const config = {
         mcpServers: {
           alpha: { command: 'alpha-cmd', args: ['--arg'] },
         },
-        _obsidianCode: {
+        _obsidianCopilot: {
           servers: {
             alpha: {
               enabled: true,
@@ -70,7 +70,7 @@ describe('McpStorage', () => {
         mcpServers: {
           alpha: { command: 'alpha-cmd' },
         },
-        _obsidianCode: {
+        _obsidianCopilot: {
           servers: {
             alpha: {
               disabledTools: ['valid', 123, null, 'also_valid'],
@@ -93,7 +93,7 @@ describe('McpStorage', () => {
         mcpServers: {
           alpha: { command: 'alpha-cmd' },
         },
-        _obsidianCode: {
+        _obsidianCopilot: {
           servers: {
             alpha: {
               disabledTools: [],
@@ -129,7 +129,7 @@ describe('McpStorage', () => {
   });
 
   describe('save', () => {
-    it('saves disabledTools to _obsidianCode metadata', async () => {
+    it('saves disabledTools to _obsidianCopilot metadata', async () => {
       const adapter = createMockAdapter();
       const storage = new McpStorage(adapter);
 
@@ -144,7 +144,7 @@ describe('McpStorage', () => {
       ]);
 
       const saved = JSON.parse(adapter._store['.copilot/mcp.json']);
-      expect(saved._obsidianCode.servers.alpha.disabledTools).toEqual(['tool_a', 'tool_b']);
+      expect(saved._obsidianCopilot.servers.alpha.disabledTools).toEqual(['tool_a', 'tool_b']);
     });
 
     it('trims and filters blank disabledTools on save', async () => {
@@ -162,7 +162,7 @@ describe('McpStorage', () => {
       ]);
 
       const saved = JSON.parse(adapter._store['.copilot/mcp.json']);
-      expect(saved._obsidianCode.servers.alpha.disabledTools).toEqual(['tool_a', 'tool_b']);
+      expect(saved._obsidianCopilot.servers.alpha.disabledTools).toEqual(['tool_a', 'tool_b']);
     });
 
     it('omits disabledTools from metadata when empty', async () => {
@@ -180,16 +180,15 @@ describe('McpStorage', () => {
       ]);
 
       const saved = JSON.parse(adapter._store['.copilot/mcp.json']);
-      // No _obsidianCode since all fields are default
-      expect(saved._obsidianCode).toBeUndefined();
+      expect(saved._obsidianCopilot).toBeUndefined();
     });
 
-    it('preserves existing _obsidianCode metadata when saving', async () => {
+    it('preserves existing _obsidianCopilot metadata when saving', async () => {
       const existing = {
         mcpServers: {
           alpha: { command: 'alpha-cmd' },
         },
-        _obsidianCode: {
+        _obsidianCopilot: {
           customField: 'should be preserved',
           servers: {
             alpha: { enabled: false },
@@ -213,8 +212,31 @@ describe('McpStorage', () => {
       ]);
 
       const saved = JSON.parse(adapter._store['.copilot/mcp.json']);
-      expect(saved._obsidianCode.customField).toBe('should be preserved');
-      expect(saved._obsidianCode.servers.alpha.disabledTools).toEqual(['tool_a']);
+      expect(saved._obsidianCopilot.customField).toBe('should be preserved');
+      expect(saved._obsidianCopilot.servers.alpha.disabledTools).toEqual(['tool_a']);
+
+    });
+
+    it('loads legacy _obsidianCode metadata for backward compatibility', async () => {
+      const adapter = createMockAdapter({
+        '.copilot/mcp.json': JSON.stringify({
+          mcpServers: {
+            alpha: { command: 'alpha-cmd' },
+          },
+          _obsidianCode: {
+            servers: {
+              alpha: {
+                disabledTools: ['tool_a'],
+              },
+            },
+          },
+        }),
+      });
+      const storage = new McpStorage(adapter);
+
+      const servers = await storage.load();
+
+      expect(servers[0].disabledTools).toEqual(['tool_a']);
     });
 
     it('round-trips disabledTools correctly', async () => {

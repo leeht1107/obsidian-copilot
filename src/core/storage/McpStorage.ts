@@ -46,7 +46,7 @@ export class McpStorage {
         return [];
       }
 
-      const obsidianCodeMeta = file._obsidianCode?.servers ?? {};
+      const copilotMeta = file._obsidianCopilot?.servers ?? file._obsidianCode?.servers ?? {};
       const servers: CopilotMcpServer[] = [];
 
       for (const [name, config] of Object.entries(file.mcpServers)) {
@@ -55,7 +55,7 @@ export class McpStorage {
           continue;
         }
 
-        const meta = obsidianCodeMeta[name] ?? {};
+        const meta = copilotMeta[name] ?? {};
         const disabledTools = Array.isArray(meta.disabledTools)
           ? meta.disabledTools.filter((tool: unknown): tool is string => typeof tool === 'string')
           : undefined;
@@ -83,7 +83,7 @@ export class McpStorage {
   async save(servers: CopilotMcpServer[]): Promise<void> {
     try {
       const mcpServers: Record<string, McpServerConfig> = {};
-      const obsidianCodeServers: Record<
+      const copilotServers: Record<
         string,
         { enabled?: boolean; contextSaving?: boolean; disabledTools?: string[]; description?: string }
       > = {};
@@ -91,7 +91,6 @@ export class McpStorage {
       for (const server of servers) {
         mcpServers[server.name] = server.config;
 
-        // Only store ObsidianCode metadata if different from defaults
         const meta: {
           enabled?: boolean;
           contextSaving?: boolean;
@@ -116,7 +115,7 @@ export class McpStorage {
         }
 
         if (Object.keys(meta).length > 0) {
-          obsidianCodeServers[server.name] = meta;
+          copilotServers[server.name] = meta;
         }
       }
 
@@ -136,22 +135,26 @@ export class McpStorage {
       const file: Record<string, unknown> = existing ? { ...existing } : {};
       file.mcpServers = mcpServers;
 
-      const existingObsidianCode =
-        existing && typeof existing._obsidianCode === 'object'
-          ? (existing._obsidianCode as Record<string, unknown>)
+      const existingObsidianCopilot =
+        existing && typeof existing._obsidianCopilot === 'object'
+          ? (existing._obsidianCopilot as Record<string, unknown>)
+          : existing && typeof existing._obsidianCode === 'object'
+            ? (existing._obsidianCode as Record<string, unknown>)
           : null;
 
-      if (Object.keys(obsidianCodeServers).length > 0) {
-        file._obsidianCode = { ...(existingObsidianCode ?? {}), servers: obsidianCodeServers };
-      } else if (existingObsidianCode) {
-        const { servers: _servers, ...rest } = existingObsidianCode;
+      delete file._obsidianCode;
+
+      if (Object.keys(copilotServers).length > 0) {
+        file._obsidianCopilot = { ...(existingObsidianCopilot ?? {}), servers: copilotServers };
+      } else if (existingObsidianCopilot) {
+        const { servers: _servers, ...rest } = existingObsidianCopilot;
         if (Object.keys(rest).length > 0) {
-          file._obsidianCode = rest;
+          file._obsidianCopilot = rest;
         } else {
-          delete file._obsidianCode;
+          delete file._obsidianCopilot;
         }
       } else {
-        delete file._obsidianCode;
+        delete file._obsidianCopilot;
       }
 
       const content = JSON.stringify(file, null, 2);
