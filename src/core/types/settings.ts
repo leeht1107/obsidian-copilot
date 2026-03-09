@@ -132,8 +132,6 @@ export interface ObsidianCodeSettings {
   model: ClaudeModel;
   enableAutoTitleGeneration: boolean;
   titleGenerationModel: string;  // Model for auto title generation (empty = auto)
-  lastClaudeModel?: ClaudeModel;
-  lastCustomModel?: ClaudeModel;
   lastEnvHash?: string;
   thinkingBudget: ThinkingBudget;
   permissionMode: PermissionMode;
@@ -158,9 +156,7 @@ export const DEFAULT_SETTINGS: ObsidianCodeSettings = {
   blockedCommands: getDefaultBlockedCommands(),
   model: DEFAULT_MODEL,
   enableAutoTitleGeneration: true,
-  titleGenerationModel: '',  // Empty = auto (ANTHROPIC_DEFAULT_HAIKU_MODEL or claude-haiku-4-5)
-  lastClaudeModel: DEFAULT_MODEL,
-  lastCustomModel: '',
+  titleGenerationModel: '',
   lastEnvHash: '',
   thinkingBudget: 'off',
   permissionMode: 'yolo',

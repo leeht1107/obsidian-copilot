@@ -64,13 +64,6 @@ describe('types.ts', () => {
       expect(DEFAULT_SETTINGS.envSnippets).toEqual([]);
     });
 
-    it('should have lastClaudeModel set to auto by default', () => {
-      expect(DEFAULT_SETTINGS.lastClaudeModel).toBe('auto');
-    });
-
-    it('should have lastCustomModel as empty string by default', () => {
-      expect(DEFAULT_SETTINGS.lastCustomModel).toBe('');
-    });
   });
 
   describe('ObsidianCodeSettings type', () => {
@@ -128,34 +121,6 @@ describe('types.ts', () => {
       expect(settings.model).toBe('anthropic/custom-model-v1');
     });
 
-    it('should accept optional lastClaudeModel and lastCustomModel', () => {
-      const settings: ObsidianCodeSettings = {
-        userName: '',
-        enableBlocklist: true,
-        blockedCommands: { unix: [], windows: [] },
-        model: 'claude-sonnet-4.6',
-        enableAutoTitleGeneration: true,
-        titleGenerationModel: '',
-        lastClaudeModel: 'claude-opus-4.6',
-        lastCustomModel: 'custom/model',
-        thinkingBudget: 'off',
-        permissionMode: 'yolo',
-        permissions: [],
-        excludedTags: [],
-        mediaFolder: '',
-        environmentVariables: '',
-        envSnippets: [],
-        systemPrompt: '',
-        allowedExportPaths: [],
-        slashCommands: [],
-        keyboardNavigation: { scrollUpKey: 'w', scrollDownKey: 's', focusInputKey: 'i' },
-        copilotCliPath: '',
-        githubToken: '',
-      };
-
-      expect(settings.lastClaudeModel).toBe('claude-opus-4.6');
-      expect(settings.lastCustomModel).toBe('custom/model');
-    });
   });
 
   describe('EnvSnippet type', () => {

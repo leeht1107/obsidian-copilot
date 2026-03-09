@@ -93,7 +93,6 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.model)
           .onChange(async (value) => {
             this.plugin.settings.model = value;
-            this.plugin.settings.lastClaudeModel = value;
             await this.plugin.saveSettings();
           });
       });

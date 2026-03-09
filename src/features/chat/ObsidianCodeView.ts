@@ -279,9 +279,6 @@ export class ObsidianCodeView extends ItemView {
         const isDefaultModel = DEFAULT_CLAUDE_MODELS.find((m: any) => m.value === model);
         if (isDefaultModel) {
           this.plugin.settings.thinkingBudget = DEFAULT_THINKING_BUDGET[model];
-          this.plugin.settings.lastClaudeModel = model;
-        } else {
-          this.plugin.settings.lastCustomModel = model;
         }
         await this.plugin.saveSettings();
         this.thinkingBudgetSelector?.updateDisplay();

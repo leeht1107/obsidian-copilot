@@ -459,8 +459,6 @@ describe('StorageService migration', () => {
       const stateOnlyData = {
         activeConversationId: 'conv-1',
         lastEnvHash: 'hash',
-        lastClaudeModel: 'haiku',
-        lastCustomModel: 'custom',
         migrationVersion: 2,
       };
       expect(needsMigrationHelper(stateOnlyData)).toBe(false);
@@ -674,8 +672,6 @@ function needsMigrationHelper(legacyData: any): boolean {
     'slashCommands',
     'activeConversationId',
     'lastEnvHash',
-    'lastClaudeModel',
-    'lastCustomModel',
     'migrationVersion',
   ]);
   const hasSettings = Object.keys(legacyData).some(key => !stateKeys.has(key));

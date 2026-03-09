@@ -12,12 +12,7 @@
 
 import type { App, Plugin } from 'obsidian';
 
-import type {
-  ClaudeModel,
-  ObsidianCodeSettings,
-  Conversation,
-  SlashCommand,
-} from '../types';
+import type { ObsidianCodeSettings, Conversation, SlashCommand } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
 import { McpStorage } from './McpStorage';
 import { SESSIONS_PATH, SessionStorage } from './SessionStorage';
@@ -106,8 +101,6 @@ export class StorageService {
       'slashCommands',
       'activeConversationId',
       'lastEnvHash',
-      'lastClaudeModel',
-      'lastCustomModel',
       'migrationVersion',
     ]);
     const hasSettings = Object.keys(legacyData).some(key => !stateKeys.has(key));
@@ -202,9 +195,7 @@ export class StorageService {
       conversations: __,
       activeConversationId: ___,
       lastEnvHash: ____,
-      lastClaudeModel: _____,
-      lastCustomModel: ______,
-      migrationVersion: _______,
+      migrationVersion: _____,
       ...settingsFields
     } = legacyData;
 
@@ -258,8 +249,6 @@ export class StorageService {
     const {
       slashCommands: _,
       lastEnvHash: __,
-      lastClaudeModel: ___,
-      lastCustomModel: ____,
       ...defaults
     } = DEFAULT_SETTINGS;
     return defaults;

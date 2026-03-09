@@ -15,9 +15,7 @@ import type { VaultFileAdapter } from './VaultFileAdapter';
 /** Fields that are machine-specific state or loaded separately. */
 type StateFields =
   | 'slashCommands'
-  | 'lastEnvHash'
-  | 'lastClaudeModel'
-  | 'lastCustomModel';
+  | 'lastEnvHash';
 
 /** Settings stored in .copilot/settings.json (user-facing, shareable). */
 export type StoredSettings = Omit<ObsidianCodeSettings, StateFields>;
@@ -104,8 +102,6 @@ export class SettingsStorage {
     const {
       slashCommands: _,
       lastEnvHash: __,
-      lastClaudeModel: ___,
-      lastCustomModel: ____,
       ...defaults
     } = DEFAULT_SETTINGS;
     return defaults;
