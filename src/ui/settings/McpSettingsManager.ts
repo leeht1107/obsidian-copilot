@@ -219,7 +219,7 @@ export class McpSettingsManager {
       await this.plugin.agentService.reloadMcpServers();
     } catch (error) {
       // Save succeeded but reload failed - don't rollback since disk has correct state
-      console.warn('[ObsidianCode] MCP reload failed after save:', error);
+      console.warn('[ObsidianCopilot] MCP reload failed after save:', error);
       new Notice('Setting saved but reload failed. Changes will apply on next session.');
     }
   }

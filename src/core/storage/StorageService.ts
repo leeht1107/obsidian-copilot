@@ -33,9 +33,11 @@ const DEFAULT_STATE: PluginState = {
 };
 
 /** Legacy data format (pre-migration). */
-interface LegacyData extends ObsidianCopilotSettings {
+interface LegacyData extends Partial<ObsidianCopilotSettings> {
   conversations?: Conversation[];
+  slashCommands?: SlashCommand[];
   activeConversationId?: string;
+  lastEnvHash?: string;
   migrationVersion?: number;
 }
 
@@ -71,12 +73,12 @@ export class StorageService {
     const settingsExist = await this.settings.exists();
     const legacyData = await this.loadLegacyData();
     if (legacyData && this.needsMigration(legacyData)) {
-      console.log('[ObsidianCode] Migrating from legacy data.json to distributed storage...');
+      console.log('[ObsidianCopilot] Migrating from legacy data.json to distributed storage...');
       const migrated = await this.runMigration(legacyData, { migrateSettings: !settingsExist });
       if (migrated) {
-        console.log('[ObsidianCode] Migration complete.');
+        console.log('[ObsidianCopilot] Migration complete.');
       } else {
-        console.warn('[ObsidianCode] Migration incomplete; will retry on next launch.');
+        console.warn('[ObsidianCopilot] Migration incomplete; will retry on next launch.');
       }
     }
 
@@ -121,7 +123,7 @@ export class StorageService {
         await this.migrateSettings(legacyData);
       } catch (error) {
         hadErrors = true;
-        console.error('[ObsidianCode] Failed to migrate settings:', error);
+        console.error('[ObsidianCopilot] Failed to migrate settings:', error);
       }
     }
 
@@ -220,7 +222,7 @@ export class StorageService {
         await this.commands.save(command);
       } catch (error) {
         hadErrors = true;
-        console.error(`[ObsidianCode] Failed to migrate command ${command.name}:`, error);
+        console.error(`[ObsidianCopilot] Failed to migrate command ${command.name}:`, error);
       }
     }
     return hadErrors;
@@ -238,7 +240,7 @@ export class StorageService {
         await this.sessions.saveConversation(conversation);
       } catch (error) {
         hadErrors = true;
-        console.error(`[ObsidianCode] Failed to migrate conversation ${conversation.id}:`, error);
+        console.error(`[ObsidianCopilot] Failed to migrate conversation ${conversation.id}:`, error);
       }
     }
     return hadErrors;

@@ -65,7 +65,7 @@ export class SessionStorage {
       const content = await this.adapter.read(filePath);
       return this.parseJSONL(content);
     } catch (error) {
-      console.error(`[ObsidianCode] Failed to load conversation ${id}:`, error);
+      console.error(`[ObsidianCopilot] Failed to load conversation ${id}:`, error);
       return null;
     }
   }
@@ -99,14 +99,14 @@ export class SessionStorage {
             metas.push(meta);
           }
         } catch (error) {
-          console.error(`[ObsidianCode] Failed to load meta from ${filePath}:`, error);
+          console.error(`[ObsidianCopilot] Failed to load meta from ${filePath}:`, error);
         }
       }
 
       // Sort by updatedAt descending (most recent first)
       metas.sort((a, b) => b.updatedAt - a.updatedAt);
     } catch (error) {
-      console.error('[ObsidianCode] Failed to list sessions:', error);
+      console.error('[ObsidianCopilot] Failed to list sessions:', error);
     }
 
     return metas;
@@ -129,14 +129,14 @@ export class SessionStorage {
             conversations.push(conversation);
           }
         } catch (error) {
-          console.error(`[ObsidianCode] Failed to load conversation from ${filePath}:`, error);
+          console.error(`[ObsidianCopilot] Failed to load conversation from ${filePath}:`, error);
         }
       }
 
       // Sort by updatedAt descending
       conversations.sort((a, b) => b.updatedAt - a.updatedAt);
     } catch (error) {
-      console.error('[ObsidianCode] Failed to load all conversations:', error);
+      console.error('[ObsidianCopilot] Failed to load all conversations:', error);
     }
 
     return conversations;
@@ -218,7 +218,7 @@ export class SessionStorage {
           messages.push(record.message);
         }
       } catch (error) {
-        console.warn('[ObsidianCode] Failed to parse JSONL line:', error);
+          console.warn('[ObsidianCopilot] Failed to parse JSONL line:', error);
       }
     }
 

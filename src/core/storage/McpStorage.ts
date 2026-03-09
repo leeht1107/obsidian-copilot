@@ -51,13 +51,13 @@ export class McpStorage {
 
       for (const [name, config] of Object.entries(file.mcpServers)) {
         if (!isValidMcpServerConfig(config)) {
-          console.warn(`[ObsidianCode] Invalid MCP server config for "${name}", skipping`);
+          console.warn(`[ObsidianCopilot] Invalid MCP server config for "${name}", skipping`);
           continue;
         }
 
         const meta = obsidianCodeMeta[name] ?? {};
         const disabledTools = Array.isArray(meta.disabledTools)
-          ? meta.disabledTools.filter((tool) => typeof tool === 'string')
+          ? meta.disabledTools.filter((tool: unknown): tool is string => typeof tool === 'string')
           : undefined;
         const normalizedDisabledTools =
           disabledTools && disabledTools.length > 0 ? disabledTools : undefined;
@@ -74,7 +74,7 @@ export class McpStorage {
 
       return servers;
     } catch (error) {
-      console.error('[ObsidianCode] Failed to load MCP config:', error);
+      console.error('[ObsidianCopilot] Failed to load MCP config:', error);
       return [];
     }
   }
@@ -106,8 +106,8 @@ export class McpStorage {
           meta.contextSaving = server.contextSaving;
         }
         const normalizedDisabledTools = server.disabledTools
-          ?.map((tool) => tool.trim())
-          .filter((tool) => tool.length > 0);
+          ?.map((tool: string) => tool.trim())
+          .filter((tool: string) => tool.length > 0);
         if (normalizedDisabledTools && normalizedDisabledTools.length > 0) {
           meta.disabledTools = normalizedDisabledTools;
         }
@@ -157,7 +157,7 @@ export class McpStorage {
       const content = JSON.stringify(file, null, 2);
       await this.adapter.write(MCP_CONFIG_PATH, content);
     } catch (error) {
-      console.error('[ObsidianCode] Failed to save MCP config:', error);
+      console.error('[ObsidianCopilot] Failed to save MCP config:', error);
       throw error;
     }
   }

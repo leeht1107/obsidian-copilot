@@ -367,7 +367,7 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
     new Setting(containerEl).setName('MCP Servers').setHeading();
     const mcpDesc = containerEl.createDiv({ cls: 'ocop-mcp-settings-desc' });
     mcpDesc.createEl('p', {
-      text: 'Configure Model Context Protocol servers. This mirrors Obsidian Code settings, but Copilot CLI support may depend on your local setup.',
+      text: 'Configure Model Context Protocol servers for Obsidian Copilot. Copilot CLI support still depends on your local setup.',
       cls: 'setting-item-description',
     });
     const mcpContainer = containerEl.createDiv({ cls: 'ocop-mcp-container' });
@@ -472,7 +472,7 @@ export class ObsidianCodeSettingTab extends PluginSettingTab {
         infoEl.createSpan({ cls: 'ocop-approved-item-date', text: new Date(action.approvedAt).toLocaleDateString() });
         const removeBtn = itemEl.createEl('button', { text: 'Remove', cls: 'ocop-approved-remove-btn' });
         removeBtn.addEventListener('click', async () => {
-          this.plugin.settings.permissions = this.plugin.settings.permissions.filter((entry) => entry !== action);
+          this.plugin.settings.permissions = this.plugin.settings.permissions.filter((entry: typeof action) => entry !== action);
           await this.plugin.saveSettings();
           this.display();
         });
