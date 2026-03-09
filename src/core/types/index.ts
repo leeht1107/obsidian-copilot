@@ -21,8 +21,7 @@ export {
 export {
   COPILOT_MODELS,
   DEFAULT_MODEL,
-  type ClaudeModel,
-  DEFAULT_CLAUDE_MODELS,
+  type CopilotModel,
   DEFAULT_THINKING_BUDGET,
   THINKING_BUDGETS,
   type ThinkingBudget,

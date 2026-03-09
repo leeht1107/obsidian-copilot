@@ -2,9 +2,9 @@ import type { WorkspaceLeaf } from 'obsidian';
 import { ItemView, setIcon } from 'obsidian';
 
 import { SlashCommandManager } from '../../core/commands';
-import type { ClaudeModel, PermissionMode, ThinkingBudget } from '../../core/types';
+import type { CopilotModel, PermissionMode, ThinkingBudget } from '../../core/types';
 import {
-  DEFAULT_CLAUDE_MODELS,
+  COPILOT_MODELS,
   DEFAULT_THINKING_BUDGET,
   VIEW_TYPE_OBSIDIAN_CODE,
 } from '../../core/types';
@@ -274,9 +274,9 @@ export class ObsidianCodeView extends ItemView {
       getEnvironmentVariables: () => this.plugin.getActiveEnvironmentVariables(),
       isAgentInitiatedPlanMode: () => this.state.planModeState?.agentInitiated ?? false,
       isPlanModeRequested: () => this.state.planModeRequested,
-      onModelChange: async (model: ClaudeModel) => {
+      onModelChange: async (model: CopilotModel) => {
         this.plugin.settings.model = model;
-        const isDefaultModel = DEFAULT_CLAUDE_MODELS.find((m: any) => m.value === model);
+        const isDefaultModel = COPILOT_MODELS.find((m: any) => m.value === model);
         if (isDefaultModel) {
           this.plugin.settings.thinkingBudget = DEFAULT_THINKING_BUDGET[model];
         }

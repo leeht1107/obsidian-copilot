@@ -1,7 +1,5 @@
 export type CopilotModel = string;
 
-export type ClaudeModel = CopilotModel;
-
 export interface ModelOption {
   value: CopilotModel;
   label: string;
@@ -50,5 +48,3 @@ export const COPILOT_MODELS: ModelOption[] = [
 ];
 
 export const DEFAULT_MODEL = 'auto';
-
-export const DEFAULT_CLAUDE_MODELS = COPILOT_MODELS;

@@ -11,7 +11,7 @@ import { TFile } from 'obsidian';
 
 import { getEnhancedPath } from '../../utils/env';
 import { parseSlashCommandContent } from '../../utils/slashCommand';
-import type { ClaudeModel,SlashCommand } from '../types';
+import type { CopilotModel,SlashCommand } from '../types';
 
 type BashRunner = (command: string, cwd: string) => Promise<string>;
 
@@ -29,7 +29,7 @@ export interface SlashCommandExpansionOptions {
 export interface ExpansionResult {
   expandedPrompt: string;
   allowedTools?: string[];
-  model?: ClaudeModel;
+  model?: CopilotModel;
   errors: string[];
 }
 

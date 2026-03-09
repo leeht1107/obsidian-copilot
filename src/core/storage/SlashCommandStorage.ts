@@ -25,7 +25,7 @@ import * as os from 'os';
 import * as path from 'path';
 
 import { parseSlashCommandContent } from '../../utils/slashCommand';
-import type { ClaudeModel, SlashCommand } from '../types';
+import type { CopilotModel, SlashCommand } from '../types';
 import type { VaultFileAdapter } from './VaultFileAdapter';
 
 export const COMMANDS_PATH = '.copilot/commands';
@@ -155,7 +155,7 @@ export class SlashCommandStorage {
       description: parsed.description ? `[${pluginName}] ${parsed.description}` : `[${pluginName}]`,
       argumentHint: parsed.argumentHint,
       allowedTools: parsed.allowedTools,
-      model: parsed.model as ClaudeModel | undefined,
+      model: parsed.model as CopilotModel | undefined,
       content: parsed.promptContent,
     };
   }
@@ -191,7 +191,7 @@ export class SlashCommandStorage {
       description: parsed.description,
       argumentHint: parsed.argumentHint,
       allowedTools: parsed.allowedTools,
-      model: parsed.model as ClaudeModel | undefined,
+      model: parsed.model as CopilotModel | undefined,
       content: parsed.promptContent,
     };
   }
@@ -245,7 +245,7 @@ export class SlashCommandStorage {
       description: parsed.description,
       argumentHint: parsed.argumentHint,
       allowedTools: parsed.allowedTools,
-      model: parsed.model as ClaudeModel | undefined,
+      model: parsed.model as CopilotModel | undefined,
       content: parsed.promptContent,
     };
   }

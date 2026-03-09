@@ -2,7 +2,7 @@
  * Settings type definitions.
  */
 
-import { DEFAULT_MODEL, type ClaudeModel, type ThinkingBudget } from './models';
+import { DEFAULT_MODEL, type CopilotModel, type ThinkingBudget } from './models';
 
 /** Platform-specific blocked commands (Unix). */
 const UNIX_BLOCKED_COMMANDS = [
@@ -113,7 +113,7 @@ export interface SlashCommand {
   description?: string;        // Optional description shown in dropdown
   argumentHint?: string;       // Placeholder text for arguments (e.g., "[file] [focus]")
   allowedTools?: string[];     // Restrict tools when command is used
-  model?: ClaudeModel;         // Override model for this command
+  model?: CopilotModel;         // Override model for this command
   content: string;             // Prompt template with placeholders
 }
 
@@ -129,7 +129,7 @@ export interface ObsidianCodeSettings {
   userName: string;
   enableBlocklist: boolean;
   blockedCommands: PlatformBlockedCommands;
-  model: ClaudeModel;
+  model: CopilotModel;
   enableAutoTitleGeneration: boolean;
   titleGenerationModel: string;  // Model for auto title generation (empty = auto)
   lastEnvHash?: string;

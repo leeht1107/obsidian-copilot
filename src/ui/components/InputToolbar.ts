@@ -1,7 +1,7 @@
 import { Notice, setIcon } from 'obsidian';
 
 import type {
-  ClaudeModel,
+  CopilotModel,
   ObsidianCodeMcpServer,
   PermissionMode,
   ThinkingBudget,
@@ -16,14 +16,14 @@ import type { McpService } from '../../features/mcp/McpService';
 import { findConflictingPath } from '../../utils/externalContext';
 
 export interface ToolbarSettings {
-  model: ClaudeModel;
+  model: CopilotModel;
   thinkingBudget: ThinkingBudget;
   permissionMode: PermissionMode;
   lastNonPlanPermissionMode?: 'yolo' | 'normal';
 }
 
 export interface ToolbarCallbacks {
-  onModelChange: (model: ClaudeModel) => Promise<void>;
+  onModelChange: (model: CopilotModel) => Promise<void>;
   onThinkingBudgetChange: (budget: ThinkingBudget) => Promise<void>;
   onPermissionModeChange: (mode: PermissionMode) => Promise<void>;
   getSettings: () => ToolbarSettings;
@@ -87,7 +87,7 @@ export class ModelSelector {
 
       option.addEventListener('click', async (event) => {
         event.stopPropagation();
-        await this.callbacks.onModelChange(model.value);
+      await this.callbacks.onModelChange(model.value);
         this.updateDisplay();
         this.renderOptions();
       });
