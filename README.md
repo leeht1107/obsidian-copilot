@@ -22,8 +22,6 @@ Have meaningful conversations with your codebase. Copilot understands your notes
 
 This plugin requires **GitHub Copilot CLI**.
 
-See `docs/PREREQUISITES.md` for the full setup checklist.
-
 1.  **Install Node.js** (v22 or higher)
 2.  **Install Copilot CLI**:
     ```bash
@@ -43,7 +41,7 @@ See `docs/PREREQUISITES.md` for the full setup checklist.
 
 1.  Install **BRAT** from the Obsidian Community Plugins.
 2.  Open command palette (`Cmd/Ctrl + P`) -> `BRAT: Add a beta plugin for testing`.
-3.  Enter the repository URL: `https://github.com/reallygood83/obsidian-copilot`.
+3.  Enter the repository URL: `https://github.com/leeht1107/obsidian-copilot`.
 4.  Enable "Obsidian Copilot" in Community Plugins settings.
 
 ### Manual Installation
