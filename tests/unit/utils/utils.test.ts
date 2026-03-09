@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
-import { getCurrentModelFromEnvironment, getModelsFromEnvironment, parseEnvironmentVariables } from '@/utils/env';
+import { parseEnvironmentVariables } from '@/utils/env';
 import { appendMarkdownSnippet } from '@/utils/markdown';
 import { findCopilotCLIPath } from '@/utils/copilotCli';
 import {
@@ -388,135 +388,6 @@ describe('utils.ts', () => {
 
     it('should return existing prompt unchanged when snippet is empty', () => {
       expect(appendMarkdownSnippet('## Existing', '   ')).toBe('## Existing');
-    });
-  });
-
-  describe('getModelsFromEnvironment', () => {
-    it('should extract model from ANTHROPIC_MODEL', () => {
-      const envVars = { ANTHROPIC_MODEL: 'claude-3-opus' };
-      const result = getModelsFromEnvironment(envVars);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].value).toBe('claude-3-opus');
-      expect(result[0].description).toContain('model');
-    });
-
-    it('should extract models from ANTHROPIC_DEFAULT_*_MODEL variables', () => {
-      const envVars = {
-        ANTHROPIC_DEFAULT_OPUS_MODEL: 'custom-opus',
-        ANTHROPIC_DEFAULT_SONNET_MODEL: 'custom-sonnet',
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: 'custom-haiku',
-      };
-      const result = getModelsFromEnvironment(envVars);
-
-      expect(result).toHaveLength(3);
-      expect(result.map(m => m.value)).toContain('custom-opus');
-      expect(result.map(m => m.value)).toContain('custom-sonnet');
-      expect(result.map(m => m.value)).toContain('custom-haiku');
-    });
-
-    it('should deduplicate models with same value', () => {
-      const envVars = {
-        ANTHROPIC_MODEL: 'same-model',
-        ANTHROPIC_DEFAULT_OPUS_MODEL: 'same-model',
-      };
-      const result = getModelsFromEnvironment(envVars);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].value).toBe('same-model');
-      expect(result[0].description).toContain('model');
-      expect(result[0].description).toContain('opus');
-    });
-
-    it('should return empty array when no model variables are set', () => {
-      const envVars = { OTHER_VAR: 'value' };
-      const result = getModelsFromEnvironment(envVars);
-
-      expect(result).toEqual([]);
-    });
-
-    it('should handle model names with slashes (provider/model format)', () => {
-      const envVars = { ANTHROPIC_MODEL: 'anthropic/claude-3-opus' };
-      const result = getModelsFromEnvironment(envVars);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].value).toBe('anthropic/claude-3-opus');
-      expect(result[0].label).toBe('claude-3-opus');
-    });
-
-    it('should fallback to full value when slash-split yields empty', () => {
-      const envVars = { ANTHROPIC_MODEL: 'trailing-slash/' };
-      const result = getModelsFromEnvironment(envVars);
-
-      expect(result).toHaveLength(1);
-      expect(result[0].label).toBe('trailing-slash/');
-    });
-
-    it('should sort models by priority (model > haiku > sonnet > opus)', () => {
-      const envVars = {
-        ANTHROPIC_DEFAULT_OPUS_MODEL: 'opus-model',
-        ANTHROPIC_MODEL: 'main-model',
-        ANTHROPIC_DEFAULT_SONNET_MODEL: 'sonnet-model',
-      };
-      const result = getModelsFromEnvironment(envVars);
-
-      expect(result[0].value).toBe('main-model');
-      expect(result[1].value).toBe('sonnet-model');
-      expect(result[2].value).toBe('opus-model');
-    });
-  });
-
-  describe('getCurrentModelFromEnvironment', () => {
-    it('should return ANTHROPIC_MODEL if set', () => {
-      const envVars = {
-        ANTHROPIC_MODEL: 'main-model',
-        ANTHROPIC_DEFAULT_OPUS_MODEL: 'opus-model',
-      };
-      const result = getCurrentModelFromEnvironment(envVars);
-
-      expect(result).toBe('main-model');
-    });
-
-    it('should return ANTHROPIC_DEFAULT_HAIKU_MODEL if ANTHROPIC_MODEL not set', () => {
-      const envVars = {
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: 'haiku-model',
-        ANTHROPIC_DEFAULT_SONNET_MODEL: 'sonnet-model',
-      };
-      const result = getCurrentModelFromEnvironment(envVars);
-
-      expect(result).toBe('haiku-model');
-    });
-
-    it('should return ANTHROPIC_DEFAULT_SONNET_MODEL if higher priority not set', () => {
-      const envVars = {
-        ANTHROPIC_DEFAULT_SONNET_MODEL: 'sonnet-model',
-        ANTHROPIC_DEFAULT_OPUS_MODEL: 'opus-model',
-      };
-      const result = getCurrentModelFromEnvironment(envVars);
-
-      expect(result).toBe('sonnet-model');
-    });
-
-    it('should return ANTHROPIC_DEFAULT_HAIKU_MODEL if only that is set', () => {
-      const envVars = {
-        ANTHROPIC_DEFAULT_HAIKU_MODEL: 'haiku-model',
-      };
-      const result = getCurrentModelFromEnvironment(envVars);
-
-      expect(result).toBe('haiku-model');
-    });
-
-    it('should return null if no model variables are set', () => {
-      const envVars = { OTHER_VAR: 'value' };
-      const result = getCurrentModelFromEnvironment(envVars);
-
-      expect(result).toBeNull();
-    });
-
-    it('should return null for empty object', () => {
-      const result = getCurrentModelFromEnvironment({});
-
-      expect(result).toBeNull();
     });
   });
 

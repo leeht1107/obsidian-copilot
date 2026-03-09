@@ -8,12 +8,11 @@ import type {
   UsageInfo,
 } from '../../core/types';
 import {
-  DEFAULT_CLAUDE_MODELS,
+  COPILOT_MODELS,
   THINKING_BUDGETS,
 } from '../../core/types';
 import { CHECK_ICON_SVG, MCP_ICON_SVG } from '../../features/chat/constants';
 import type { McpService } from '../../features/mcp/McpService';
-import { getModelsFromEnvironment, parseEnvironmentVariables } from '../../utils/env';
 import { findConflictingPath } from '../../utils/externalContext';
 
 export interface ToolbarSettings {
@@ -46,15 +45,7 @@ export class ModelSelector {
   }
 
   private getAvailableModels() {
-    if (this.callbacks.getEnvironmentVariables) {
-      const envVars = parseEnvironmentVariables(this.callbacks.getEnvironmentVariables());
-      const customModels = getModelsFromEnvironment(envVars);
-      if (customModels.length > 0) {
-        return customModels;
-      }
-    }
-
-    return [...DEFAULT_CLAUDE_MODELS];
+    return [...COPILOT_MODELS];
   }
 
   private render() {
