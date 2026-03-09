@@ -879,10 +879,10 @@ describe('utils.ts', () => {
       )).toBe('readwrite');
     });
 
-    it('treats ~/.claude paths as vault access after normalization', () => {
+    it('treats ~/.copilot paths as vault access after normalization', () => {
       jest.spyOn(os, 'homedir').mockReturnValue('C:\\Users\\test');
       expect(getPathAccessType(
-        'C:\\Users\\test\\.claude\\settings.json',
+        'C:\\Users\\test\\.copilot\\settings.json',
         [],
         [],
         'C:\\Users\\test\\vault'
