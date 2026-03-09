@@ -69,23 +69,34 @@ export class CopilotBridgeService {
   private plugin: ObsidianCopilotPlugin;
   private currentProcess: ChildProcess | null = null;
   private sessionId: string | null = null;
+  private cachedCopilotPath: string | null | undefined = undefined; // undefined = not yet resolved
+  private cachedEnhancedPath: string | undefined = undefined;
 
   constructor(plugin: ObsidianCopilotPlugin) {
     this.plugin = plugin;
   }
 
   /**
-   * Resolves the Copilot CLI path.
+   * Resolves the Copilot CLI path (cached after first call).
    */
   private getCopilotPath(): string | null {
-    // Check settings first
-    const settingsPath = this.plugin.settings.copilotCliPath;
-    if (settingsPath && settingsPath.trim()) {
-      return settingsPath.trim();
-    }
+    const settingsPath = this.plugin.settings.copilotCliPath?.trim();
+    if (settingsPath) return settingsPath;
 
-    // Auto-discover copilot binary
-    return findCopilotCLIPath();
+    if (this.cachedCopilotPath === undefined) {
+      this.cachedCopilotPath = findCopilotCLIPath();
+    }
+    return this.cachedCopilotPath;
+  }
+
+  /**
+   * Returns enhanced PATH string (cached after first call).
+   */
+  private getSpawnPath(copilotPath: string): string {
+    if (this.cachedEnhancedPath === undefined) {
+      this.cachedEnhancedPath = getEnhancedPath(undefined, copilotPath);
+    }
+    return this.cachedEnhancedPath;
   }
 
   /**
@@ -147,7 +158,7 @@ export class CopilotBridgeService {
     }
 
     // Build env with enhanced PATH (Obsidian has minimal PATH; node must be findable)
-    const env: NodeJS.ProcessEnv = { ...process.env, PATH: getEnhancedPath(undefined, copilotPath) };
+    const env: NodeJS.ProcessEnv = { ...process.env, PATH: this.getSpawnPath(copilotPath) };
     if (this.plugin.settings.githubToken) {
       env.COPILOT_GITHUB_TOKEN = this.plugin.settings.githubToken;
       env.GH_TOKEN = this.plugin.settings.githubToken;
