@@ -1,7 +1,7 @@
 import { WorkspaceLeaf } from 'obsidian';
 
 import type { ChatMessage, ImageAttachment } from '@/core/types';
-import { ObsidianCodeView } from '@/features/chat/ObsidianCodeView';
+import { ObsidianCopilotView } from '@/features/chat/ObsidianCopilotView';
 
 function createMockPlugin() {
   return {
@@ -55,10 +55,10 @@ function createMockPlugin() {
   } as any;
 }
 
-describe('ObsidianCodeView persistence', () => {
+describe('ObsidianCopilotView persistence', () => {
   it('strips base64 data when persisting messages but keeps references', () => {
     const plugin = createMockPlugin();
-    const view = new ObsidianCodeView(new WorkspaceLeaf(), plugin);
+    const view = new ObsidianCopilotView(new WorkspaceLeaf(), plugin);
 
     const images: ImageAttachment[] = [
       {

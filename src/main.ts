@@ -22,10 +22,10 @@ import {
   DEFAULT_SETTINGS,
   VIEW_TYPE_OBSIDIAN_CODE,
 } from './core/types';
-import type { ObsidianCodeView } from './features/chat/ObsidianCodeView';
-import { ObsidianCodeView as ObsidianCodeViewImpl } from './features/chat/ObsidianCodeView';
+import type { ObsidianCopilotView } from './features/chat/ObsidianCopilotView';
+import { ObsidianCopilotView as ObsidianCopilotViewImpl } from './features/chat/ObsidianCopilotView';
 import { McpService } from './features/mcp/McpService';
-import { ObsidianCodeSettingTab } from './features/settings/ObsidianCodeSettings';
+import { ObsidianCopilotSettingTab } from './features/settings/ObsidianCopilotSettings';
 import type { InlineEditContext } from './ui/modals/InlineEditModal';
 import { InlineEditModal } from './ui/modals/InlineEditModal';
 import { buildCursorContext } from './utils/editor';
@@ -67,7 +67,7 @@ export default class ObsidianCopilotPlugin extends Plugin {
 
     this.registerView(
       VIEW_TYPE_OBSIDIAN_CODE,
-      (leaf) => new ObsidianCodeViewImpl(leaf, this)
+      (leaf) => new ObsidianCopilotViewImpl(leaf, this)
     );
 
     this.addRibbonIcon('obsidian-copilot-icon', 'Open Obsidian Copilot', () => {
@@ -136,7 +136,7 @@ export default class ObsidianCopilotPlugin extends Plugin {
       },
     });
 
-    this.addSettingTab(new ObsidianCodeSettingTab(this.app, this));
+    this.addSettingTab(new ObsidianCopilotSettingTab(this.app, this));
   }
 
   onunload() {
@@ -418,10 +418,10 @@ export default class ObsidianCopilotPlugin extends Plugin {
   }
 
   /** Returns the active ObsidianCode view from workspace, if open. */
-  getView(): ObsidianCodeView | null {
+  getView(): ObsidianCopilotView | null {
     const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_OBSIDIAN_CODE);
     if (leaves.length > 0) {
-      return leaves[0].view as ObsidianCodeView;
+    return leaves[0].view as ObsidianCopilotView;
     }
     return null;
   }
