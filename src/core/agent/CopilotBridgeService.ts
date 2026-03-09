@@ -44,6 +44,7 @@ interface CopilotJsonEvent {
   data?: Record<string, unknown>;
   sessionId?: string;
   exitCode?: number;
+  usage?: Record<string, unknown>;
 }
 
 export class CopilotBridgeService {
@@ -374,6 +375,11 @@ export class CopilotBridgeService {
   }
 
   private translateCopilotEvent(event: CopilotJsonEvent): StreamChunk[] {
+    if (event.type === 'assistant.reasoning_delta') {
+      const deltaContent = typeof event.data?.deltaContent === 'string' ? event.data.deltaContent : '';
+      return deltaContent ? [{ type: 'thinking', content: deltaContent }] : [];
+    }
+
     if (event.type === 'assistant.message_delta') {
       const deltaContent = typeof event.data?.deltaContent === 'string' ? event.data.deltaContent : '';
       return deltaContent ? [{ type: 'text', content: deltaContent }] : [];
@@ -400,6 +406,35 @@ export class CopilotBridgeService {
       }
 
       return chunks;
+    }
+
+    if (event.type === 'tool.execution_complete') {
+      const toolCallId = typeof event.data?.toolCallId === 'string' ? event.data.toolCallId : null;
+      if (!toolCallId) {
+        return [];
+      }
+
+      const result = event.data?.result;
+      const resultRecord = result && typeof result === 'object' && !Array.isArray(result)
+        ? result as Record<string, unknown>
+        : null;
+      const content = typeof resultRecord?.content === 'string'
+        ? resultRecord.content
+        : typeof resultRecord?.detailedContent === 'string'
+          ? resultRecord.detailedContent
+          : '';
+      const isError = event.data?.success === false;
+      const parentToolUseId = typeof event.data?.parentToolCallId === 'string'
+        ? event.data.parentToolCallId
+        : null;
+
+      return [{
+        type: 'tool_result',
+        id: toolCallId,
+        content,
+        isError,
+        parentToolUseId,
+      }];
     }
 
     if (event.type === 'result') {
