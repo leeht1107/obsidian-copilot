@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12px 12px 12px;
+  padding: 4px 12px 14px 12px;
 }
 
 .oc-title {
@@ -15,12 +15,25 @@
 .oc-logo {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--interactive-accent) 22%, var(--background-secondary)) 0%, color-mix(in srgb, var(--interactive-accent) 8%, var(--background-primary)) 100%);
+  color: color-mix(in srgb, var(--interactive-accent) 72%, white);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+.oc-logo svg {
+  width: 17px;
+  height: 17px;
 }
 
 .oc-header h4 {
   margin: 0;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
 }
 
 /* Header actions (right side) */
@@ -35,16 +48,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
-  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   cursor: pointer;
   color: var(--text-muted);
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .oc-header-btn:hover {
   background: var(--background-modifier-hover);
   color: var(--text-normal);
+  transform: translateY(-1px);
 }
 
 .oc-header-btn svg {

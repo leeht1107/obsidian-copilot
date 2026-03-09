@@ -19,6 +19,8 @@ export {
 
 // Model types
 export {
+  COPILOT_MODELS,
+  DEFAULT_MODEL,
   type ClaudeModel,
   DEFAULT_CLAUDE_MODELS,
   DEFAULT_THINKING_BUDGET,
@@ -56,6 +58,7 @@ export {
 // Tool types
 export {
   type AsyncSubagentStatus,
+  type ExitPlanModeDecision,
   type SubagentInfo,
   type SubagentMode,
   type ToolCallInfo,

@@ -8,7 +8,7 @@
 import type { Editor, MarkdownView } from 'obsidian';
 import { Notice, Plugin } from 'obsidian';
 
-import { ObsidianCodeService } from './core/agent/ObsidianCodeService';
+import { CopilotBridgeService } from './core/agent/CopilotBridgeService';
 import { deleteCachedImages } from './core/images/imageCache';
 import { StorageService } from './core/storage';
 import type {
@@ -17,51 +17,67 @@ import type {
   ConversationMeta
 } from './core/types';
 import {
-  DEFAULT_CLAUDE_MODELS,
   DEFAULT_SETTINGS,
   VIEW_TYPE_OBSIDIAN_CODE,
 } from './core/types';
 import { ObsidianCodeView } from './features/chat/ObsidianCodeView';
-import { McpService } from './features/mcp/McpService';
 import { ObsidianCodeSettingTab } from './features/settings/ObsidianCodeSettings';
 import { type InlineEditContext, InlineEditModal } from './ui/modals/InlineEditModal';
-import { ClaudeCliResolver } from './utils/claudeCli';
 import { buildCursorContext } from './utils/editor';
-import { getCurrentModelFromEnvironment, getModelsFromEnvironment, parseEnvironmentVariables } from './utils/env';
+
+class McpServiceStub {
+  getServerResourcePaths(): Map<string, string[]> { return new Map(); }
+  getMentionableResources(): unknown[] { return []; }
+  isInitialized(): boolean { return false; }
+  getActiveServers(): unknown[] { return []; }
+  getConfiguredServers(): unknown[] { return []; }
+  setExternalContextPaths(_paths: unknown[]): void {}
+  getExternalContextsForPrompt(): string { return ''; }
+  extractMentions(_text: string): Set<string> { return new Set(); }
+  transformMentions(text: string, _mentions?: unknown): string { return text; }
+  manager = null;
+  loadServers(): Promise<void> { return Promise.resolve(); }
+  getServers(): unknown[] { return []; }
+  getEnabledCount(): number { return 0; }
+  isServerEnabled(_name: string): boolean { return false; }
+  setServerEnabled(_name: string, _enabled: boolean): void {}
+  getServerStatus(_name: string): string { return 'disabled'; }
+  getServerResources(_name: string): unknown[] { return []; }
+  hasResources(_name: string): boolean { return false; }
+  hasServers(): boolean { return false; }
+  getServerNames(): string[] { return []; }
+  getEnabledServerNames(): string[] { return []; }
+  getContextSavingServers(): string[] { return []; }
+  getDisabledServerNames(): string[] { return []; }
+  getAllServerStatus(): Map<string, string> { return new Map(); }
+  reloadServers(): Promise<void> { return Promise.resolve(); }
+  dispose(): void {}
+}
 
 /**
  * Main plugin class for ObsidianCode.
  * Handles plugin lifecycle, settings persistence, and conversation management.
  */
-export default class ObsidianCodePlugin extends Plugin {
+export default class ObsidianCopilotPlugin extends Plugin {
   settings: ObsidianCodeSettings;
-  agentService: ObsidianCodeService;
-  mcpService: McpService;
+  agentService: CopilotBridgeService;
   storage: StorageService;
-  cliResolver: ClaudeCliResolver;
+  mcpService: McpServiceStub;
   private conversations: Conversation[] = [];
   private activeConversationId: string | null = null;
-  private runtimeEnvironmentVariables = '';
-  private hasNotifiedEnvChange = false;
 
   async onload() {
     await this.loadSettings();
 
-    this.cliResolver = new ClaudeCliResolver();
-
-    // Initialize MCP service first (creates McpServerManager internally)
-    this.mcpService = new McpService(this);
-    await this.mcpService.loadServers();
-
-    // Initialize agent service with the MCP manager
-    this.agentService = new ObsidianCodeService(this, this.mcpService.getManager());
+    this.agentService = new CopilotBridgeService(this);
+    this.mcpService = new McpServiceStub();
 
     this.registerView(
       VIEW_TYPE_OBSIDIAN_CODE,
       (leaf) => new ObsidianCodeView(leaf, this)
     );
 
-    this.addRibbonIcon('bot', 'Open Obsidian Code', () => {
+    this.addRibbonIcon('bot', 'Open Obsidian Copilot', () => {
       this.activateView();
     });
 
@@ -168,10 +184,6 @@ export default class ObsidianCodePlugin extends Plugin {
     this.settings = {
       ...DEFAULT_SETTINGS,
       ...settings,
-      // State fields from data.json
-      lastEnvHash: state.lastEnvHash,
-      lastClaudeModel: state.lastClaudeModel,
-      lastCustomModel: state.lastCustomModel,
       slashCommands,
     };
 
@@ -187,16 +199,8 @@ export default class ObsidianCodePlugin extends Plugin {
 
     const backfilledConversations = this.backfillConversationResponseTimestamps();
 
-    this.runtimeEnvironmentVariables = this.settings.environmentVariables || '';
-    const { changed, invalidatedConversations } = this.reconcileModelWithEnvironment(this.runtimeEnvironmentVariables);
-
-    if (changed) {
-      await this.saveSettings();
-    }
-
-    // Persist backfilled and invalidated conversations to their session files
-    const conversationsToSave = new Set([...backfilledConversations, ...invalidatedConversations]);
-    for (const conv of conversationsToSave) {
+    // Persist backfilled conversations to their session files
+    for (const conv of backfilledConversations) {
       await this.storage.sessions.saveConversation(conv);
     }
   }
@@ -221,128 +225,32 @@ export default class ObsidianCodePlugin extends Plugin {
 
   /** Persists settings to storage. */
   async saveSettings() {
-    // Save settings (excluding state fields and slashCommands)
-    const {
-      slashCommands: _,
-      lastEnvHash: __,
-      lastClaudeModel: ___,
-      lastCustomModel: ____,
-      ...settingsToSave
-    } = this.settings;
+    const { slashCommands: _, ...settingsToSave } = this.settings;
     await this.storage.settings.save(settingsToSave);
 
-    // Save state fields to data.json
     await this.storage.saveState({
       activeConversationId: this.activeConversationId,
-      lastEnvHash: this.settings.lastEnvHash || '',
-      lastClaudeModel: this.settings.lastClaudeModel || 'haiku',
-      lastCustomModel: this.settings.lastCustomModel || '',
     });
   }
 
-  /** Updates and persists environment variables, notifying if restart is needed. */
+  getActiveEnvironmentVariables(): string {
+    return this.settings.environmentVariables || '';
+  }
+
   async applyEnvironmentVariables(envText: string): Promise<void> {
     this.settings.environmentVariables = envText;
     await this.saveSettings();
-
-    if (envText !== this.runtimeEnvironmentVariables) {
-      if (!this.hasNotifiedEnvChange) {
-        new Notice('Environment variables changed. Restart the plugin for changes to take effect.');
-        this.hasNotifiedEnvChange = true;
-      }
-    } else {
-      this.hasNotifiedEnvChange = false;
-    }
-  }
-
-  /** Returns the runtime environment variables (fixed at plugin load). */
-  getActiveEnvironmentVariables(): string {
-    return this.runtimeEnvironmentVariables;
   }
 
   getResolvedClaudeCliPath(): string | null {
-    return this.cliResolver.resolve(
-      this.settings.claudeCliPath,
-      this.getActiveEnvironmentVariables()
-    );
+    return this.settings.copilotCliPath || 'copilot';
   }
 
-  private getDefaultModelValues(): string[] {
-    return DEFAULT_CLAUDE_MODELS.map((m) => m.value);
-  }
-
-  private getPreferredCustomModel(envVars: Record<string, string>, customModels: { value: string }[]): string {
-    const envPreferred = getCurrentModelFromEnvironment(envVars);
-    if (envPreferred && customModels.some((m) => m.value === envPreferred)) {
-      return envPreferred;
-    }
-    return customModels[0].value;
-  }
-
-  /** Computes a hash of model and provider base URL environment variables for change detection. */
-  private computeEnvHash(envText: string): string {
-    const envVars = parseEnvironmentVariables(envText || '');
-    const modelKeys = [
-      'ANTHROPIC_MODEL',
-      'ANTHROPIC_DEFAULT_OPUS_MODEL',
-      'ANTHROPIC_DEFAULT_SONNET_MODEL',
-      'ANTHROPIC_DEFAULT_HAIKU_MODEL',
-    ];
-    const providerKeys = [
-      'ANTHROPIC_BASE_URL',
-    ];
-    const allKeys = [...modelKeys, ...providerKeys];
-    const relevantPairs = allKeys
-      .filter(key => envVars[key])
-      .map(key => `${key}=${envVars[key]}`)
-      .sort()
-      .join('|');
-    return relevantPairs;
-  }
-
-  /**
-   * Reconciles model with environment.
-   * Returns { changed, invalidatedConversations } where changed indicates if
-   * settings were modified (requiring save), and invalidatedConversations lists
-   * conversations that had their sessionId cleared (also requiring save).
-   */
-  private reconcileModelWithEnvironment(envText: string): {
-    changed: boolean;
-    invalidatedConversations: Conversation[];
-  } {
-    const currentHash = this.computeEnvHash(envText);
-    const savedHash = this.settings.lastEnvHash || '';
-
-    if (currentHash === savedHash) {
-      return { changed: false, invalidatedConversations: [] };
-    }
-
-    // Hash changed - model or provider may have changed.
-    // Invalidate session so next query rebuilds full context from history.
-    // Note: agentService may not exist yet during initial plugin load.
-    this.agentService?.resetSession();
-
-    // Clear sessionId from all conversations since they belong to the old provider.
-    // Sessions are provider-specific (contain signed thinking blocks, etc.).
-    const invalidatedConversations: Conversation[] = [];
-    for (const conv of this.conversations) {
-      if (conv.sessionId) {
-        conv.sessionId = null;
-        invalidatedConversations.push(conv);
-      }
-    }
-
-    const envVars = parseEnvironmentVariables(envText || '');
-    const customModels = getModelsFromEnvironment(envVars);
-
-    if (customModels.length > 0) {
-      this.settings.model = this.getPreferredCustomModel(envVars, customModels);
-    } else {
-      this.settings.model = DEFAULT_CLAUDE_MODELS[0].value;
-    }
-
-    this.settings.lastEnvHash = currentHash;
-    return { changed: true, invalidatedConversations };
+  get cliResolver(): { resolve: () => string | null; reset: () => void } {
+    return { 
+      resolve: () => this.getResolvedClaudeCliPath(),
+      reset: () => {}
+    };
   }
 
   /** Removes cached images associated with a conversation if not used elsewhere. */

@@ -1,7 +1,7 @@
 {
-  "name": "cc-obsidian",
-  "version": "1.4.15",
-  "description": "ObsidianCode - Claude Code embedded in Obsidian sidebar",
+  "name": "obsidian-copilot",
+  "version": "0.1.0",
+  "description": "Obsidian Copilot - GitHub Copilot embedded in Obsidian sidebar",
   "main": "main.js",
   "scripts": {
     "build:css": "node scripts/build-css.mjs",
@@ -17,9 +17,10 @@
   },
   "keywords": [
     "obsidian",
-    "claude",
+    "copilot",
+    "github",
     "ai",
-    "agent"
+    "assistant"
   ],
   "author": "reallygood83",
   "license": "MIT",
@@ -39,7 +40,6 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.1.62",
     "tslib": "^2.8.1"
   }
 }

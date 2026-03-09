@@ -31,17 +31,10 @@ export const CLAUDE_PATH = '.claude';
 /** Machine-specific state stored in Obsidian's data.json. */
 export interface PluginState {
   activeConversationId: string | null;
-  lastEnvHash: string;
-  lastClaudeModel: ClaudeModel;
-  lastCustomModel: ClaudeModel;
 }
 
-/** Default plugin state. */
 const DEFAULT_STATE: PluginState = {
   activeConversationId: null,
-  lastEnvHash: '',
-  lastClaudeModel: 'haiku',
-  lastCustomModel: '',
 };
 
 /** Legacy data format (pre-migration). */
@@ -156,9 +149,6 @@ export class StorageService {
     // 4. Update data.json to state-only format
     await this.saveState({
       activeConversationId: legacyData.activeConversationId || null,
-      lastEnvHash: legacyData.lastEnvHash || '',
-      lastClaudeModel: legacyData.lastClaudeModel || 'haiku',
-      lastCustomModel: legacyData.lastCustomModel || '',
     });
 
     return true;
@@ -180,9 +170,6 @@ export class StorageService {
       const data = await this.plugin.loadData();
       return {
         activeConversationId: data?.activeConversationId ?? DEFAULT_STATE.activeConversationId,
-        lastEnvHash: data?.lastEnvHash ?? DEFAULT_STATE.lastEnvHash,
-        lastClaudeModel: data?.lastClaudeModel ?? DEFAULT_STATE.lastClaudeModel,
-        lastCustomModel: data?.lastCustomModel ?? DEFAULT_STATE.lastCustomModel,
       };
     } catch {
       return { ...DEFAULT_STATE };

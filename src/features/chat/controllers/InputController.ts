@@ -8,11 +8,10 @@
 import type { Component } from 'obsidian';
 import { Notice } from 'obsidian';
 
-import type { ExitPlanModeDecision } from '../../../core/agent/ObsidianCodeService';
 import type { SlashCommandManager } from '../../../core/commands';
 import { isCommandBlocked } from '../../../core/security/BlocklistChecker';
 import { TOOL_BASH } from '../../../core/tools/toolNames';
-import type { AskUserQuestionInput, ChatMessage, ImageAttachment } from '../../../core/types';
+import type { AskUserQuestionInput, ChatMessage, ExitPlanModeDecision, ImageAttachment } from '../../../core/types';
 import { getBashToolBlockedCommands } from '../../../core/types';
 import type ObsidianCodePlugin from '../../../main';
 import {

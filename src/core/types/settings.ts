@@ -2,7 +2,7 @@
  * Settings type definitions.
  */
 
-import type { ClaudeModel, ThinkingBudget } from './models';
+import { DEFAULT_MODEL, type ClaudeModel, type ThinkingBudget } from './models';
 
 /** Platform-specific blocked commands (Unix). */
 const UNIX_BLOCKED_COMMANDS = [
@@ -149,6 +149,8 @@ export interface ObsidianCodeSettings {
   keyboardNavigation: KeyboardNavigationSettings;
   claudeCliPath: string;  // Custom Claude CLI path (empty = auto-detect)
   loadUserClaudeSettings: boolean;  // Load ~/.claude/settings.json (may override permissions)
+  copilotCliPath: string;  // Custom Copilot CLI path (empty = auto-detect from PATH)
+  githubToken: string;  // GitHub token for Copilot authentication (optional, uses stored auth by default)
 }
 
 /** Default plugin settings. */
@@ -156,10 +158,10 @@ export const DEFAULT_SETTINGS: ObsidianCodeSettings = {
   userName: '',
   enableBlocklist: true,
   blockedCommands: getDefaultBlockedCommands(),
-  model: 'haiku',
+  model: DEFAULT_MODEL,
   enableAutoTitleGeneration: true,
   titleGenerationModel: '',  // Empty = auto (ANTHROPIC_DEFAULT_HAIKU_MODEL or claude-haiku-4-5)
-  lastClaudeModel: 'haiku',
+  lastClaudeModel: DEFAULT_MODEL,
   lastCustomModel: '',
   lastEnvHash: '',
   thinkingBudget: 'off',
@@ -180,6 +182,8 @@ export const DEFAULT_SETTINGS: ObsidianCodeSettings = {
   },
   claudeCliPath: '',  // Empty = auto-detect
   loadUserClaudeSettings: true,  // Default on for compatibility
+  copilotCliPath: '',  // Empty = auto-detect from PATH
+  githubToken: '',  // Empty = use stored auth
 };
 
 /** Result from instruction refinement agent query. */

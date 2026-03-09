@@ -517,8 +517,8 @@ export class ConversationController {
     const getTimeGreetings = (): string[] => {
       if (hour >= 5 && hour < 12) {
         return name
-          ? [`Good morning, ${name}`, 'Coffee and Obsidian Code time?']
-          : ['Good morning', 'Coffee and Obsidian Code time?'];
+          ? [`Good morning, ${name}`, 'Ready to pair with Copilot?']
+          : ['Good morning', 'Ready to pair with Copilot?'];
       } else if (hour >= 12 && hour < 18) {
         return name
           ? [`Good afternoon, ${name}`, `Hey there, ${name}`, `How's it going, ${name}?`]
