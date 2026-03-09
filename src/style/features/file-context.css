@@ -111,16 +111,16 @@
 
 /* Context file items in @-mention dropdown */
 .oc-mention-item.context-file .oc-mention-icon {
-  color: #D97757;
+  color: #67d7ff;
 }
 
 /* Context folder filter items in @-mention dropdown */
 .oc-mention-item.context-folder .oc-mention-icon {
-  color: #D97757;
+  color: #67d7ff;
 }
 
 .oc-mention-name-folder {
-  color: #D97757;
+  color: #67d7ff;
   font-weight: 600;
 }
 

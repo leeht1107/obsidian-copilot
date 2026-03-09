@@ -1,6 +1,6 @@
 /* Thinking indicator */
 .oc-thinking {
-  color: #D97757;
+  color: #67d7ff;
   font-style: italic;
   padding: 4px 0;
   text-align: left;
@@ -46,7 +46,7 @@
   flex: 1;
   font-size: 13px;
   font-weight: 500;
-  color: #D97757;
+  color: #67d7ff;
 }
 
 /* Thinking block content - tree-branch style */

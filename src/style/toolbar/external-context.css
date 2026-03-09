@@ -32,7 +32,7 @@
 }
 
 .oc-external-context-icon.active {
-  color: #D97757;
+  color: #67d7ff;
   opacity: 1;
   animation: external-context-glow 2s ease-in-out infinite;
 }
@@ -48,7 +48,7 @@
   right: 0;
   font-size: 9px;
   font-weight: 600;
-  color: #D97757;
+  color: #67d7ff;
   opacity: 0;
   transition: opacity 0.15s ease;
   pointer-events: none;

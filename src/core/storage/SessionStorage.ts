@@ -1,5 +1,5 @@
 /**
- * SessionStorage - Handles chat session files in vault/.claude/sessions/
+ * SessionStorage - Handles chat session files in vault/.copilot/sessions/
  *
  * Each conversation is stored as a JSONL (JSON Lines) file.
  * First line contains metadata, subsequent lines contain messages.
@@ -22,7 +22,7 @@ import type {
 import type { VaultFileAdapter } from './VaultFileAdapter';
 
 /** Path to sessions folder relative to vault root. */
-export const SESSIONS_PATH = '.claude/sessions';
+export const SESSIONS_PATH = '.copilot/sessions';
 
 /** Metadata record stored as first line of JSONL. */
 interface SessionMetaRecord {

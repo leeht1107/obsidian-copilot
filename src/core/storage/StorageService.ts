@@ -2,9 +2,9 @@
  * StorageService - Main coordinator for distributed storage system.
  *
  * Manages:
- * - Settings in .claude/settings.json (user-facing, shareable)
- * - Slash commands in .claude/commands/*.md
- * - Chat sessions in .claude/sessions/*.jsonl
+ * - Settings in .copilot/settings.json (user-facing, shareable)
+ * - Slash commands in .copilot/commands/*.md
+ * - Chat sessions in .copilot/sessions/*.jsonl
  * - Plugin state in data.json (machine-specific)
  *
  * Handles migration from legacy data.json format on first load.
@@ -26,7 +26,7 @@ import { COMMANDS_PATH, SlashCommandStorage } from './SlashCommandStorage';
 import { VaultFileAdapter } from './VaultFileAdapter';
 
 /** Base path for all ObsidianCode storage. */
-export const CLAUDE_PATH = '.claude';
+export const CLAUDE_PATH = '.copilot';
 
 /** Machine-specific state stored in Obsidian's data.json. */
 export interface PluginState {
@@ -69,7 +69,7 @@ export class StorageService {
     settings: StoredSettings;
     state: PluginState;
   }> {
-    // Ensure .claude directory structure exists
+    // Ensure .copilot directory structure exists
     await this.ensureDirectories();
 
     // Check if migration is needed based on legacy data.json contents
@@ -85,7 +85,7 @@ export class StorageService {
       }
     }
 
-    // Load settings from .claude/settings.json
+    // Load settings from .copilot/settings.json
     const settings = await this.settings.load();
 
     // Load plugin state from data.json

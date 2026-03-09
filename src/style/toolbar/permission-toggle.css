@@ -47,7 +47,7 @@
 
 .oc-toggle-switch.active::after {
   transform: translateX(14px);
-  background: #D97757;
+  background: #67d7ff;
 }
 
 /* Plan mode state */
