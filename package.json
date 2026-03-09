@@ -23,6 +23,9 @@
     "assistant"
   ],
   "author": "reallygood83",
+  "contributors": [
+    "opencode"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^30.0.0",
