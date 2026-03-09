@@ -239,23 +239,23 @@ describe('SessionStorage JSONL format', () => {
 describe('SlashCommandStorage', () => {
   describe('filePathToId', () => {
     it('should convert flat file path to ID', () => {
-      const id = filePathToIdHelper('.claude/commands/review.md');
+      const id = filePathToIdHelper('.copilot/commands/review.md');
       expect(id).toBe('cmd-review');
     });
 
     it('should convert nested file path to ID with double-dash', () => {
-      const id = filePathToIdHelper('.claude/commands/code/refactor.md');
+      const id = filePathToIdHelper('.copilot/commands/code/refactor.md');
       expect(id).toBe('cmd-code--refactor');
     });
 
     it('should convert deeply nested path to ID', () => {
-      const id = filePathToIdHelper('.claude/commands/a/b/c.md');
+      const id = filePathToIdHelper('.copilot/commands/a/b/c.md');
       expect(id).toBe('cmd-a--b--c');
     });
 
     it('should not collide for a-b vs a/b', () => {
-      const idDash = filePathToIdHelper('.claude/commands/a-b.md');
-      const idSlash = filePathToIdHelper('.claude/commands/a/b.md');
+      const idDash = filePathToIdHelper('.copilot/commands/a-b.md');
+      const idSlash = filePathToIdHelper('.copilot/commands/a/b.md');
 
       // a-b.md -> cmd-a-_b (dash escaped)
       // a/b.md -> cmd-a--b (slash encoded)
@@ -265,8 +265,8 @@ describe('SlashCommandStorage', () => {
     });
 
     it('should not collide for a--b vs a/b', () => {
-      const idDoubleDash = filePathToIdHelper('.claude/commands/a--b.md');
-      const idSlash = filePathToIdHelper('.claude/commands/a/b.md');
+      const idDoubleDash = filePathToIdHelper('.copilot/commands/a--b.md');
+      const idSlash = filePathToIdHelper('.copilot/commands/a/b.md');
 
       // a--b.md -> cmd-a-_-_b (both dashes escaped)
       // a/b.md  -> cmd-a--b (slash encoded)
@@ -276,7 +276,7 @@ describe('SlashCommandStorage', () => {
     });
 
     it('should handle mixed dashes and slashes', () => {
-      const id = filePathToIdHelper('.claude/commands/a/b-c.md');
+      const id = filePathToIdHelper('.copilot/commands/a/b-c.md');
       // a/b-c.md -> cmd-a--b-_c
       expect(id).toBe('cmd-a--b-_c');
     });
@@ -284,12 +284,12 @@ describe('SlashCommandStorage', () => {
 
   describe('filePathToName', () => {
     it('should extract name from flat file', () => {
-      const name = filePathToNameHelper('.claude/commands/review.md');
+      const name = filePathToNameHelper('.copilot/commands/review.md');
       expect(name).toBe('review');
     });
 
     it('should extract nested name with slashes', () => {
-      const name = filePathToNameHelper('.claude/commands/code/refactor.md');
+      const name = filePathToNameHelper('.copilot/commands/code/refactor.md');
       expect(name).toBe('code/refactor');
     });
   });
@@ -609,7 +609,7 @@ function serializeToJSONLHelper(conversation: Conversation): string {
   return lines.join('\n');
 }
 
-const COMMANDS_PATH = '.claude/commands';
+const COMMANDS_PATH = '.copilot/commands';
 
 function filePathToIdHelper(filePath: string): string {
   const relativePath = filePath

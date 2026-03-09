@@ -50,7 +50,7 @@ describe('McpStorage', () => {
       };
 
       const adapter = createMockAdapter({
-        '.claude/mcp.json': JSON.stringify(config),
+        '.copilot/mcp.json': JSON.stringify(config),
       });
       const storage = new McpStorage(adapter);
       const servers = await storage.load();
@@ -80,7 +80,7 @@ describe('McpStorage', () => {
       };
 
       const adapter = createMockAdapter({
-        '.claude/mcp.json': JSON.stringify(config),
+        '.copilot/mcp.json': JSON.stringify(config),
       });
       const storage = new McpStorage(adapter);
       const servers = await storage.load();
@@ -103,7 +103,7 @@ describe('McpStorage', () => {
       };
 
       const adapter = createMockAdapter({
-        '.claude/mcp.json': JSON.stringify(config),
+        '.copilot/mcp.json': JSON.stringify(config),
       });
       const storage = new McpStorage(adapter);
       const servers = await storage.load();
@@ -113,7 +113,7 @@ describe('McpStorage', () => {
 
     it('returns empty array on JSON parse error', async () => {
       const adapter = createMockAdapter({
-        '.claude/mcp.json': 'invalid json{',
+        '.copilot/mcp.json': 'invalid json{',
       });
       const storage = new McpStorage(adapter);
       const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -143,7 +143,7 @@ describe('McpStorage', () => {
         },
       ]);
 
-      const saved = JSON.parse(adapter._store['.claude/mcp.json']);
+      const saved = JSON.parse(adapter._store['.copilot/mcp.json']);
       expect(saved._obsidianCode.servers.alpha.disabledTools).toEqual(['tool_a', 'tool_b']);
     });
 
@@ -161,7 +161,7 @@ describe('McpStorage', () => {
         },
       ]);
 
-      const saved = JSON.parse(adapter._store['.claude/mcp.json']);
+      const saved = JSON.parse(adapter._store['.copilot/mcp.json']);
       expect(saved._obsidianCode.servers.alpha.disabledTools).toEqual(['tool_a', 'tool_b']);
     });
 
@@ -179,7 +179,7 @@ describe('McpStorage', () => {
         },
       ]);
 
-      const saved = JSON.parse(adapter._store['.claude/mcp.json']);
+      const saved = JSON.parse(adapter._store['.copilot/mcp.json']);
       // No _obsidianCode since all fields are default
       expect(saved._obsidianCode).toBeUndefined();
     });
@@ -198,7 +198,7 @@ describe('McpStorage', () => {
       };
 
       const adapter = createMockAdapter({
-        '.claude/mcp.json': JSON.stringify(existing),
+        '.copilot/mcp.json': JSON.stringify(existing),
       });
       const storage = new McpStorage(adapter);
 
@@ -212,7 +212,7 @@ describe('McpStorage', () => {
         },
       ]);
 
-      const saved = JSON.parse(adapter._store['.claude/mcp.json']);
+      const saved = JSON.parse(adapter._store['.copilot/mcp.json']);
       expect(saved._obsidianCode.customField).toBe('should be preserved');
       expect(saved._obsidianCode.servers.alpha.disabledTools).toEqual(['tool_a']);
     });
