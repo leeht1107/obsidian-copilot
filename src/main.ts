@@ -24,39 +24,11 @@ import {
 } from './core/types';
 import type { ObsidianCodeView } from './features/chat/ObsidianCodeView';
 import { ObsidianCodeView as ObsidianCodeViewImpl } from './features/chat/ObsidianCodeView';
+import { McpService } from './features/mcp/McpService';
 import { ObsidianCodeSettingTab } from './features/settings/ObsidianCodeSettings';
 import type { InlineEditContext } from './ui/modals/InlineEditModal';
 import { InlineEditModal } from './ui/modals/InlineEditModal';
 import { buildCursorContext } from './utils/editor';
-
-class McpServiceStub {
-  getServerResourcePaths(): Map<string, string[]> { return new Map(); }
-  getMentionableResources(): unknown[] { return []; }
-  isInitialized(): boolean { return false; }
-  getActiveServers(): unknown[] { return []; }
-  getConfiguredServers(): unknown[] { return []; }
-  setExternalContextPaths(_paths: unknown[]): void {}
-  getExternalContextsForPrompt(): string { return ''; }
-  extractMentions(_text: string): Set<string> { return new Set(); }
-  transformMentions(text: string, _mentions?: unknown): string { return text; }
-  manager = null;
-  loadServers(): Promise<void> { return Promise.resolve(); }
-  getServers(): unknown[] { return []; }
-  getEnabledCount(): number { return 0; }
-  isServerEnabled(_name: string): boolean { return false; }
-  setServerEnabled(_name: string, _enabled: boolean): void {}
-  getServerStatus(_name: string): string { return 'disabled'; }
-  getServerResources(_name: string): unknown[] { return []; }
-  hasResources(_name: string): boolean { return false; }
-  hasServers(): boolean { return false; }
-  getServerNames(): string[] { return []; }
-  getEnabledServerNames(): string[] { return []; }
-  getContextSavingServers(): string[] { return []; }
-  getDisabledServerNames(): string[] { return []; }
-  getAllServerStatus(): Map<string, string> { return new Map(); }
-  reloadServers(): Promise<void> { return Promise.resolve(); }
-  dispose(): void {}
-}
 
 /**
  * Main plugin class for ObsidianCode.
@@ -66,9 +38,11 @@ export default class ObsidianCopilotPlugin extends Plugin {
   settings: ObsidianCodeSettings;
   agentService: CopilotBridgeService;
   storage: StorageService;
-  mcpService: McpServiceStub;
+  mcpService: McpService;
   private conversations: Conversation[] = [];
   private activeConversationId: string | null = null;
+  private runtimeEnvironmentVariables = '';
+  private hasNotifiedEnvChange = false;
 
   async onload() {
     try {
@@ -85,8 +59,9 @@ export default class ObsidianCopilotPlugin extends Plugin {
       new Notice('Obsidian Copilot loaded with default settings due to a startup error.');
     }
 
-    this.agentService = new CopilotBridgeService(this);
-    this.mcpService = new McpServiceStub();
+    this.mcpService = new McpService(this);
+    await this.mcpService.loadServers();
+    this.agentService = new CopilotBridgeService(this, this.mcpService.getManager());
 
     addIcon('obsidian-copilot-icon', COPILOT_ICON_SVG);
 
@@ -216,6 +191,7 @@ export default class ObsidianCopilotPlugin extends Plugin {
     }
 
     const backfilledConversations = this.backfillConversationResponseTimestamps();
+    this.runtimeEnvironmentVariables = this.settings.environmentVariables || '';
 
     // Persist backfilled conversations to their session files
     for (const conv of backfilledConversations) {
@@ -256,12 +232,21 @@ export default class ObsidianCopilotPlugin extends Plugin {
   }
 
   getActiveEnvironmentVariables(): string {
-    return this.settings.environmentVariables || '';
+    return this.runtimeEnvironmentVariables;
   }
 
   async applyEnvironmentVariables(envText: string): Promise<void> {
     this.settings.environmentVariables = envText;
     await this.saveSettings();
+
+    if (envText !== this.runtimeEnvironmentVariables) {
+      if (!this.hasNotifiedEnvChange) {
+        new Notice('Environment variables changed. Restart the plugin for changes to take effect.');
+        this.hasNotifiedEnvChange = true;
+      }
+    } else {
+      this.hasNotifiedEnvChange = false;
+    }
   }
 
   getResolvedClaudeCliPath(): string | null {

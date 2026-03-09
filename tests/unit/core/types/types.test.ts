@@ -14,7 +14,7 @@ import {
 describe('types.ts', () => {
   describe('VIEW_TYPE_OBSIDIAN_CODE', () => {
     it('should be defined as the correct view type', () => {
-      expect(VIEW_TYPE_OBSIDIAN_CODE).toBe('obsidian-code-view');
+      expect(VIEW_TYPE_OBSIDIAN_CODE).toBe('obsidian-copilot-view');
     });
   });
 

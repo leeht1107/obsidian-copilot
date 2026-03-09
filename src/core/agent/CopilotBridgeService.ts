@@ -1,84 +1,71 @@
-/**
- * CopilotBridgeService - GitHub Copilot CLI wrapper
- *
- * Handles communication with GitHub Copilot via CLI spawn.
- * Manages streaming, history, and context injection.
- */
-
+import { randomUUID } from 'crypto';
 import { spawn, type ChildProcess } from 'child_process';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import type ObsidianCopilotPlugin from '../../main';
-import type { ChatMessage, StreamChunk } from '../types';
+import { stripCurrentNotePrefix } from '../../utils/context';
 import { findCopilotCLIPath } from '../../utils/copilotCli';
-import { getEnhancedPath } from '../../utils/env';
+import { getEnhancedPath, parseEnvironmentVariables } from '../../utils/env';
+import { buildContextFromHistory, getLastUserMessage } from '../../utils/session';
+import type { McpServerManager } from '../mcp';
+import { buildSystemPrompt } from '../prompts/mainAgent';
+import type {
+  AskUserQuestionCallback,
+  ChatMessage,
+  ImageAttachment,
+  StreamChunk,
+  ToolDiffData,
+} from '../types';
+import type { ExitPlanModeDecision } from '../types';
 
-/** Options for query execution. */
 export interface QueryOptions {
+  allowedTools?: string[];
   model?: string;
+  mcpMentions?: Set<string>;
+  enabledMcpServers?: Set<string>;
+  planMode?: boolean;
+  externalContextPaths?: string[];
 }
 
-/** Message format for history context. */
-interface HistoryMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
+export type ApprovalCallback = (
+  toolName: string,
+  input: Record<string, unknown>,
+  description: string
+) => Promise<'allow' | 'allow-always' | 'deny' | 'cancel'>;
 
-/**
- * Truncates content to max characters with ellipsis.
- */
-function truncateContent(content: string, maxChars: number): string {
-  if (content.length <= maxChars) return content;
-  return content.substring(0, maxChars) + '\n... [truncated]';
-}
+export type ExitPlanModeCallback = (planContent: string) => Promise<ExitPlanModeDecision>;
+export type EnterPlanModeCallback = () => Promise<void>;
 
-/**
- * Builds context string from conversation history.
- * Limits to last N turns to avoid token overflow.
- */
-function buildHistoryContext(history: ChatMessage[], maxTurns = 4): string {
-  if (!history || history.length === 0) return '';
+const DEFAULT_EXCLUDED_TOOLS = ['shell', 'write', 'read', 'url', 'memory'] as const;
+const MCP_CONFIG_RELATIVE_PATH = '.copilot/mcp.json';
 
-  // Get last N user-assistant pairs
-  const recentHistory: HistoryMessage[] = [];
-  let turnCount = 0;
-
-  for (let i = history.length - 1; i >= 0 && turnCount < maxTurns; i--) {
-    const msg = history[i];
-    if (msg.role === 'user' || msg.role === 'assistant') {
-      recentHistory.unshift({
-        role: msg.role,
-        content: truncateContent(msg.content, 1000),
-      });
-      if (msg.role === 'assistant') turnCount++;
-    }
-  }
-
-  if (recentHistory.length === 0) return '';
-
-  const lines = recentHistory.map(
-    (m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`
-  );
-
-  return `Previous conversation:\n${lines.join('\n\n')}\n\n---\n\n`;
-}
-
-/**
- * Service for interacting with GitHub Copilot CLI.
- */
 export class CopilotBridgeService {
   private plugin: ObsidianCopilotPlugin;
+  private mcpManager: McpServerManager;
   private currentProcess: ChildProcess | null = null;
+  private abortController: AbortController | null = null;
   private sessionId: string | null = null;
-  private cachedCopilotPath: string | null | undefined = undefined; // undefined = not yet resolved
-  private cachedEnhancedPath: string | undefined = undefined;
+  private wasInterrupted = false;
+  private cachedCopilotPath: string | null | undefined = undefined;
 
-  constructor(plugin: ObsidianCopilotPlugin) {
+  private approvalCallback: ApprovalCallback | null = null;
+  private askUserQuestionCallback: AskUserQuestionCallback | null = null;
+  private exitPlanModeCallback: ExitPlanModeCallback | null = null;
+  private enterPlanModeCallback: EnterPlanModeCallback | null = null;
+  private currentPlanFilePath: string | null = null;
+  private approvedPlanContent: string | null = null;
+  private askUserQuestionAnswers = new Map<string, Record<string, string | string[]>>();
+
+  constructor(plugin: ObsidianCopilotPlugin, mcpManager: McpServerManager) {
     this.plugin = plugin;
+    this.mcpManager = mcpManager;
   }
 
-  /**
-   * Resolves the Copilot CLI path (cached after first call).
-   */
+  async reloadMcpServers(): Promise<void> {
+    await this.mcpManager.loadServers();
+  }
+
   private getCopilotPath(): string | null {
     const settingsPath = this.plugin.settings.copilotCliPath?.trim();
     if (settingsPath) return settingsPath;
@@ -89,33 +76,133 @@ export class CopilotBridgeService {
     return this.cachedCopilotPath;
   }
 
-  /**
-   * Returns enhanced PATH string (cached after first call).
-   */
-  private getSpawnPath(copilotPath: string): string {
-    if (this.cachedEnhancedPath === undefined) {
-      this.cachedEnhancedPath = getEnhancedPath(undefined, copilotPath);
+  private getWorkingDirectory(): string {
+    const adapter = this.plugin.app.vault.adapter;
+    if ('basePath' in adapter && typeof adapter.basePath === 'string') {
+      return adapter.basePath;
     }
-    return this.cachedEnhancedPath;
+    return process.cwd();
   }
 
-  /**
-   * Builds the full prompt with history context.
-   */
-  private buildFullPrompt(
+  private buildSystemPromptText(prompt: string, vaultPath: string, queryOptions?: QueryOptions): string {
+    const hasEditorContext = prompt.includes('<editor_selection');
+    return buildSystemPrompt({
+      mediaFolder: this.plugin.settings.mediaFolder,
+      customPrompt: this.plugin.settings.systemPrompt,
+      allowedExportPaths: this.plugin.settings.allowedExportPaths,
+      externalContextPaths: queryOptions?.externalContextPaths,
+      vaultPath,
+      hasEditorContext,
+      planMode: queryOptions?.planMode,
+      appendedPlan: this.approvedPlanContent ?? undefined,
+    });
+  }
+
+  private injectSystemPrompt(prompt: string, vaultPath: string, queryOptions?: QueryOptions): string {
+    const systemPrompt = this.buildSystemPromptText(prompt, vaultPath, queryOptions).trim();
+    return `<system_instructions>\n${systemPrompt}\n</system_instructions>\n\n${prompt}`;
+  }
+
+  private buildPromptWithHistory(
     prompt: string,
-    conversationHistory?: ChatMessage[]
+    conversationHistory: ChatMessage[] | undefined,
+    vaultPath: string,
+    queryOptions?: QueryOptions
   ): string {
-    const historyContext = buildHistoryContext(conversationHistory || []);
-    return historyContext + prompt;
+    const injectedPrompt = this.injectSystemPrompt(prompt, vaultPath, queryOptions);
+
+    if (this.wasInterrupted && conversationHistory && conversationHistory.length > 0) {
+      const historyContext = buildContextFromHistory(conversationHistory);
+      this.sessionId = null;
+      this.wasInterrupted = false;
+      return historyContext ? `${historyContext}\n\nUser: ${injectedPrompt}` : injectedPrompt;
+    }
+
+    if (!this.sessionId && conversationHistory && conversationHistory.length > 0) {
+      const historyContext = buildContextFromHistory(conversationHistory);
+      const lastUserMessage = getLastUserMessage(conversationHistory);
+      const actualPrompt = stripCurrentNotePrefix(prompt);
+      const shouldAppendPrompt = !lastUserMessage || lastUserMessage.content.trim() !== actualPrompt.trim();
+      if (historyContext) {
+        return shouldAppendPrompt ? `${historyContext}\n\nUser: ${injectedPrompt}` : historyContext;
+      }
+    }
+
+    return injectedPrompt;
   }
 
-  /**
-   * Sends a query to Copilot and streams the response.
-   */
+  private ensureSessionId(): string {
+    if (!this.sessionId) {
+      this.sessionId = randomUUID();
+    }
+    return this.sessionId;
+  }
+
+  private getCustomEnv(copilotPath: string): NodeJS.ProcessEnv {
+    const customEnv = parseEnvironmentVariables(this.plugin.getActiveEnvironmentVariables());
+    const env: NodeJS.ProcessEnv = {
+      ...process.env,
+      ...customEnv,
+      PATH: getEnhancedPath(customEnv.PATH, copilotPath),
+    };
+
+    if (this.plugin.settings.githubToken) {
+      env.COPILOT_GITHUB_TOKEN = this.plugin.settings.githubToken;
+      env.GH_TOKEN = this.plugin.settings.githubToken;
+      env.GITHUB_TOKEN = this.plugin.settings.githubToken;
+    }
+
+    return env;
+  }
+
+  private addMcpArgs(args: string[], cwd: string, queryOptions?: QueryOptions): void {
+    const allServers = this.mcpManager.getServers();
+    if (allServers.length === 0) {
+      return;
+    }
+
+    const configPath = path.join(cwd, MCP_CONFIG_RELATIVE_PATH);
+    if (!fs.existsSync(configPath)) {
+      return;
+    }
+
+    args.push('--additional-mcp-config', `@${configPath}`);
+
+    const mentionedServers = queryOptions?.mcpMentions ?? new Set<string>();
+    const enabledServers = queryOptions?.enabledMcpServers ?? new Set<string>();
+    const activeServerNames = new Set([
+      ...Object.keys(this.mcpManager.getActiveServers(new Set([...mentionedServers, ...enabledServers]))),
+      ...enabledServers,
+    ]);
+
+    for (const server of allServers) {
+      if (!activeServerNames.has(server.name)) {
+        args.push('--disable-mcp-server', server.name);
+        continue;
+      }
+
+      for (const toolName of server.disabledTools ?? []) {
+        const normalizedTool = toolName.trim();
+        if (normalizedTool) {
+          args.push('--deny-tool', `${server.name}(${normalizedTool})`);
+        }
+      }
+    }
+  }
+
+  private addToolArgs(args: string[], queryOptions?: QueryOptions): void {
+    const requestedTools = queryOptions?.allowedTools?.map((tool) => tool.trim()).filter(Boolean) ?? [];
+    if (requestedTools.length > 0) {
+      args.push('--available-tools', ...requestedTools);
+      return;
+    }
+
+    args.push('--excluded-tools', ...DEFAULT_EXCLUDED_TOOLS);
+  }
+
   async *query(
     prompt: string,
-    _images?: unknown[], // Images not supported yet
+    _images?: ImageAttachment[],
     conversationHistory?: ChatMessage[],
     queryOptions?: QueryOptions
   ): AsyncGenerator<StreamChunk> {
@@ -129,27 +216,22 @@ export class CopilotBridgeService {
       return;
     }
 
-    const fullPrompt = this.buildFullPrompt(prompt, conversationHistory);
-
-    // Build CLI arguments
+    const cwd = this.getWorkingDirectory();
+    const fullPrompt = this.buildPromptWithHistory(prompt, conversationHistory, cwd, queryOptions);
+    const sessionId = this.ensureSessionId();
     const args = [
       '--no-ask-user',
-      '--disable-builtin-mcps',
       '--no-custom-instructions',
-      '--excluded-tools',
-      'shell',
-      'write',
-      'read',
-      'url',
-      'memory',
       '--output-format',
       'text',
       '--no-color',
-      '-p', // Prompt mode (non-interactive)
+      '--resume',
+      sessionId,
+      '-p',
       fullPrompt,
-      '-s', // Silent mode (no stats)
+      '-s',
       '--stream',
-      'on', // Enable streaming
+      'on',
     ];
 
     const selectedModel = queryOptions?.model?.trim();
@@ -157,84 +239,64 @@ export class CopilotBridgeService {
       args.push('--model', selectedModel);
     }
 
-    // Build env with enhanced PATH (Obsidian has minimal PATH; node must be findable)
-    const env: NodeJS.ProcessEnv = { ...process.env, PATH: this.getSpawnPath(copilotPath) };
-    if (this.plugin.settings.githubToken) {
-      env.COPILOT_GITHUB_TOKEN = this.plugin.settings.githubToken;
-      env.GH_TOKEN = this.plugin.settings.githubToken;
-      env.GITHUB_TOKEN = this.plugin.settings.githubToken;
-    }
+    this.addToolArgs(args, queryOptions);
+    this.addMcpArgs(args, cwd, queryOptions);
+
+    this.abortController = new AbortController();
 
     try {
-      yield* this.spawnCopilot(copilotPath, args, env);
+      yield* this.spawnCopilot(copilotPath, args, this.getCustomEnv(copilotPath));
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Unknown error';
       yield { type: 'error', content: msg };
+    } finally {
+      this.abortController = null;
     }
   }
 
-  /**
-   * Spawns Copilot CLI and yields stream chunks.
-   */
   private async *spawnCopilot(
     command: string,
     args: string[],
     env: NodeJS.ProcessEnv
   ): AsyncGenerator<StreamChunk> {
     const cwd = this.getWorkingDirectory();
-
-    // Spawn the process
-    const process = spawn(command, args, {
+    const child = spawn(command, args, {
       cwd,
       env,
       stdio: ['pipe', 'pipe', 'pipe'],
       shell: false,
     });
 
-    this.currentProcess = process;
+    this.currentProcess = child;
 
-    let stdoutBuffer = '';
     let stderrBuffer = '';
-
-    // Create promise-based event handling
     const chunks: StreamChunk[] = [];
     let resolveWait: (() => void) | null = null;
     let done = false;
 
-    process.stdout?.on('data', (data: Buffer) => {
-      const text = data.toString();
-      stdoutBuffer += text;
-
-      // Emit text chunks as they arrive
-      chunks.push({ type: 'text', content: text });
+    child.stdout?.on('data', (data: Buffer) => {
+      chunks.push({ type: 'text', content: data.toString() });
       resolveWait?.();
     });
 
-    process.stderr?.on('data', (data: Buffer) => {
+    child.stderr?.on('data', (data: Buffer) => {
       stderrBuffer += data.toString();
     });
 
-    process.on('close', (code) => {
+    child.on('close', (code) => {
       done = true;
-      if (code !== 0 && stderrBuffer) {
-        // Check for auth error
-        if (stderrBuffer.includes('No authentication information found')) {
-          chunks.push({
-            type: 'error',
-            content:
-              'GitHub Copilot authentication required. Please run "copilot" in terminal and use /login to authenticate.',
-          });
-        } else {
-          chunks.push({
-            type: 'error',
-            content: stderrBuffer.trim(),
-          });
-        }
+      if (code !== 0 && stderrBuffer.trim()) {
+        chunks.push({
+          type: 'error',
+          content: stderrBuffer.includes('No authentication information found')
+            ? 'GitHub Copilot authentication required. Please run "copilot" in terminal and use /login to authenticate.'
+            : stderrBuffer.trim(),
+        });
       }
       resolveWait?.();
     });
 
-    process.on('error', (err) => {
+    child.on('error', (err) => {
       done = true;
       chunks.push({
         type: 'error',
@@ -243,76 +305,67 @@ export class CopilotBridgeService {
       resolveWait?.();
     });
 
-    // Yield chunks as they arrive
-    while (!done || chunks.length > 0) {
-      if (chunks.length > 0) {
-        yield chunks.shift()!;
-      } else if (!done) {
-        // Wait for more data
-        await new Promise<void>((resolve) => {
-          resolveWait = resolve;
-        });
+    try {
+      while (!done || chunks.length > 0) {
+        if (chunks.length > 0) {
+          const chunk = chunks.shift();
+          if (chunk) {
+            yield chunk;
+          }
+          continue;
+        }
+
+        if (!done) {
+          await new Promise<void>((resolve) => {
+            resolveWait = resolve;
+          });
+        }
+      }
+    } finally {
+      if (this.currentProcess === child) {
+        if (!done) {
+          child.kill('SIGTERM');
+        }
+        this.currentProcess = null;
       }
     }
 
-    this.currentProcess = null;
     yield { type: 'done' };
   }
 
-  /**
-   * Gets the working directory (vault path).
-   */
-  private getWorkingDirectory(): string {
-    const adapter = this.plugin.app.vault.adapter;
-    if ('basePath' in adapter && typeof adapter.basePath === 'string') {
-      return adapter.basePath;
-    }
-    return process.cwd();
-  }
-
-  /**
-   * Cancels the current query.
-   */
   cancel(): void {
+    this.wasInterrupted = true;
+    if (this.abortController) {
+      this.abortController.abort();
+    }
     if (this.currentProcess) {
       this.currentProcess.kill('SIGTERM');
       this.currentProcess = null;
     }
   }
 
-  /**
-   * Resets the session (clears history context for next query).
-   */
   resetSession(): void {
     this.sessionId = null;
+    this.wasInterrupted = false;
+    this.askUserQuestionAnswers.clear();
+    this.approvedPlanContent = null;
+    this.currentPlanFilePath = null;
   }
 
-  /**
-   * Gets the current session ID.
-   */
   getSessionId(): string | null {
     return this.sessionId;
   }
 
-  /**
-   * Sets the session ID.
-   */
   setSessionId(id: string | null): void {
     this.sessionId = id;
+    this.wasInterrupted = false;
   }
 
-  /**
-   * Cleanup resources.
-   */
   cleanup(): void {
     this.cancel();
     this.resetSession();
   }
 
-  /**
-   * Simple streaming query - yields text chunks only.
-   * Used by auxiliary services (InlineEdit, TitleGeneration, etc.)
-   */
   async *streamQuery(prompt: string): AsyncGenerator<string> {
     for await (const chunk of this.query(prompt)) {
       if (chunk.type === 'text') {
@@ -323,18 +376,54 @@ export class CopilotBridgeService {
     }
   }
 
-  /** Stub methods for API compatibility with ObsidianCodeService */
-  setApprovalCallback(_callback: unknown): void { /* no-op */ }
-  setAskUserQuestionCallback(_callback: unknown): void { /* no-op */ }
-  setExitPlanModeCallback(_callback: unknown): void { /* no-op */ }
-  setEnterPlanModeCallback(_callback: unknown): void { /* no-op */ }
-  getDiffData(_toolUseId: string): undefined { return undefined; }
-  clearDiffState(): void { /* no-op */ }
-  getAskUserQuestionAnswers(_toolUseId: string): undefined { return undefined; }
-  setApprovedPlanContent(_content: string | null): void { /* no-op */ }
-  getApprovedPlanContent(): null { return null; }
-  clearApprovedPlanContent(): void { /* no-op */ }
-  setCurrentPlanFilePath(_path: string | null): void { /* no-op */ }
-  getCurrentPlanFilePath(): null { return null; }
-  async reloadMcpServers(): Promise<void> { /* no-op - MCP not supported */ }
+  setApprovalCallback(callback: ApprovalCallback | null): void {
+    this.approvalCallback = callback;
+  }
+
+  setAskUserQuestionCallback(callback: AskUserQuestionCallback | null): void {
+    this.askUserQuestionCallback = callback;
+  }
+
+  setExitPlanModeCallback(callback: ExitPlanModeCallback | null): void {
+    this.exitPlanModeCallback = callback;
+  }
+
+  setEnterPlanModeCallback(callback: EnterPlanModeCallback | null): void {
+    this.enterPlanModeCallback = callback;
+  }
+
+  getDiffData(_toolUseId: string): ToolDiffData | undefined {
+    return undefined;
+  }
+
+  clearDiffState(): void {
+  }
+
+  getAskUserQuestionAnswers(toolUseId: string): Record<string, string | string[]> | undefined {
+    const answers = this.askUserQuestionAnswers.get(toolUseId);
+    if (answers) {
+      this.askUserQuestionAnswers.delete(toolUseId);
+    }
+    return answers;
+  }
+
+  setApprovedPlanContent(content: string | null): void {
+    this.approvedPlanContent = content;
+  }
+
+  getApprovedPlanContent(): string | null {
+    return this.approvedPlanContent;
+  }
+
+  clearApprovedPlanContent(): void {
+    this.approvedPlanContent = null;
+  }
+
+  setCurrentPlanFilePath(planPath: string | null): void {
+    this.currentPlanFilePath = planPath;
+  }
+
+  getCurrentPlanFilePath(): string | null {
+    return this.currentPlanFilePath;
+  }
 }
