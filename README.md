@@ -22,6 +22,8 @@ Have meaningful conversations with your codebase. Copilot understands your notes
 
 This plugin requires **GitHub Copilot CLI**.
 
+See `docs/PREREQUISITES.md` for the full setup checklist.
+
 1.  **Install Node.js** (v22 or higher)
 2.  **Install Copilot CLI**:
     ```bash
