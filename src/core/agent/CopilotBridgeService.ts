@@ -50,6 +50,18 @@ const PLAN_MODE_ALLOWED_TOOLS = [
   'websearch',
 ] as const;
 
+const NORMAL_MODE_ALLOWED_TOOLS = [
+  'view',
+  'grep',
+  'glob',
+  'ls',
+  'task',
+  'agent_output',
+  'report_intent',
+  'webfetch',
+  'websearch',
+] as const;
+
 interface CopilotJsonEvent {
   type: string;
   data?: Record<string, unknown>;
@@ -210,9 +222,14 @@ export class CopilotBridgeService {
 
   private addToolArgs(args: string[], queryOptions?: QueryOptions): void {
     const requestedTools = queryOptions?.allowedTools?.map((tool) => tool.trim()).filter(Boolean) ?? [];
+    const permissionMode = this.plugin.settings.permissionMode;
     const effectiveTools = queryOptions?.planMode && requestedTools.length === 0
       ? [...PLAN_MODE_ALLOWED_TOOLS]
-      : requestedTools;
+      : requestedTools.length > 0
+        ? requestedTools
+        : permissionMode === 'yolo'
+          ? []
+          : [...NORMAL_MODE_ALLOWED_TOOLS];
     if (effectiveTools.length > 0) {
       args.push('--available-tools', ...effectiveTools);
     }
