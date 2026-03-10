@@ -1,0 +1,146 @@
+import {
+  detectCopilotCliCapabilities,
+  resolveCopilotAllowedTools,
+  translateCopilotJsonEvent,
+} from '@/core/agent/CopilotBridgeService';
+
+describe('CopilotBridgeService helpers', () => {
+  describe('detectCopilotCliCapabilities', () => {
+    it('detects supported flags from help text', () => {
+      const capabilities = detectCopilotCliCapabilities(`
+        --no-ask-user
+        --no-custom-instructions
+        --output-format <format>
+        --stream <mode>
+        --resume [sessionId]
+        --model <model>
+        --additional-mcp-config <json>
+        --disable-mcp-server <server-name>
+        --deny-tool [tools...]
+        --available-tools [tools...]
+        json
+      `);
+
+      expect(capabilities).toEqual({
+        noAskUser: true,
+        noCustomInstructions: true,
+        outputFormatJson: true,
+        stream: true,
+        resume: true,
+        model: true,
+        additionalMcpConfig: true,
+        disableMcpServer: true,
+        denyTool: true,
+        availableTools: true,
+      });
+    });
+
+    it('returns false for flags missing from help text', () => {
+      expect(detectCopilotCliCapabilities('Usage: copilot')).toEqual({
+        noAskUser: false,
+        noCustomInstructions: false,
+        outputFormatJson: false,
+        stream: false,
+        resume: false,
+        model: false,
+        additionalMcpConfig: false,
+        disableMcpServer: false,
+        denyTool: false,
+        availableTools: false,
+      });
+    });
+  });
+
+  describe('resolveCopilotAllowedTools', () => {
+    it('keeps yolo mode unrestricted when no explicit tools are requested', () => {
+      expect(resolveCopilotAllowedTools('yolo')).toEqual([]);
+    });
+
+    it('applies safe guardrails in normal mode', () => {
+      expect(resolveCopilotAllowedTools('normal')).toEqual([
+        'view',
+        'grep',
+        'glob',
+        'ls',
+        'task',
+        'agent_output',
+        'report_intent',
+        'webfetch',
+        'websearch',
+      ]);
+    });
+
+    it('filters requested tools through normal mode guardrails', () => {
+      expect(resolveCopilotAllowedTools('normal', ['view', 'bash', 'task'])).toEqual(['view', 'task']);
+    });
+
+    it('falls back to plan guardrails when a plan-mode request asks for unsupported tools only', () => {
+      expect(resolveCopilotAllowedTools('normal', ['bash', 'write'], true)).toEqual([
+        'view',
+        'grep',
+        'glob',
+        'ls',
+        'task',
+        'agent_output',
+        'report_intent',
+        'webfetch',
+        'websearch',
+      ]);
+    });
+  });
+
+  describe('translateCopilotJsonEvent', () => {
+    it('translates reasoning deltas into thinking chunks', () => {
+      expect(translateCopilotJsonEvent({
+        type: 'assistant.reasoning_delta',
+        data: { deltaContent: 'Thinking...' },
+      })).toEqual([{ type: 'thinking', content: 'Thinking...' }]);
+    });
+
+    it('translates tool requests from assistant messages', () => {
+      expect(translateCopilotJsonEvent({
+        type: 'assistant.message',
+        data: {
+          toolRequests: [
+            { toolRequestId: 'call-1', name: 'view', input: { file_path: 'foo.md' } },
+          ],
+        },
+      })).toEqual([
+        { type: 'tool_use', id: 'call-1', name: 'view', input: { file_path: 'foo.md' } },
+      ]);
+    });
+
+    it('translates completed tool executions into tool_result chunks', () => {
+      expect(translateCopilotJsonEvent({
+        type: 'tool.execution_complete',
+        data: {
+          toolCallId: 'call-1',
+          parentToolCallId: 'parent-1',
+          success: true,
+          result: { detailedContent: 'done' },
+        },
+      })).toEqual([
+        { type: 'tool_result', id: 'call-1', content: 'done', isError: false, parentToolUseId: 'parent-1' },
+      ]);
+    });
+
+    it('captures session ids from result events', () => {
+      let captured: string | null = null;
+      expect(translateCopilotJsonEvent({
+        type: 'result',
+        sessionId: 'session-123',
+        exitCode: 0,
+      }, (sessionId) => {
+        captured = sessionId;
+      })).toEqual([]);
+      expect(captured).toBe('session-123');
+    });
+
+    it('returns an error chunk for non-zero result exit codes', () => {
+      expect(translateCopilotJsonEvent({
+        type: 'result',
+        exitCode: 2,
+      })).toEqual([{ type: 'error', content: 'Copilot exited with code 2' }]);
+    });
+  });
+});

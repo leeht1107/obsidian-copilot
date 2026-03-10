@@ -2,10 +2,10 @@
 .ocop-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 12px 0;
+  padding: 16px 0 10px 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 /* Focusable messages panel for vim-style navigation */
@@ -26,18 +26,18 @@
 }
 
 .ocop-welcome-greeting {
-  font-family: 'Copernicus', 'Tiempos Headline', 'Tiempos', Georgia, 'Times New Roman', serif;
-  font-size: 28px;
-  font-weight: 300;
-  color: var(--text-muted);
-  letter-spacing: -0.01em;
+  font-family: var(--font-interface);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-normal);
+  letter-spacing: -0.02em;
 }
 
 .ocop-welcome-subtitle {
   max-width: 520px;
   margin-top: 10px;
   color: var(--text-faint);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -51,37 +51,41 @@
 }
 
 .ocop-welcome-suggestion {
-  border: 1px solid var(--background-modifier-border);
-  background: color-mix(in srgb, var(--background-secondary) 88%, var(--interactive-accent) 12%);
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 72%, transparent);
+  background: color-mix(in srgb, var(--background-secondary) 78%, #0f172a 22%);
   color: var(--text-normal);
-  border-radius: 999px;
-  padding: 8px 14px;
+  border-radius: 6px;
+  padding: 9px 12px;
   font: inherit;
-  font-size: 13px;
+  font-size: 12px;
+  font-family: var(--font-monospace);
   line-height: 1.35;
   cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
 
 .ocop-welcome-suggestion:hover {
   transform: translateY(-1px);
-  border-color: color-mix(in srgb, var(--interactive-accent) 60%, var(--background-modifier-border));
-  background: color-mix(in srgb, var(--background-secondary) 72%, var(--interactive-accent) 28%);
+  border-color: color-mix(in srgb, #38bdf8 58%, var(--background-modifier-border));
+  background: color-mix(in srgb, var(--background-secondary) 60%, #0f172a 40%);
+  color: #dbeafe;
 }
 
 /* Individual messages */
 .ocop-message {
   padding: 10px 14px;
-  border-radius: 8px;
-  max-width: 95%;
+  border-radius: 6px;
+  max-width: 100%;
   word-wrap: break-word;
 }
 
 .ocop-message-user {
-  background: rgba(80, 80, 80, 0.5);
-  color: #ffffff;
-  align-self: flex-end;
-  border-bottom-right-radius: 4px;
+  background: color-mix(in srgb, var(--background-secondary) 78%, #0f172a 22%);
+  color: var(--text-normal);
+  align-self: stretch;
+  width: 100%;
+  border: 1px solid color-mix(in srgb, var(--background-modifier-border) 72%, transparent);
+  border-left: 3px solid #38bdf8;
 }
 
 /* Text selection in user messages - visible highlight */
@@ -100,7 +104,6 @@
   align-self: stretch;
   width: 100%;
   max-width: 100%;
-  border-bottom-left-radius: 4px;
   text-align: left;
 }
 

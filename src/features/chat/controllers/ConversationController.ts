@@ -491,81 +491,9 @@ export class ConversationController {
   // Welcome & Greeting
   // ============================================
 
-  /** Generates a dynamic greeting based on time/day. */
   getGreeting(): string {
-    const now = new Date();
-    const hour = now.getHours();
-    const day = now.getDay(); // 0 = Sunday, 6 = Saturday
     const name = this.deps.plugin.settings.userName?.trim();
-
-    // Day-specific greetings
-    const dayGreetings: Record<number, string[]> = name
-      ? {
-        0: [`Happy Sunday, ${name}`, 'Sunday session?', 'Welcome to the weekend'],
-        1: [`Happy Monday, ${name}`, `Back at it, ${name}`],
-        2: [`Happy Tuesday, ${name}`],
-        3: [`Happy Wednesday, ${name}`],
-        4: [`Happy Thursday, ${name}`],
-        5: [`Happy Friday, ${name}`, `That Friday feeling, ${name}`],
-        6: [`Happy Saturday, ${name}`, `Welcome to the weekend, ${name}`],
-      }
-      : {
-        0: ['Happy Sunday', 'Sunday session?', 'Welcome to the weekend'],
-        1: ['Happy Monday', 'Back at it!'],
-        2: ['Happy Tuesday'],
-        3: ['Happy Wednesday'],
-        4: ['Happy Thursday'],
-        5: ['Happy Friday', 'That Friday feeling'],
-        6: ['Happy Saturday!', 'Welcome to the weekend'],
-      };
-
-    // Time-specific greetings
-    const getTimeGreetings = (): string[] => {
-      if (hour >= 5 && hour < 12) {
-        return name
-          ? [`Good morning, ${name}`, 'Ready to pair with Copilot?']
-          : ['Good morning', 'Ready to pair with Copilot?'];
-      } else if (hour >= 12 && hour < 18) {
-        return name
-          ? [`Good afternoon, ${name}`, `Hey there, ${name}`, `How's it going, ${name}?`]
-          : ['Good afternoon', 'Hey there', "How's it going?"];
-      } else if (hour >= 18 && hour < 22) {
-        return name
-          ? [`Good evening, ${name}`, `Evening, ${name}`, `How was your day, ${name}?`]
-          : ['Good evening', 'Evening', "How was your day?"];
-      } else {
-        return name
-          ? ['Hello, night owl', `Evening, ${name}`]
-          : ['Hello, night owl', 'Evening'];
-      }
-    };
-
-    // General greetings
-    const generalGreetings = name
-      ? [
-        `Hey there, ${name}`,
-        `Hi ${name}, how are you?`,
-        `How's it going, ${name}?`,
-        `Welcome Back!, ${name}`,
-        `What's new, ${name}?`,
-        `${name} returns!`,
-      ]
-      : [
-        'Hey there',
-        'Hi, how are you?',
-        "How's it going?",
-        'Welcome Back!',
-        "What's new?",
-      ];
-
-    // Combine day + time + general greetings, pick randomly
-    const allGreetings = [
-      ...(dayGreetings[day] || []),
-      ...getTimeGreetings(),
-      ...generalGreetings,
-    ];
-
-    return allGreetings[Math.floor(Math.random() * allGreetings.length)];
+    return name ? `Copilot ready, ${name}.` : 'Copilot ready.';
   }
 
   /** Updates welcome element visibility based on message count. */

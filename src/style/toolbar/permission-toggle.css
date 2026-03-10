@@ -2,7 +2,7 @@
 .ocop-permission-toggle {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-left: auto;
   padding-left: 12px;
   padding-right: 8px;
@@ -11,14 +11,16 @@
 .ocop-permission-label {
   font-size: 11px;
   color: var(--text-muted);
-  min-width: 28px;
+  min-width: 34px;
+  font-family: var(--font-monospace);
+  text-transform: uppercase;
 }
 
 .ocop-toggle-switch {
   width: 32px;
   height: 18px;
-  border-radius: 9px;
-  background: var(--background-modifier-border);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--background-modifier-border) 78%, #0f172a 22%);
   cursor: pointer;
   position: relative;
   transition: background 0.2s ease;
@@ -42,12 +44,12 @@
 }
 
 .ocop-toggle-switch.active {
-  background: rgba(217, 119, 87, 0.3);
+  background: color-mix(in srgb, #2563eb 26%, #0f172a 74%);
 }
 
 .ocop-toggle-switch.active::after {
   transform: translateX(14px);
-  background: #67d7ff;
+  background: #38bdf8;
 }
 
 /* Plan mode state */
@@ -59,19 +61,19 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #00A89D;
+  color: #06b6d4;
   font-weight: 500;
   min-width: auto;
 }
 
 .ocop-permission-toggle.plan-mode .ocop-toggle-switch {
   display: block;
-  background: rgba(0, 168, 157, 0.2);
+  background: color-mix(in srgb, #06b6d4 22%, #0f172a 78%);
 }
 
 .ocop-permission-toggle.plan-mode .ocop-toggle-switch::after {
   transform: translateX(7px);
-  background: #00A89D;
+  background: #06b6d4;
 }
 
 .ocop-plan-mode-icon {

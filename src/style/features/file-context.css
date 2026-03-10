@@ -6,12 +6,12 @@
   left: 0;
   right: 0;
   margin-bottom: 4px;
-  background: var(--background-secondary);
+  background: color-mix(in srgb, var(--background-secondary) 82%, #0f172a 18%);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--background-modifier-border);
-  border-radius: 6px;
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 -8px 24px rgba(2, 6, 23, 0.26);
   z-index: 1000;
   max-height: 250px;
   overflow-y: auto;
@@ -38,7 +38,7 @@
 
 .ocop-mention-item:hover,
 .ocop-mention-item.selected {
-  background: var(--background-modifier-hover);
+  background: color-mix(in srgb, var(--background-modifier-hover) 70%, #111827 30%);
 }
 
 .ocop-mention-icon {
@@ -98,7 +98,7 @@
 .ocop-mention-name {
   font-size: 13px;
   font-weight: 500;
-  color: var(--interactive-accent);
+  color: #38bdf8;
 }
 
 .ocop-mention-desc {
@@ -127,4 +127,3 @@
 .ocop-mention-name-context {
   color: var(--text-normal);
 }
-

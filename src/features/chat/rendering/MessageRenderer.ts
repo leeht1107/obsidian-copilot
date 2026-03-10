@@ -25,9 +25,9 @@ import { processFileLinks, registerFileLinkHandler } from '../../../utils/fileLi
 export type RenderContentFn = (el: HTMLElement, markdown: string) => Promise<void>;
 
 const WELCOME_SUGGESTIONS = [
-  'Summarize the current note and suggest next steps.',
-  'Help me plan changes before editing this vault.',
-  'Review attached files and explain the key differences.',
+  'Summarize the current note and outline what matters.',
+  'Plan a code or note change before editing anything.',
+  'Compare attached files and call out the important differences.',
 ] as const;
 
 /**
@@ -151,7 +151,7 @@ export class MessageRenderer {
     welcomeEl.createDiv({ cls: 'ocop-welcome-greeting', text: greeting });
     welcomeEl.createDiv({
       cls: 'ocop-welcome-subtitle',
-      text: 'Copilot can search notes, inspect code, and help you plan or implement changes.',
+      text: 'Your vault-aware pair programmer for note analysis, planning, and implementation work.',
     });
 
     const suggestionsEl = welcomeEl.createDiv({ cls: 'ocop-welcome-suggestions' });

@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { spawn, type ChildProcess } from 'child_process';
+import { execFileSync, spawn, type ChildProcess } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -62,12 +62,141 @@ const NORMAL_MODE_ALLOWED_TOOLS = [
   'websearch',
 ] as const;
 
+export function resolveCopilotAllowedTools(
+  permissionMode: string,
+  requestedTools?: string[],
+  planMode?: boolean
+): string[] {
+  const requested = requestedTools?.map((tool) => tool.trim()).filter(Boolean) ?? [];
+  const guardrailTools = planMode
+    ? [...PLAN_MODE_ALLOWED_TOOLS]
+    : permissionMode === 'yolo'
+      ? null
+      : [...NORMAL_MODE_ALLOWED_TOOLS];
+  const guardrailSet = guardrailTools ? new Set<string>(guardrailTools) : null;
+  const effectiveTools = requested.length > 0
+    ? guardrailSet
+      ? requested.filter((tool) => guardrailSet.has(tool))
+      : requested
+    : guardrailTools ?? [];
+
+  return guardrailSet && effectiveTools.length === 0
+    ? guardrailTools ?? []
+    : effectiveTools;
+}
+
 interface CopilotJsonEvent {
   type: string;
   data?: Record<string, unknown>;
   sessionId?: string;
   exitCode?: number;
   usage?: Record<string, unknown>;
+}
+
+export function translateCopilotJsonEvent(
+  event: CopilotJsonEvent,
+  setSessionId?: (sessionId: string) => void
+): StreamChunk[] {
+  if (event.type === 'assistant.reasoning_delta') {
+    const deltaContent = typeof event.data?.deltaContent === 'string' ? event.data.deltaContent : '';
+    return deltaContent ? [{ type: 'thinking', content: deltaContent }] : [];
+  }
+
+  if (event.type === 'assistant.message_delta') {
+    const deltaContent = typeof event.data?.deltaContent === 'string' ? event.data.deltaContent : '';
+    return deltaContent ? [{ type: 'text', content: deltaContent }] : [];
+  }
+
+  if (event.type === 'assistant.message') {
+    const toolRequests = Array.isArray(event.data?.toolRequests) ? event.data.toolRequests : [];
+    const chunks: StreamChunk[] = [];
+
+    for (const request of toolRequests) {
+      if (!request || typeof request !== 'object') continue;
+      const toolRequest = request as Record<string, unknown>;
+      const id = typeof toolRequest.id === 'string'
+        ? toolRequest.id
+        : typeof toolRequest.toolRequestId === 'string'
+          ? toolRequest.toolRequestId
+          : null;
+      const name = typeof toolRequest.name === 'string' ? toolRequest.name : null;
+      const input = toolRequest.input;
+
+      if (id && name && input && typeof input === 'object' && !Array.isArray(input)) {
+        chunks.push({ type: 'tool_use', id, name, input: input as Record<string, unknown> });
+      }
+    }
+
+    return chunks;
+  }
+
+  if (event.type === 'tool.execution_complete') {
+    const toolCallId = typeof event.data?.toolCallId === 'string' ? event.data.toolCallId : null;
+    if (!toolCallId) {
+      return [];
+    }
+
+    const result = event.data?.result;
+    const resultRecord = result && typeof result === 'object' && !Array.isArray(result)
+      ? result as Record<string, unknown>
+      : null;
+    const content = typeof resultRecord?.content === 'string'
+      ? resultRecord.content
+      : typeof resultRecord?.detailedContent === 'string'
+        ? resultRecord.detailedContent
+        : '';
+    const isError = event.data?.success === false;
+    const parentToolUseId = typeof event.data?.parentToolCallId === 'string'
+      ? event.data.parentToolCallId
+      : null;
+
+    return [{
+      type: 'tool_result',
+      id: toolCallId,
+      content,
+      isError,
+      parentToolUseId,
+    }];
+  }
+
+  if (event.type === 'result') {
+    if (typeof event.sessionId === 'string' && event.sessionId.length > 0) {
+      setSessionId?.(event.sessionId);
+    }
+    if (typeof event.exitCode === 'number' && event.exitCode !== 0) {
+      return [{ type: 'error', content: `Copilot exited with code ${event.exitCode}` }];
+    }
+  }
+
+  return [];
+}
+
+interface CopilotCliCapabilities {
+  noAskUser: boolean;
+  noCustomInstructions: boolean;
+  outputFormatJson: boolean;
+  stream: boolean;
+  resume: boolean;
+  model: boolean;
+  additionalMcpConfig: boolean;
+  disableMcpServer: boolean;
+  denyTool: boolean;
+  availableTools: boolean;
+}
+
+export function detectCopilotCliCapabilities(helpText: string): CopilotCliCapabilities {
+  return {
+    noAskUser: helpText.includes('--no-ask-user'),
+    noCustomInstructions: helpText.includes('--no-custom-instructions'),
+    outputFormatJson: helpText.includes('--output-format') && helpText.includes('json'),
+    stream: helpText.includes('--stream'),
+    resume: helpText.includes('--resume'),
+    model: helpText.includes('--model'),
+    additionalMcpConfig: helpText.includes('--additional-mcp-config'),
+    disableMcpServer: helpText.includes('--disable-mcp-server'),
+    denyTool: helpText.includes('--deny-tool'),
+    availableTools: helpText.includes('--available-tools'),
+  };
 }
 
 export class CopilotBridgeService {
@@ -78,6 +207,7 @@ export class CopilotBridgeService {
   private sessionId: string | null = null;
   private wasInterrupted = false;
   private cachedCopilotPath: string | null | undefined = undefined;
+  private cachedCapabilities = new Map<string, CopilotCliCapabilities>();
 
   private approvalCallback: ApprovalCallback | null = null;
   private askUserQuestionCallback: AskUserQuestionCallback | null = null;
@@ -185,7 +315,35 @@ export class CopilotBridgeService {
     return env;
   }
 
-  private addMcpArgs(args: string[], cwd: string, queryOptions?: QueryOptions): void {
+  private getCliCapabilities(copilotPath: string): CopilotCliCapabilities {
+    const cached = this.cachedCapabilities.get(copilotPath);
+    if (cached) {
+      return cached;
+    }
+
+    let helpText = '';
+    try {
+      helpText = execFileSync(copilotPath, ['--help', 'all'], {
+        encoding: 'utf8',
+        env: this.getCustomEnv(copilotPath),
+      });
+    } catch (error) {
+      if (error instanceof Error && 'stdout' in error && typeof error.stdout === 'string') {
+        helpText = error.stdout;
+      }
+    }
+
+    const capabilities = detectCopilotCliCapabilities(helpText);
+    this.cachedCapabilities.set(copilotPath, capabilities);
+    return capabilities;
+  }
+
+  private addMcpArgs(
+    args: string[],
+    cwd: string,
+    capabilities: CopilotCliCapabilities,
+    queryOptions?: QueryOptions
+  ): void {
     const allServers = this.mcpManager.getServers();
     if (allServers.length === 0) {
       return;
@@ -196,7 +354,9 @@ export class CopilotBridgeService {
       return;
     }
 
-    args.push('--additional-mcp-config', `@${configPath}`);
+    if (capabilities.additionalMcpConfig) {
+      args.push('--additional-mcp-config', `@${configPath}`);
+    }
 
     const mentionedServers = queryOptions?.mcpMentions ?? new Set<string>();
     const enabledServers = queryOptions?.enabledMcpServers ?? new Set<string>();
@@ -206,12 +366,15 @@ export class CopilotBridgeService {
     ]);
 
     for (const server of allServers) {
-      if (!activeServerNames.has(server.name)) {
+      if (!activeServerNames.has(server.name) && capabilities.disableMcpServer) {
         args.push('--disable-mcp-server', server.name);
         continue;
       }
 
       for (const toolName of server.disabledTools ?? []) {
+        if (!capabilities.denyTool) {
+          break;
+        }
         const normalizedTool = toolName.trim();
         if (normalizedTool) {
           args.push('--deny-tool', `${server.name}(${normalizedTool})`);
@@ -220,25 +383,13 @@ export class CopilotBridgeService {
     }
   }
 
-  private addToolArgs(args: string[], queryOptions?: QueryOptions): void {
-    const requestedTools = queryOptions?.allowedTools?.map((tool) => tool.trim()).filter(Boolean) ?? [];
-    const permissionMode = this.plugin.settings.permissionMode;
-    const guardrailTools = queryOptions?.planMode
-      ? [...PLAN_MODE_ALLOWED_TOOLS]
-      : permissionMode === 'yolo'
-        ? null
-        : [...NORMAL_MODE_ALLOWED_TOOLS];
-    const guardrailSet = guardrailTools ? new Set<string>(guardrailTools) : null;
-    const effectiveTools = requestedTools.length > 0
-      ? guardrailSet
-        ? requestedTools.filter((tool) => guardrailSet.has(tool))
-        : requestedTools
-      : guardrailTools ?? [];
-
-    const finalTools = guardrailSet && effectiveTools.length === 0
-      ? guardrailTools ?? []
-      : effectiveTools;
-    if (finalTools.length > 0) {
+  private addToolArgs(args: string[], capabilities: CopilotCliCapabilities, queryOptions?: QueryOptions): void {
+    const finalTools = resolveCopilotAllowedTools(
+      this.plugin.settings.permissionMode,
+      queryOptions?.allowedTools,
+      queryOptions?.planMode
+    );
+    if (capabilities.availableTools && finalTools.length > 0) {
       args.push('--available-tools', ...finalTools);
     }
   }
@@ -260,30 +411,35 @@ export class CopilotBridgeService {
     }
 
     const cwd = this.getWorkingDirectory();
+    const capabilities = this.getCliCapabilities(copilotPath);
     const fullPrompt = this.buildPromptWithHistory(prompt, conversationHistory, cwd, queryOptions);
     const sessionId = this.ensureSessionId();
-    const args = [
-      '--no-ask-user',
-      '--no-custom-instructions',
-      '--output-format',
-      'json',
-      '--no-color',
-      '--resume',
-      sessionId,
-      '-p',
-      fullPrompt,
-      '-s',
-      '--stream',
-      'on',
-    ];
+    const args = ['--no-color'];
+
+    if (capabilities.noAskUser) {
+      args.push('--no-ask-user');
+    }
+    if (capabilities.noCustomInstructions) {
+      args.push('--no-custom-instructions');
+    }
+    if (capabilities.outputFormatJson) {
+      args.push('--output-format', 'json');
+    }
+    if (capabilities.resume) {
+      args.push('--resume', sessionId);
+    }
+    args.push('-p', fullPrompt, '-s');
+    if (capabilities.stream) {
+      args.push('--stream', 'on');
+    }
 
     const selectedModel = queryOptions?.model?.trim();
-    if (selectedModel && selectedModel !== 'auto') {
+    if (capabilities.model && selectedModel && selectedModel !== 'auto') {
       args.push('--model', selectedModel);
     }
 
-    this.addToolArgs(args, queryOptions);
-    this.addMcpArgs(args, cwd, queryOptions);
+    this.addToolArgs(args, capabilities, queryOptions);
+    this.addMcpArgs(args, cwd, capabilities, queryOptions);
 
     this.abortController = new AbortController();
 
@@ -447,78 +603,9 @@ export class CopilotBridgeService {
   }
 
   private translateCopilotEvent(event: CopilotJsonEvent): StreamChunk[] {
-    if (event.type === 'assistant.reasoning_delta') {
-      const deltaContent = typeof event.data?.deltaContent === 'string' ? event.data.deltaContent : '';
-      return deltaContent ? [{ type: 'thinking', content: deltaContent }] : [];
-    }
-
-    if (event.type === 'assistant.message_delta') {
-      const deltaContent = typeof event.data?.deltaContent === 'string' ? event.data.deltaContent : '';
-      return deltaContent ? [{ type: 'text', content: deltaContent }] : [];
-    }
-
-    if (event.type === 'assistant.message') {
-      const toolRequests = Array.isArray(event.data?.toolRequests) ? event.data.toolRequests : [];
-      const chunks: StreamChunk[] = [];
-
-      for (const request of toolRequests) {
-        if (!request || typeof request !== 'object') continue;
-        const toolRequest = request as Record<string, unknown>;
-        const id = typeof toolRequest.id === 'string'
-          ? toolRequest.id
-          : typeof toolRequest.toolRequestId === 'string'
-            ? toolRequest.toolRequestId
-            : null;
-        const name = typeof toolRequest.name === 'string' ? toolRequest.name : null;
-        const input = toolRequest.input;
-
-        if (id && name && input && typeof input === 'object' && !Array.isArray(input)) {
-          chunks.push({ type: 'tool_use', id, name, input: input as Record<string, unknown> });
-        }
-      }
-
-      return chunks;
-    }
-
-    if (event.type === 'tool.execution_complete') {
-      const toolCallId = typeof event.data?.toolCallId === 'string' ? event.data.toolCallId : null;
-      if (!toolCallId) {
-        return [];
-      }
-
-      const result = event.data?.result;
-      const resultRecord = result && typeof result === 'object' && !Array.isArray(result)
-        ? result as Record<string, unknown>
-        : null;
-      const content = typeof resultRecord?.content === 'string'
-        ? resultRecord.content
-        : typeof resultRecord?.detailedContent === 'string'
-          ? resultRecord.detailedContent
-          : '';
-      const isError = event.data?.success === false;
-      const parentToolUseId = typeof event.data?.parentToolCallId === 'string'
-        ? event.data.parentToolCallId
-        : null;
-
-      return [{
-        type: 'tool_result',
-        id: toolCallId,
-        content,
-        isError,
-        parentToolUseId,
-      }];
-    }
-
-    if (event.type === 'result') {
-      if (typeof event.sessionId === 'string' && event.sessionId.length > 0) {
-        this.sessionId = event.sessionId;
-      }
-      if (typeof event.exitCode === 'number' && event.exitCode !== 0) {
-        return [{ type: 'error', content: `Copilot exited with code ${event.exitCode}` }];
-      }
-    }
-
-    return [];
+    return translateCopilotJsonEvent(event, (sessionId) => {
+      this.sessionId = sessionId;
+    });
   }
 
   cancel(): void {
