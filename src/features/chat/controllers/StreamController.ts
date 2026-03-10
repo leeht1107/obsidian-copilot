@@ -80,7 +80,7 @@ export class StreamController {
     switch (chunk.type) {
       case 'thinking':
         if (state.currentTextEl) {
-          this.finalizeCurrentTextBlock(msg);
+          await this.finalizeCurrentTextBlock(msg);
         }
         await this.appendThinking(chunk.content, msg);
         break;
@@ -100,7 +100,7 @@ export class StreamController {
         if (state.currentThinkingState) {
           this.finalizeCurrentThinkingBlock(msg);
         }
-        this.finalizeCurrentTextBlock(msg);
+        await this.finalizeCurrentTextBlock(msg);
 
         if (chunk.name === TOOL_TASK) {
           // Track subagent spawn for usage filtering
@@ -371,24 +371,30 @@ export class StreamController {
 
   /** Appends text to the current text block. */
   async appendText(text: string): Promise<void> {
-    const { state, renderer } = this.deps;
+    const { state } = this.deps;
     if (!state.currentContentEl) return;
 
     if (!state.currentTextEl) {
       state.currentTextEl = state.currentContentEl.createDiv({ cls: 'ocop-text-block' });
+      state.currentTextEl.addClass('ocop-text-block-streaming');
       state.currentTextContent = '';
     }
 
     state.currentTextContent += text;
-    await renderer.renderContent(state.currentTextEl, state.currentTextContent);
+    state.currentTextEl.textContent = state.currentTextContent;
   }
 
   /** Finalizes the current text block. */
-  finalizeCurrentTextBlock(msg?: ChatMessage): void {
-    const { state } = this.deps;
+  async finalizeCurrentTextBlock(msg?: ChatMessage): Promise<void> {
+    const { state, renderer } = this.deps;
     if (msg && state.currentTextContent) {
       msg.contentBlocks = msg.contentBlocks || [];
       msg.contentBlocks.push({ type: 'text', content: state.currentTextContent });
+    }
+
+    if (state.currentTextEl && state.currentTextContent) {
+      state.currentTextEl.removeClass('ocop-text-block-streaming');
+      await renderer.renderContent(state.currentTextEl, state.currentTextContent);
     }
     state.currentTextEl = null;
     state.currentTextContent = '';

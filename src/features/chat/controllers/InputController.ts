@@ -355,7 +355,7 @@ export class InputController {
       state.currentContentEl = null;
 
       streamController.finalizeCurrentThinkingBlock(assistantMsg);
-      streamController.finalizeCurrentTextBlock(assistantMsg);
+      await streamController.finalizeCurrentTextBlock(assistantMsg);
       state.activeSubagents.clear();
 
       await conversationController.save(true);
@@ -658,7 +658,7 @@ ${content}
       state.currentContentEl = null;
 
       streamController.finalizeCurrentThinkingBlock(assistantMsg);
-      streamController.finalizeCurrentTextBlock(assistantMsg);
+      await streamController.finalizeCurrentTextBlock(assistantMsg);
       state.activeSubagents.clear();
 
       await conversationController.save(true);
