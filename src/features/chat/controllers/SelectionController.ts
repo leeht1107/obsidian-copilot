@@ -139,8 +139,14 @@ export class SelectionController {
       const lineText = this.storedSelection.lineCount === 1 ? 'line' : 'lines';
       this.indicatorEl.textContent = `Selection ready - ${this.storedSelection.lineCount} ${lineText}`;
       this.indicatorEl.style.display = 'block';
+      if ('setAttribute' in this.indicatorEl && typeof this.indicatorEl.setAttribute === 'function') {
+        this.indicatorEl.setAttribute('title', 'Click to clear selected context');
+      }
     } else {
       this.indicatorEl.style.display = 'none';
+      if ('removeAttribute' in this.indicatorEl && typeof this.indicatorEl.removeAttribute === 'function') {
+        this.indicatorEl.removeAttribute('title');
+      }
     }
   }
 

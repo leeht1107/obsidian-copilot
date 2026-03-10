@@ -461,6 +461,13 @@ export class ObsidianCopilotView extends ItemView {
 
     this.registerDomEvent(this.containerEl, 'click', (event) => {
       const target = event.target as HTMLElement | null;
+      if (target?.closest('.ocop-selection-indicator')) {
+        this.selectionController?.clear();
+      }
+    });
+
+    this.registerDomEvent(this.containerEl, 'click', (event) => {
+      const target = event.target as HTMLElement | null;
       const suggestion = target?.closest('.ocop-welcome-suggestion') as HTMLButtonElement | null;
       if (!suggestion || !this.inputEl) {
         return;

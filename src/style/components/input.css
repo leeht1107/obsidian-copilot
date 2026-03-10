@@ -24,7 +24,8 @@
   letter-spacing: 0.02em;
   text-transform: uppercase;
   opacity: 0.96;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
   white-space: nowrap;
   z-index: 1;
   background: linear-gradient(135deg, color-mix(in srgb, #38bdf8 22%, #0b1220) 0%, color-mix(in srgb, #06b6d4 18%, #0f172a) 100%);
@@ -32,6 +33,10 @@
   box-shadow: 0 8px 18px rgba(2, 6, 23, 0.24);
   padding: 4px 8px;
   border-radius: 6px;
+}
+
+.ocop-selection-indicator:hover {
+  filter: brightness(1.08);
 }
 
 .ocop-input {
