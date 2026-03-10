@@ -76,7 +76,7 @@ describe('SelectionController', () => {
       lineCount: 1,
       startLine: 1,
     });
-    expect(indicatorEl.textContent).toBe('1 line selected');
+    expect(indicatorEl.textContent).toBe('Selection ready - 1 line');
     expect(indicatorEl.style.display).toBe('block');
 
     controller.showHighlight();

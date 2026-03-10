@@ -16,17 +16,22 @@
 /* Selection indicator (shown when text is selected in editor) */
 .ocop-selection-indicator {
   position: absolute;
-  top: 6px;
-  right: 10px;
-  color: #7dd3fc;
+  top: 8px;
+  right: 12px;
+  color: #e0f2fe;
   font-size: 11px;
-  opacity: 0.9;
+  font-family: var(--font-monospace);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  opacity: 0.96;
   pointer-events: none;
   white-space: nowrap;
   z-index: 1;
-  background: color-mix(in srgb, var(--background-secondary) 70%, #0b1220 30%);
-  padding: 2px 6px;
-  border-radius: 4px;
+  background: linear-gradient(135deg, color-mix(in srgb, #38bdf8 22%, #0b1220) 0%, color-mix(in srgb, #06b6d4 18%, #0f172a) 100%);
+  border: 1px solid color-mix(in srgb, #38bdf8 36%, transparent);
+  box-shadow: 0 8px 18px rgba(2, 6, 23, 0.24);
+  padding: 4px 8px;
+  border-radius: 6px;
 }
 
 .ocop-input {
@@ -107,6 +112,20 @@
   color: var(--text-normal);
 }
 
+.ocop-file-chip-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: color-mix(in srgb, #38bdf8 14%, transparent);
+  color: #bae6fd;
+  font-size: 10px;
+  font-family: var(--font-monospace);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
 .ocop-file-chip-remove {
   display: flex;
   align-items: center;
@@ -164,6 +183,10 @@
   background: color-mix(in srgb, #38bdf8 12%, transparent);
 }
 
+.ocop-file-chip.ocop-file-chip-current .ocop-file-chip-badge {
+  background: color-mix(in srgb, #38bdf8 24%, transparent);
+}
+
 /* Attached file chip (from @-mention) */
 .ocop-file-chip.ocop-file-chip-attached {
   border-style: dashed;
@@ -175,6 +198,11 @@
   border-color: #38bdf8;
   border-width: 2px;
   background: color-mix(in srgb, #38bdf8 14%, transparent);
+}
+
+.ocop-file-chip.ocop-file-chip-pinned .ocop-file-chip-badge {
+  background: color-mix(in srgb, #06b6d4 24%, transparent);
+  color: #cffafe;
 }
 
 .ocop-file-chip.ocop-file-chip-pinned .ocop-file-chip-icon {

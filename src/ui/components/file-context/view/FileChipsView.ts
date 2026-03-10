@@ -109,12 +109,15 @@ export class FileChipsView {
 
   private renderFileChip(filePath: string, isCurrentNote: boolean, isPinned: boolean): void {
     const chipEl = this.fileIndicatorEl.createDiv({ cls: 'ocop-file-chip' });
+    let badgeText = 'ATTACHED';
 
     // Add visual distinction for pinned vs unpinned
     if (isPinned) {
       chipEl.addClass('ocop-file-chip-pinned');
+      badgeText = 'PINNED';
     } else if (isCurrentNote) {
       chipEl.addClass('ocop-file-chip-current');
+      badgeText = 'CURRENT';
     } else {
       chipEl.addClass('ocop-file-chip-attached');
     }
@@ -126,6 +129,7 @@ export class FileChipsView {
     // File name
     const normalizedPath = filePath.replace(/\\/g, '/');
     const filename = normalizedPath.split('/').pop() || filePath;
+    chipEl.createSpan({ cls: 'ocop-file-chip-badge', text: badgeText });
     const nameEl = chipEl.createSpan({ cls: 'ocop-file-chip-name' });
     nameEl.setText(filename);
     nameEl.setAttribute('title', filePath);
