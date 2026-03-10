@@ -62,6 +62,7 @@ export default class ObsidianCopilotPlugin extends Plugin {
     this.mcpService = new McpService(this);
     await this.mcpService.loadServers();
     this.agentService = new CopilotBridgeService(this, this.mcpService.getManager());
+    void this.agentService.prewarmCapabilities();
 
     addIcon('obsidian-copilot-icon', COPILOT_ICON_SVG);
 

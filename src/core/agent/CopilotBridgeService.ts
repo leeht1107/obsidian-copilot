@@ -1,4 +1,4 @@
-import { type ChildProcess,execFileSync, spawn } from 'child_process';
+import { execFile, type ChildProcess, spawn } from 'child_process';
 import { randomUUID } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -260,6 +260,7 @@ export class CopilotBridgeService {
   private wasInterrupted = false;
   private cachedCopilotPath: string | null | undefined = undefined;
   private cachedCapabilities = new Map<string, CopilotCliCapabilities>();
+  private capabilityProbePromises = new Map<string, Promise<CopilotCliCapabilities>>();
 
   private approvalCallback: ApprovalCallback | null = null;
   private askUserQuestionCallback: AskUserQuestionCallback | null = null;
@@ -369,27 +370,51 @@ export class CopilotBridgeService {
     return env;
   }
 
-  private getCliCapabilities(copilotPath: string): CopilotCliCapabilities {
+  async prewarmCapabilities(): Promise<void> {
+    const copilotPath = this.getCopilotPath();
+    if (!copilotPath) {
+      return;
+    }
+
+    await this.getCliCapabilities(copilotPath);
+  }
+
+  private getCliCapabilities(copilotPath: string): Promise<CopilotCliCapabilities> {
     const cached = this.cachedCapabilities.get(copilotPath);
     if (cached) {
-      return cached;
+      return Promise.resolve(cached);
     }
 
-    let helpText = '';
-    try {
-      helpText = execFileSync(copilotPath, ['--help', 'all'], {
+    const pending = this.capabilityProbePromises.get(copilotPath);
+    if (pending) {
+      return pending;
+    }
+
+    const probePromise = new Promise<CopilotCliCapabilities>((resolve) => {
+      execFile(copilotPath, ['--help', 'all'], {
         encoding: 'utf8',
         env: this.getCustomEnv(copilotPath),
+      }, (error, stdout, stderr) => {
+        const helpText = typeof stdout === 'string' && stdout.trim().length > 0
+          ? stdout
+          : typeof stderr === 'string'
+            ? stderr
+            : '';
+        const capabilities = detectCopilotCliCapabilities(helpText);
+        if (error && helpText.length === 0) {
+          resolve(detectCopilotCliCapabilities(''));
+          return;
+        }
+        resolve(capabilities);
       });
-    } catch (error) {
-      if (error instanceof Error && 'stdout' in error && typeof error.stdout === 'string') {
-        helpText = error.stdout;
-      }
-    }
+    }).then((capabilities) => {
+      this.cachedCapabilities.set(copilotPath, capabilities);
+      this.capabilityProbePromises.delete(copilotPath);
+      return capabilities;
+    });
 
-    const capabilities = detectCopilotCliCapabilities(helpText);
-    this.cachedCapabilities.set(copilotPath, capabilities);
-    return capabilities;
+    this.capabilityProbePromises.set(copilotPath, probePromise);
+    return probePromise;
   }
 
   private addMcpArgs(
@@ -465,7 +490,7 @@ export class CopilotBridgeService {
     }
 
     const cwd = this.getWorkingDirectory();
-    const capabilities = this.getCliCapabilities(copilotPath);
+    const capabilities = await this.getCliCapabilities(copilotPath);
     const fullPrompt = this.buildPromptWithHistory(prompt, conversationHistory, cwd, queryOptions);
     const sessionId = this.ensureSessionId();
     const args = ['--no-color'];
