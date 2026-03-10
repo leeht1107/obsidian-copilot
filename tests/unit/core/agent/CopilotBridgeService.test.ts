@@ -136,6 +136,43 @@ describe('CopilotBridgeService helpers', () => {
       expect(captured).toBe('session-123');
     });
 
+    it('emits a usage chunk when result usage contains token fields', () => {
+      expect(translateCopilotJsonEvent({
+        type: 'result',
+        sessionId: 'session-usage',
+        exitCode: 0,
+        usage: {
+          inputTokens: 40,
+          cacheCreationInputTokens: 10,
+          cacheReadInputTokens: 0,
+          contextWindow: 100,
+        },
+      })).toEqual([
+        {
+          type: 'usage',
+          sessionId: 'session-usage',
+          usage: {
+            inputTokens: 40,
+            cacheCreationInputTokens: 10,
+            cacheReadInputTokens: 0,
+            contextWindow: 100,
+            contextTokens: 50,
+            percentage: 50,
+          },
+        },
+      ]);
+    });
+
+    it('skips usage chunks when result usage lacks required token fields', () => {
+      expect(translateCopilotJsonEvent({
+        type: 'result',
+        exitCode: 0,
+        usage: {
+          premiumRequests: 1,
+        },
+      })).toEqual([]);
+    });
+
     it('returns an error chunk for non-zero result exit codes', () => {
       expect(translateCopilotJsonEvent({
         type: 'result',

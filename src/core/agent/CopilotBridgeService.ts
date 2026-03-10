@@ -1,5 +1,5 @@
+import { type ChildProcess,execFileSync, spawn } from 'child_process';
 import { randomUUID } from 'crypto';
-import { execFileSync, spawn, type ChildProcess } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -7,15 +7,18 @@ import type ObsidianCopilotPlugin from '../../main';
 import { stripCurrentNotePrefix } from '../../utils/context';
 import { findCopilotCLIPath } from '../../utils/copilotCli';
 import { getEnhancedPath, parseEnvironmentVariables } from '../../utils/env';
+import { normalizePathForFilesystem } from '../../utils/path';
 import { buildContextFromHistory, getLastUserMessage } from '../../utils/session';
 import type { McpServerManager } from '../mcp';
 import { buildSystemPrompt } from '../prompts/mainAgent';
+import { TOOL_EDIT, TOOL_WRITE } from '../tools/toolNames';
 import type {
   AskUserQuestionCallback,
   ChatMessage,
   ImageAttachment,
   StreamChunk,
   ToolDiffData,
+  UsageInfo,
 } from '../types';
 import type { ExitPlanModeDecision } from '../types';
 
@@ -61,6 +64,14 @@ const NORMAL_MODE_ALLOWED_TOOLS = [
   'webfetch',
   'websearch',
 ] as const;
+
+const MAX_DIFF_SIZE = 100 * 1024;
+
+interface DiffContentEntry {
+  filePath: string;
+  content: string | null;
+  skippedReason?: 'too_large' | 'unavailable';
+}
 
 export function resolveCopilotAllowedTools(
   permissionMode: string,
@@ -166,9 +177,50 @@ export function translateCopilotJsonEvent(
     if (typeof event.exitCode === 'number' && event.exitCode !== 0) {
       return [{ type: 'error', content: `Copilot exited with code ${event.exitCode}` }];
     }
+
+    const usageChunk = buildUsageChunkFromResult(event);
+    if (usageChunk) {
+      return [usageChunk];
+    }
   }
 
   return [];
+}
+
+function buildUsageChunkFromResult(event: CopilotJsonEvent): { type: 'usage'; usage: UsageInfo; sessionId?: string | null } | null {
+  const usage = event.usage;
+  if (!usage) {
+    return null;
+  }
+
+  const inputTokens = toFiniteNumber(usage.inputTokens);
+  const cacheCreationInputTokens = toFiniteNumber(usage.cacheCreationInputTokens) ?? 0;
+  const cacheReadInputTokens = toFiniteNumber(usage.cacheReadInputTokens) ?? 0;
+  const contextWindow = toFiniteNumber(usage.contextWindow);
+
+  if (inputTokens === null || contextWindow === null || contextWindow <= 0) {
+    return null;
+  }
+
+  const contextTokens = inputTokens + cacheCreationInputTokens + cacheReadInputTokens;
+  const percentage = Math.max(0, Math.min(100, Math.round((contextTokens / contextWindow) * 100)));
+
+  return {
+    type: 'usage',
+    sessionId: event.sessionId ?? null,
+    usage: {
+      inputTokens,
+      cacheCreationInputTokens,
+      cacheReadInputTokens,
+      contextWindow,
+      contextTokens,
+      percentage,
+    },
+  };
+}
+
+function toFiniteNumber(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
 interface CopilotCliCapabilities {
@@ -216,6 +268,8 @@ export class CopilotBridgeService {
   private currentPlanFilePath: string | null = null;
   private approvedPlanContent: string | null = null;
   private askUserQuestionAnswers = new Map<string, Record<string, string | string[]>>();
+  private originalContents = new Map<string, DiffContentEntry>();
+  private pendingDiffData = new Map<string, ToolDiffData>();
 
   constructor(plugin: ObsidianCopilotPlugin, mcpManager: McpServerManager) {
     this.plugin = plugin;
@@ -449,6 +503,12 @@ export class CopilotBridgeService {
       let sawDone = false;
 
       for await (const chunk of this.spawnCopilot(copilotPath, args, this.getCustomEnv(copilotPath))) {
+        if (chunk.type === 'tool_use') {
+          this.trackWriteEditOriginalContent(chunk.id, chunk.name, chunk.input);
+        } else if (chunk.type === 'tool_result') {
+          this.finalizeWriteEditDiff(chunk.id, !!chunk.isError);
+        }
+
         if (isPlanMode) {
           if (chunk.type === 'text') {
             bufferedPlanText += chunk.content;
@@ -625,6 +685,7 @@ export class CopilotBridgeService {
     this.askUserQuestionAnswers.clear();
     this.approvedPlanContent = null;
     this.currentPlanFilePath = null;
+    this.clearDiffState();
   }
 
   getSessionId(): string | null {
@@ -667,11 +728,108 @@ export class CopilotBridgeService {
     this.enterPlanModeCallback = callback;
   }
 
-  getDiffData(_toolUseId: string): ToolDiffData | undefined {
-    return undefined;
+  private isWriteEditTool(toolName: string): boolean {
+    return toolName === TOOL_WRITE || toolName === TOOL_EDIT;
+  }
+
+  private resolveVaultFilePath(filePath: string): string {
+    const normalizedPath = normalizePathForFilesystem(filePath);
+    return path.isAbsolute(normalizedPath) ? normalizedPath : path.join(this.getWorkingDirectory(), normalizedPath);
+  }
+
+  private trackWriteEditOriginalContent(
+    toolUseId: string,
+    toolName: string,
+    toolInput: Record<string, unknown>
+  ): void {
+    if (!this.isWriteEditTool(toolName)) {
+      return;
+    }
+
+    const rawPath = toolInput.file_path;
+    const filePath = typeof rawPath === 'string' && rawPath ? rawPath : null;
+    if (!filePath) {
+      return;
+    }
+
+    const fullPath = this.resolveVaultFilePath(filePath);
+    try {
+      if (fs.existsSync(fullPath)) {
+        const stats = fs.statSync(fullPath);
+        if (stats.size <= MAX_DIFF_SIZE) {
+          const content = fs.readFileSync(fullPath, 'utf-8');
+          this.originalContents.set(toolUseId, { filePath, content });
+        } else {
+          this.originalContents.set(toolUseId, { filePath, content: null, skippedReason: 'too_large' });
+        }
+      } else {
+        this.originalContents.set(toolUseId, { filePath, content: '' });
+      }
+    } catch (error) {
+      console.warn('Failed to capture original file contents for diff:', fullPath, error);
+      this.originalContents.set(toolUseId, { filePath, content: null, skippedReason: 'unavailable' });
+    }
+  }
+
+  private finalizeWriteEditDiff(toolUseId: string, isError: boolean): void {
+    const originalEntry = this.originalContents.get(toolUseId);
+    if (!originalEntry) {
+      return;
+    }
+
+    const { filePath } = originalEntry;
+    if (isError) {
+      this.originalContents.delete(toolUseId);
+      return;
+    }
+
+    const fullPath = this.resolveVaultFilePath(filePath);
+    let diffData: ToolDiffData | undefined;
+
+    if (originalEntry.content === null) {
+      diffData = { filePath, skippedReason: originalEntry.skippedReason ?? 'unavailable' };
+    } else {
+      try {
+        if (fs.existsSync(fullPath)) {
+          const stats = fs.statSync(fullPath);
+          if (stats.size <= MAX_DIFF_SIZE) {
+            const newContent = fs.readFileSync(fullPath, 'utf-8');
+            diffData = {
+              filePath,
+              originalContent: originalEntry.content,
+              newContent,
+            };
+          } else {
+            diffData = { filePath, skippedReason: 'too_large' };
+          }
+        } else {
+          diffData = { filePath, skippedReason: 'unavailable' };
+        }
+      } catch (error) {
+        console.warn('Failed to capture updated file contents for diff:', fullPath, error);
+        diffData = { filePath, skippedReason: 'unavailable' };
+      }
+    }
+
+    if (diffData) {
+      this.pendingDiffData.set(toolUseId, diffData);
+    }
+
+    this.originalContents.delete(toolUseId);
+  }
+
+  getDiffData(toolUseId: string): ToolDiffData | undefined {
+    const data = this.pendingDiffData.get(toolUseId);
+    if (data) {
+      this.pendingDiffData.delete(toolUseId);
+    }
+
+    return data;
   }
 
   clearDiffState(): void {
+    this.originalContents.clear();
+    this.pendingDiffData.clear();
   }
 
   getAskUserQuestionAnswers(toolUseId: string): Record<string, string | string[]> | undefined {

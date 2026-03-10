@@ -1,7 +1,7 @@
 {
   "id": "obsidian-copilot",
   "name": "Obsidian Copilot",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "minAppVersion": "1.0.0",
   "description": "Embed GitHub Copilot as a sidebar chat for AI-assisted note writing and coding.",
   "author": "reallygood83",
