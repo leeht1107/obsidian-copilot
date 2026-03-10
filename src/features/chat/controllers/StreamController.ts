@@ -34,7 +34,6 @@ import {
   updateToolCallResult,
   updateWriteEditWithDiff,
 } from '../../../ui';
-import { FLAVOR_TEXTS } from '../constants';
 import type { MessageRenderer } from '../rendering/MessageRenderer';
 import type { AsyncSubagentManager } from '../services/AsyncSubagentManager';
 import type { ChatState } from '../state/ChatState';
@@ -688,8 +687,7 @@ export class StreamController {
     }
 
     state.thinkingEl = parentEl.createDiv({ cls: 'ocop-thinking' });
-    const randomText = FLAVOR_TEXTS[Math.floor(Math.random() * FLAVOR_TEXTS.length)];
-    state.thinkingEl.createSpan({ text: randomText });
+    state.thinkingEl.createSpan({ text: 'Working...' });
     state.thinkingEl.createSpan({ text: ' (esc to interrupt)', cls: 'ocop-thinking-hint' });
 
     // Queue indicator line (initially hidden)
