@@ -40,6 +40,8 @@ export class MentionDropdownController {
   private filteredMentionItems: MentionItem[] = [];
   private filteredContextFiles: ExternalContextFile[] = [];
   private activeContextFilter: { folderName: string; contextRoot: string } | null = null;
+  private externalContextLoading = false;
+  private lastSearchText = '';
   private mcpService: McpService | null = null;
   private fixed: boolean;
 
@@ -72,14 +74,12 @@ export class MentionDropdownController {
     if (externalContexts.length === 0) return;
 
     setTimeout(() => {
-      try {
-        externalContextScanner.scanPaths(externalContexts);
-      } catch (err) {
+      externalContextScanner.scanPathsAsync(externalContexts).catch((err) => {
         console.warn(
           'Failed to pre-scan external contexts:',
           err instanceof Error ? err.message : String(err)
         );
-      }
+      });
     }, 0);
   }
 
@@ -211,6 +211,7 @@ export class MentionDropdownController {
   }
 
   private showMentionDropdown(searchText: string): void {
+    this.lastSearchText = searchText;
     const searchLower = searchText.toLowerCase();
     this.filteredMentionItems = [];
     this.filteredContextFiles = [];
@@ -239,7 +240,32 @@ export class MentionDropdownController {
     }
 
     if (this.activeContextFilter && isFilterSearch) {
-      const contextFiles = externalContextScanner.scanPaths([this.activeContextFilter.contextRoot]);
+      const contextRoot = this.activeContextFilter.contextRoot;
+      if (!externalContextScanner.hasFreshCache(contextRoot)) {
+        this.externalContextLoading = true;
+        void externalContextScanner.scanPathsAsync([contextRoot]).then(() => {
+          if (this.isVisible() && this.lastSearchText === searchText) {
+            this.showMentionDropdown(searchText);
+          }
+        }).catch((err) => {
+          console.warn(
+            'Failed to scan filtered external context:',
+            err instanceof Error ? err.message : String(err)
+          );
+          if (this.isVisible() && this.lastSearchText === searchText) {
+            this.externalContextLoading = false;
+            this.renderMentionDropdown();
+          }
+        });
+        this.filteredContextFiles = [];
+        this.filteredMentionItems = [];
+        this.selectedMentionIndex = 0;
+        this.renderMentionDropdown();
+        return;
+      }
+
+      this.externalContextLoading = false;
+      const contextFiles = externalContextScanner.getCachedFiles(contextRoot);
       this.filteredContextFiles = contextFiles
         .filter(file => {
           const relativePath = file.relativePath.replace(/\\/g, '/');
@@ -273,6 +299,7 @@ export class MentionDropdownController {
     }
 
     this.activeContextFilter = null;
+    this.externalContextLoading = false;
 
     if (this.mcpService) {
       const mcpServers = this.mcpService.getContextSavingServers();
@@ -346,7 +373,7 @@ export class MentionDropdownController {
     this.dropdown.render({
       items: this.filteredMentionItems,
       selectedIndex: this.selectedMentionIndex,
-      emptyText: 'No matches',
+      emptyText: this.externalContextLoading ? 'Scanning external context...' : 'No matches',
       getItemClass: (item) => {
         if (item.type === 'mcp-server') return 'mcp-server';
         if (item.type === 'context-file') return 'context-file';

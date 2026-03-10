@@ -32,9 +32,15 @@ jest.mock('@/utils/path', () => {
 });
 
 const mockScanPaths = jest.fn<ExternalContextFile[], [string[]]>(() => []);
+const mockScanPathsAsync = jest.fn<Promise<ExternalContextFile[]>, [string[]]>(async () => []);
+const mockHasFreshCache = jest.fn<boolean, [string]>(() => true);
+const mockGetCachedFiles = jest.fn<ExternalContextFile[], [string]>(() => []);
 jest.mock('@/utils/externalContextScanner', () => ({
   externalContextScanner: {
     scanPaths: (paths: string[]) => mockScanPaths(paths),
+    scanPathsAsync: (paths: string[]) => mockScanPathsAsync(paths),
+    hasFreshCache: (path: string) => mockHasFreshCache(path),
+    getCachedFiles: (path: string) => mockGetCachedFiles(path),
   },
 }));
 
@@ -221,6 +227,9 @@ describe('FileContextManager', () => {
     jest.clearAllMocks();
     mockVaultPath = '/vault';
     mockScanPaths.mockReturnValue([]);
+    mockScanPathsAsync.mockResolvedValue([]);
+    mockHasFreshCache.mockReturnValue(true);
+    mockGetCachedFiles.mockReturnValue([]);
     containerEl = createMockElement();
     inputEl = {
       value: '',
@@ -407,7 +416,7 @@ describe('FileContextManager', () => {
         mtime: 1000,
       },
     ];
-    mockScanPaths.mockReturnValue(contextFiles);
+    mockGetCachedFiles.mockReturnValue(contextFiles);
 
     inputEl.value = '@external/app';
     inputEl.selectionStart = 13;
@@ -426,6 +435,46 @@ describe('FileContextManager', () => {
     // Check transformation works
     const transformed = (manager as any).state.transformContextMentions('@external/src/app.md');
     expect(transformed).toBe('/external/src/app.md');
+
+    manager.destroy();
+  });
+
+  it('shows loading state and refreshes context files asynchronously when cache is cold', async () => {
+    const app = createMockApp();
+    const manager = new FileContextManager(
+      app,
+      containerEl as any,
+      inputEl,
+      createMockCallbacks({ externalContexts: ['/external'] })
+    );
+
+    const contextFiles: ExternalContextFile[] = [
+      {
+        path: '/external/src/app.md',
+        name: 'app.md',
+        relativePath: 'src/app.md',
+        contextRoot: '/external',
+        mtime: 1000,
+      },
+    ];
+
+    mockHasFreshCache.mockReturnValueOnce(false).mockReturnValue(true);
+    mockScanPathsAsync.mockResolvedValue(contextFiles);
+    mockGetCachedFiles.mockReturnValue(contextFiles);
+
+    inputEl.value = '@external/app';
+    inputEl.selectionStart = 13;
+    inputEl.selectionEnd = 13;
+    manager.handleInputChange();
+
+    const emptyEl = findByClass(containerEl, 'ocop-mention-empty');
+    expect(emptyEl?.textContent).toBe('Scanning external context...');
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    const nameEls = findAllByClass(containerEl, 'ocop-mention-name-context');
+    expect(nameEls[0]?.textContent).toBe('src/app.md');
 
     manager.destroy();
   });

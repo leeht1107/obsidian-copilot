@@ -64,6 +64,21 @@ const SKIP_DIRECTORIES = new Set([
 class ExternalContextScanner {
   private cache = new Map<string, ScanCache>();
 
+  private isCacheFresh(expandedPath: string, now = Date.now()): boolean {
+    const cached = this.cache.get(expandedPath);
+    return !!cached && now - cached.timestamp < CACHE_TTL_MS;
+  }
+
+  hasFreshCache(contextPath: string): boolean {
+    return this.isCacheFresh(normalizePathForFilesystem(contextPath));
+  }
+
+  getCachedFiles(contextPath: string): ExternalContextFile[] {
+    const expandedPath = normalizePathForFilesystem(contextPath);
+    const cached = this.cache.get(expandedPath);
+    return cached && this.isCacheFresh(expandedPath) ? cached.files : [];
+  }
+
   /**
    * Scans all external context paths and returns matching files.
    * Uses cached results when available.
@@ -84,6 +99,26 @@ class ExternalContextScanner {
 
       // Scan directory
       const files = this.scanDirectory(expandedPath, expandedPath, 0);
+      this.cache.set(expandedPath, { files, timestamp: now });
+      allFiles.push(...files);
+    }
+
+    return allFiles;
+  }
+
+  async scanPathsAsync(externalContextPaths: string[]): Promise<ExternalContextFile[]> {
+    const allFiles: ExternalContextFile[] = [];
+    const now = Date.now();
+
+    for (const contextPath of externalContextPaths) {
+      const expandedPath = normalizePathForFilesystem(contextPath);
+      const cached = this.cache.get(expandedPath);
+      if (cached && now - cached.timestamp < CACHE_TTL_MS) {
+        allFiles.push(...cached.files);
+        continue;
+      }
+
+      const files = await this.scanDirectoryAsync(expandedPath, expandedPath, 0);
       this.cache.set(expandedPath, { files, timestamp: now });
       allFiles.push(...files);
     }
@@ -143,6 +178,55 @@ class ExternalContextScanner {
         }
 
         // Limit total files per external context path
+        if (files.length >= MAX_FILES_PER_PATH) break;
+      }
+    } catch (err) {
+      console.warn(`Failed to scan external context directory ${dir}: ${err instanceof Error ? err.message : String(err)}`);
+    }
+
+    return files;
+  }
+
+  private async scanDirectoryAsync(
+    dir: string,
+    contextRoot: string,
+    depth: number
+  ): Promise<ExternalContextFile[]> {
+    if (depth > MAX_DEPTH) return [];
+
+    const files: ExternalContextFile[] = [];
+
+    try {
+      const stat = await fs.promises.stat(dir).catch(() => null);
+      if (!stat?.isDirectory()) return [];
+
+      const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+
+      for (const entry of entries) {
+        if (entry.name.startsWith('.')) continue;
+        if (SKIP_DIRECTORIES.has(entry.name)) continue;
+        if (entry.isSymbolicLink()) continue;
+
+        const fullPath = path.join(dir, entry.name);
+
+        if (entry.isDirectory()) {
+          const subFiles = await this.scanDirectoryAsync(fullPath, contextRoot, depth + 1);
+          files.push(...subFiles);
+        } else if (entry.isFile()) {
+          try {
+            const fileStat = await fs.promises.stat(fullPath);
+            files.push({
+              path: fullPath,
+              name: entry.name,
+              relativePath: path.relative(contextRoot, fullPath),
+              contextRoot,
+              mtime: fileStat.mtimeMs,
+            });
+          } catch (err) {
+            console.debug(`Skipped file ${fullPath}: ${err instanceof Error ? err.message : String(err)}`);
+          }
+        }
+
         if (files.length >= MAX_FILES_PER_PATH) break;
       }
     } catch (err) {
