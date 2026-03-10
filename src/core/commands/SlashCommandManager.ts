@@ -13,6 +13,10 @@ import { getEnhancedPath } from '../../utils/env';
 import { parseSlashCommandContent } from '../../utils/slashCommand';
 import type { CopilotModel,SlashCommand } from '../types';
 
+function isVaultFileCandidate(value: unknown): value is TFile {
+  return !!value && typeof value === 'object' && 'path' in value;
+}
+
 type BashRunner = (command: string, cwd: string) => Promise<string>;
 
 export interface BashExpansionOptions {
@@ -180,11 +184,11 @@ export class SlashCommandManager {
 
     const parts: string[] = [];
     const regex = /[^\s"']+|"([^"]*)"|'([^']*)'/g;
-    let match;
-
-    while ((match = regex.exec(args)) !== null) {
+    let match: RegExpExecArray | null = regex.exec(args);
+    while (match !== null) {
       // Use the captured group (without quotes) if available
       parts.push(match[1] ?? match[2] ?? match[0]);
+      match = regex.exec(args);
     }
 
     return parts;
@@ -201,12 +205,12 @@ export class SlashCommandManager {
 
     const errors: string[] = [];
     const matches: Array<{ full: string; prefix: string; path: string; index: number }> = [];
-    let match;
-
-    while ((match = pattern.exec(content)) !== null) {
+    let match: RegExpExecArray | null = pattern.exec(content);
+    while (match !== null) {
       const prefix = match[1] ?? '';
       const filePath = match[2] || match[3] || match[4];
       matches.push({ full: match[0], prefix, path: filePath, index: match.index });
+      match = pattern.exec(content);
     }
 
     // Process matches in reverse order to maintain correct indices
@@ -215,8 +219,8 @@ export class SlashCommandManager {
       const m = matches[i];
       try {
         const normalizedPath = m.path.replace(/\\/g, '/');
-        const file = this.app.vault.getAbstractFileByPath(normalizedPath);
-        if (file instanceof TFile) {
+        const file = this.resolveVaultFile(normalizedPath);
+        if (isVaultFileCandidate(file)) {
           const fileContent = await this.app.vault.read(file);
           result =
             result.slice(0, m.index) +
@@ -236,6 +240,27 @@ export class SlashCommandManager {
     return { content: result, errors };
   }
 
+  private resolveVaultFile(rawPath: string): TFile | null {
+    const exact = this.app.vault.getAbstractFileByPath(rawPath);
+    if (isVaultFileCandidate(exact)) {
+      return exact;
+    }
+
+    const allFiles = this.app.vault.getMarkdownFiles();
+    const normalizedNeedle = rawPath.toLowerCase();
+    const basenameMatches = allFiles.filter((file) => file.name.toLowerCase() === normalizedNeedle);
+    if (basenameMatches.length === 1) {
+      return basenameMatches[0];
+    }
+
+    const suffixMatches = allFiles.filter((file) => file.path.toLowerCase().endsWith(`/${normalizedNeedle}`));
+    if (suffixMatches.length === 1) {
+      return suffixMatches[0];
+    }
+
+    return null;
+  }
+
   /**
    * Executes inline bash commands.
    * Replaces !`command` with command output.
@@ -250,10 +275,10 @@ export class SlashCommandManager {
     const errors: string[] = [];
 
     const matches: Array<{ full: string; command: string; index: number }> = [];
-    let match;
-
-    while ((match = pattern.exec(content)) !== null) {
+    let match: RegExpExecArray | null = pattern.exec(content);
+    while (match !== null) {
       matches.push({ full: match[0], command: match[1], index: match.index });
+      match = pattern.exec(content);
     }
 
     // Process matches in reverse order

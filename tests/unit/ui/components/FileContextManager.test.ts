@@ -74,10 +74,14 @@ function createMockElement(tag = 'div'): MockElement {
     children,
     style,
     addClass: (cls: string) => {
-      cls.split(/\s+/).filter(Boolean).forEach((c) => classList.add(c));
+      cls.split(/\s+/).filter(Boolean).forEach((c) => {
+        classList.add(c);
+      });
     },
     removeClass: (cls: string) => {
-      cls.split(/\s+/).filter(Boolean).forEach((c) => classList.delete(c));
+      cls.split(/\s+/).filter(Boolean).forEach((c) => {
+        classList.delete(c);
+      });
     },
     hasClass: (cls: string) => classList.has(cls),
     getClasses: () => Array.from(classList),
@@ -107,7 +111,9 @@ function createMockElement(tag = 'div'): MockElement {
     },
     dispatchEvent: (event: { type: string; target?: any; stopPropagation?: () => void }) => {
       const handlers = eventListeners.get(event.type) || [];
-      handlers.forEach(handler => handler(event));
+      handlers.forEach((handler) => {
+        handler(event);
+      });
     },
     click: () => {
       element.dispatchEvent({
@@ -362,6 +368,23 @@ describe('FileContextManager', () => {
     expect(inputEl.value).toBe('@file.md ');
     const attached = (manager as any).state.getAttachedFiles();
     expect(attached.has('clipping/file.md')).toBe(true);
+
+    manager.destroy();
+  });
+
+  it('transforms manually typed basename @mentions to unique vault-relative paths', () => {
+    const app = createMockApp({
+      files: ['folder/teachers.md'],
+    });
+    const manager = new FileContextManager(
+      app,
+      containerEl as any,
+      inputEl,
+      createMockCallbacks()
+    );
+
+    const transformed = manager.transformContextMentions('Please inspect @teachers.md now');
+    expect(transformed).toBe('Please inspect folder/teachers.md now');
 
     manager.destroy();
   });

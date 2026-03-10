@@ -5,6 +5,11 @@ import type { SlashCommand } from '@/core/types';
 import { parseSlashCommandContent } from '@/utils/slashCommand';
 
 function createMockApp(files: Record<string, string>) {
+  const fileEntries = Object.keys(files).map((filePath) => ({
+    path: filePath,
+    name: filePath.split('/').pop() || filePath,
+    stat: { mtime: 1 },
+  }));
   return {
     vault: {
       getAbstractFileByPath: jest.fn((p: string) => {
@@ -13,6 +18,7 @@ function createMockApp(files: Record<string, string>) {
         }
         return new (TFile as any)(p);
       }),
+      getMarkdownFiles: jest.fn(() => fileEntries),
       read: jest.fn(async (file: TFile) => files[file.path] ?? ''),
     },
   } as any;
@@ -100,6 +106,22 @@ describe('SlashCommandManager', () => {
       expect(result.expandedPrompt).toContain('WordPrefix: foo@baz.md');
     });
 
+    it('should resolve basename-only @file references when the vault match is unique', async () => {
+      const app = createMockApp({
+        'nested/teachers.md': 'TEACHERS',
+      });
+      const manager = new SlashCommandManager(app, '/vault');
+
+      const command: SlashCommand = {
+        id: '1',
+        name: 'files',
+        content: 'Ref: @teachers.md',
+      };
+
+      const result = await manager.expandCommand(command, '');
+      expect(result.expandedPrompt).toContain('Ref: TEACHERS');
+    });
+
     it('should not execute inline bash from referenced file content', async () => {
       const app = createMockApp({
         'foo.md': '!`echo injected`',
@@ -173,4 +195,3 @@ describe('SlashCommandManager', () => {
     });
   });
 });
-

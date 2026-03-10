@@ -16,6 +16,10 @@ import { FileContextState } from './file-context/state/FileContextState';
 import { MarkdownFileCache } from './file-context/state/MarkdownFileCache';
 import { FileChipsView } from './file-context/view/FileChipsView';
 
+function isVaultFileCandidate(value: unknown): value is TFile {
+  return !!value && typeof value === 'object' && 'path' in value;
+}
+
 /** Callbacks for file context interactions. */
 export interface FileContextCallbacks {
   getExcludedTags: () => string[];
@@ -251,7 +255,62 @@ export class FileContextManager {
 
   /** Transform context file mentions (e.g., @folder/file.ts) to absolute paths. */
   transformContextMentions(text: string): string {
-    return this.state.transformContextMentions(text);
+    return this.transformVaultMentions(this.state.transformContextMentions(text));
+  }
+
+  private transformVaultMentions(text: string): string {
+    const pattern = /(^|[^\w])@(?:"([^"]+)"|'([^']+)'|([^\s]+\.\w+))/g;
+    const matches: Array<{ full: string; prefix: string; rawPath: string; index: number }> = [];
+    let match: RegExpExecArray | null = pattern.exec(text);
+    while (match !== null) {
+      matches.push({
+        full: match[0],
+        prefix: match[1] ?? '',
+        rawPath: match[2] || match[3] || match[4],
+        index: match.index,
+      });
+      match = pattern.exec(text);
+    }
+
+    let result = text;
+    for (let i = matches.length - 1; i >= 0; i--) {
+      const entry = matches[i];
+      const resolved = this.resolveVaultMentionPath(entry.rawPath);
+      if (!resolved) {
+        continue;
+      }
+
+      result =
+        result.slice(0, entry.index) +
+        entry.prefix +
+        resolved +
+        result.slice(entry.index + entry.full.length);
+    }
+
+    return result;
+  }
+
+  private resolveVaultMentionPath(rawPath: string): string | null {
+    const normalizedRaw = rawPath.replace(/\\/g, '/');
+    const exact = this.app.vault.getAbstractFileByPath(normalizedRaw);
+    if (isVaultFileCandidate(exact)) {
+      return exact.path;
+    }
+
+    const allFiles = this.fileCache.getFiles();
+    const needle = normalizedRaw.toLowerCase();
+
+    const basenameMatches = allFiles.filter((file) => file.name.toLowerCase() === needle);
+    if (basenameMatches.length === 1) {
+      return basenameMatches[0].path;
+    }
+
+    const suffixMatches = allFiles.filter((file) => file.path.toLowerCase().endsWith(`/${needle}`));
+    if (suffixMatches.length === 1) {
+      return suffixMatches[0].path;
+    }
+
+    return null;
   }
 
   /** Cleans up event listeners (call on view close). */
