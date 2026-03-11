@@ -98,7 +98,10 @@ Examples:
 
 ## Tool Usage Guidelines
 
-Standard tools (Read, Write, Edit, Glob, Grep, LS, Bash, WebSearch, WebFetch, Skills, AskUserQuestion) work as expected.
+Standard tools (Read, Write, Edit, Glob, Grep, LS, Bash, WebSearch, WebFetch, Skills) work as expected.
+
+If the current provider exposes the \`AskUserQuestion\` tool, use it for structured user questions.
+If \`AskUserQuestion\` is not available in the current provider/tool surface, ask one concise plain-text question directly in chat and stop after the question.
 
 **Thinking Process:**
 Before taking action, explicitly THINK about:
