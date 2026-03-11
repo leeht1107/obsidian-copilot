@@ -10,6 +10,23 @@
   opacity: 0.72;
 }
 
+.ocop-thinking-premium {
+  display: none;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, #38bdf8 14%, transparent);
+  color: #bae6fd;
+  font-size: 10px;
+  font-family: var(--font-monospace);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.ocop-thinking-premium.is-visible {
+  display: inline-flex;
+  align-items: center;
+}
+
 .ocop-thinking-label-text {
   font-size: 11px;
   color: var(--text-muted);
@@ -28,58 +45,12 @@
   font-size: 11px;
   color: #67d7ff;
   font-weight: 500;
-  cursor: pointer;
+  cursor: default;
   border-radius: 3px;
   white-space: nowrap;
   background: transparent;
 }
 
 .ocop-thinking-disabled {
-  cursor: default;
   color: var(--text-muted);
-}
-
-/* Options container - expands vertically upward */
-.ocop-thinking-options {
-  position: absolute;
-  left: 0;
-  bottom: 100%;
-  margin-bottom: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  background: var(--background-secondary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 4px;
-  padding: 4px;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.15s ease, visibility 0.15s ease;
-}
-
-/* Expand on hover */
-.ocop-thinking-gears:hover .ocop-thinking-options {
-  opacity: 1;
-  visibility: visible;
-}
-
-.ocop-thinking-gear {
-  padding: 3px 8px;
-  font-size: 11px;
-  color: var(--text-muted);
-  cursor: pointer;
-  border-radius: 3px;
-  transition: background 0.1s ease, color 0.1s ease;
-  white-space: nowrap;
-}
-
-.ocop-thinking-gear:hover {
-  background: var(--background-modifier-hover);
-  color: var(--text-normal);
-}
-
-.ocop-thinking-gear.selected {
-  background: rgba(217, 119, 87, 0.15);
-  color: #67d7ff;
-  font-weight: 500;
 }

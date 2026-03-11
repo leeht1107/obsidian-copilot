@@ -82,7 +82,10 @@ export class ObsidianCopilotView extends ItemView {
     super(leaf);
     this.plugin = plugin;
     this.state = new ChatState({
-      onUsageChanged: (usage) => this.contextUsageMeter?.update(usage),
+      onUsageChanged: (usage) => {
+        this.contextUsageMeter?.update(usage);
+        this.thinkingBudgetSelector?.setPremiumRequests(usage?.premiumRequests ?? 0);
+      },
       onTodosChanged: (todos) => this.todoPanel?.updateTodos(todos),
     });
     this.asyncSubagentManager = new AsyncSubagentManager(

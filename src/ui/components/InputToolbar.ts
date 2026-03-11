@@ -169,6 +169,7 @@ export class ModelSelector {
 export class ThinkingBudgetSelector {
   private container: HTMLElement;
   private gearsEl: HTMLElement | null = null;
+  private premiumEl: HTMLElement | null = null;
   private callbacks: ToolbarCallbacks;
 
   constructor(parentEl: HTMLElement, callbacks: ToolbarCallbacks) {
@@ -181,47 +182,36 @@ export class ThinkingBudgetSelector {
     this.container.empty();
     this.container.createSpan({ cls: 'ocop-thinking-label-text', text: 'Thinking:' });
     this.gearsEl = this.container.createDiv({ cls: 'ocop-thinking-gears' });
-    if (THINKING_BUDGETS.length <= 1) {
-      this.container.addClass('is-disabled');
-      this.gearsEl.createDiv({
-        cls: 'ocop-thinking-current ocop-thinking-disabled',
-        text: 'model-managed',
-      });
-      this.gearsEl.setAttribute('title', 'Copilot CLI does not expose a direct thinking toggle in this integration.');
-      return;
-    }
-
-    this.container.removeClass('is-disabled');
-    this.renderGears();
-  }
-
-  private renderGears() {
-    if (!this.gearsEl) return;
-    this.gearsEl.empty();
-
-    const currentBudget = this.callbacks.getSettings().thinkingBudget;
-    const currentBudgetInfo = THINKING_BUDGETS.find((budget) => budget.value === currentBudget);
-    this.gearsEl.createDiv({ cls: 'ocop-thinking-current', text: currentBudgetInfo?.label || 'Off' });
-
-    const optionsEl = this.gearsEl.createDiv({ cls: 'ocop-thinking-options' });
-    for (const budget of [...THINKING_BUDGETS].reverse()) {
-      const gearEl = optionsEl.createDiv({ cls: 'ocop-thinking-gear' });
-      gearEl.setText(budget.label);
-      gearEl.setAttribute('title', budget.tokens > 0 ? `${budget.tokens.toLocaleString()} tokens` : 'Disabled');
-      if (budget.value === currentBudget) {
-        gearEl.addClass('selected');
-      }
-
-      gearEl.addEventListener('click', async (event) => {
-        event.stopPropagation();
-        await this.callbacks.onThinkingBudgetChange(budget.value);
-        this.updateDisplay();
-      });
-    }
+    this.premiumEl = this.container.createDiv({ cls: 'ocop-thinking-premium' });
+    this.container.addClass('is-disabled');
+    this.updateDisplay();
   }
 
   updateDisplay() {
-    this.renderGears();
+    if (!this.gearsEl) return;
+    this.gearsEl.empty();
+    const currentBudget = this.callbacks.getSettings().thinkingBudget;
+    const currentBudgetInfo = THINKING_BUDGETS.find((budget) => budget.value === currentBudget);
+    const label = currentBudgetInfo?.label || 'off';
+    this.gearsEl.createDiv({
+      cls: 'ocop-thinking-current ocop-thinking-disabled',
+      text: `${label} • model-managed`,
+    });
+    this.gearsEl.setAttribute('title', 'Thinking follows the selected model default in this Copilot integration.');
+  }
+
+  setPremiumRequests(count: number): void {
+    if (!this.premiumEl) return;
+    if (count > 0) {
+      this.premiumEl.setText(`${count}p used`);
+      this.premiumEl.addClass('is-visible');
+      this.premiumEl.setAttribute('title', `Premium requests used: ${count}`);
+      return;
+    }
+
+    this.premiumEl.empty();
+    this.premiumEl.removeClass('is-visible');
+    this.premiumEl.removeAttribute('title');
   }
 }
 
@@ -724,9 +714,8 @@ export class ContextUsageMeter {
     if (this.fillPath) {
       this.fillPath.style.strokeDashoffset = String(this.circumference - fillLength);
     }
-    const premiumRequests = usage.premiumRequests ?? 0;
     if (this.percentEl) {
-      this.percentEl.setText(premiumRequests > 0 ? `${usage.percentage}% • ${premiumRequests}p` : `${usage.percentage}%`);
+      this.percentEl.setText(`${usage.percentage}%`);
     }
 
     if (usage.percentage > 80) {
@@ -735,6 +724,7 @@ export class ContextUsageMeter {
       this.container.removeClass('warning');
     }
 
+    const premiumRequests = usage.premiumRequests ?? 0;
     const tooltip = `${this.formatTokens(usage.contextTokens)} / ${this.formatTokens(usage.contextWindow)}` +
       (premiumRequests > 0 ? ` • premium ${premiumRequests}` : '');
     this.container.setAttribute('data-tooltip', tooltip);

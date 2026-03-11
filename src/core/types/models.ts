@@ -8,14 +8,36 @@ export interface ModelOption {
   description: string;
 }
 
-export type ThinkingBudget = 'off';
+export type ThinkingBudget = 'off' | 'on';
 
 export const THINKING_BUDGETS = [
-  { value: 'off', label: 'Standard', tokens: 0 },
+  { value: 'off', label: 'off', tokens: 0 },
+  { value: 'on', label: 'on', tokens: 1 },
 ] as const;
 
 export const DEFAULT_THINKING_BUDGET: Record<string, ThinkingBudget> = {
   auto: 'off',
+  'gpt-4.1': 'off',
+  'gpt-4o': 'off',
+  'gpt-5-mini': 'on',
+  'raptor-mini': 'off',
+  'claude-haiku-4.5': 'off',
+  'gemini-3-flash': 'off',
+  'gpt-5.1-codex-mini': 'on',
+  'claude-sonnet-4': 'on',
+  'claude-sonnet-4.5': 'on',
+  'claude-sonnet-4.6': 'on',
+  'gemini-2.5-pro': 'on',
+  'gemini-3-pro': 'on',
+  'gemini-3.1-pro': 'on',
+  'gpt-5.1': 'on',
+  'gpt-5.1-codex': 'on',
+  'gpt-5.1-codex-max': 'on',
+  'gpt-5.2': 'on',
+  'gpt-5.3-codex': 'on',
+  'gpt-5.4': 'on',
+  'claude-opus-4.5': 'on',
+  'claude-opus-4.6': 'on',
 };
 
 export const COPILOT_MODELS: ModelOption[] = [
