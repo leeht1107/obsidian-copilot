@@ -9,6 +9,7 @@ import type {
 } from '../../core/types';
 import {
   COPILOT_MODELS,
+  DEFAULT_THINKING_BUDGET,
   THINKING_BUDGETS,
 } from '../../core/types';
 import { CHECK_ICON_SVG, MCP_ICON_SVG } from '../../features/chat/constants';
@@ -190,7 +191,8 @@ export class ThinkingBudgetSelector {
   updateDisplay() {
     if (!this.gearsEl) return;
     this.gearsEl.empty();
-    const currentBudget = this.callbacks.getSettings().thinkingBudget;
+    const currentModel = this.callbacks.getSettings().model;
+    const currentBudget = DEFAULT_THINKING_BUDGET[currentModel] ?? this.callbacks.getSettings().thinkingBudget;
     const currentBudgetInfo = THINKING_BUDGETS.find((budget) => budget.value === currentBudget);
     const label = currentBudgetInfo?.label || 'off';
     this.gearsEl.createDiv({
@@ -202,16 +204,9 @@ export class ThinkingBudgetSelector {
 
   setPremiumRequests(count: number): void {
     if (!this.premiumEl) return;
-    if (count > 0) {
-      this.premiumEl.setText(`${count}p used`);
-      this.premiumEl.addClass('is-visible');
-      this.premiumEl.setAttribute('title', `Premium requests used: ${count}`);
-      return;
-    }
-
-    this.premiumEl.empty();
-    this.premiumEl.removeClass('is-visible');
-    this.premiumEl.removeAttribute('title');
+    this.premiumEl.setText(`${count}p used`);
+    this.premiumEl.addClass('is-visible');
+    this.premiumEl.setAttribute('title', `Premium requests used: ${count}`);
   }
 }
 
