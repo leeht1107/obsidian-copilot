@@ -12,6 +12,7 @@ import type { CopilotMcpServer, McpServerConfig, McpServerType } from '../../cor
 import { DEFAULT_MCP_SERVER, getMcpServerType } from '../../core/types';
 import { testMcpServer } from '../../features/mcp/McpTester';
 import type ObsidianCopilotPlugin from '../../main';
+import { McpImportModal } from '../modals';
 import { McpServerModal } from '../modals/McpServerModal';
 import { McpTestModal } from '../modals/McpTestModal';
 
@@ -67,10 +68,10 @@ export class McpSettingsManager {
 
     const importOption = dropdown.createDiv({ cls: 'ocop-mcp-add-option' });
     setIcon(importOption.createSpan({ cls: 'ocop-mcp-add-option-icon' }), 'clipboard-paste');
-    importOption.createSpan({ text: 'Import from clipboard' });
+    importOption.createSpan({ text: 'Import from URL or JSON' });
     importOption.addEventListener('click', () => {
       dropdown.removeClass('is-visible');
-      this.importFromClipboard();
+      void this.importFromTextOrUrl();
     });
 
     // Toggle dropdown on button click
@@ -272,46 +273,40 @@ export class McpSettingsManager {
     modal.open();
   }
 
-  private async importFromClipboard() {
-    try {
-      const text = await navigator.clipboard.readText();
-      if (!text.trim()) {
-        new Notice('Clipboard is empty');
-        return;
-      }
-
-      const parsed = McpStorage.tryParseClipboardConfig(text);
-      if (!parsed || parsed.servers.length === 0) {
-        new Notice('No valid MCP configuration found in clipboard');
-        return;
-      }
-
-      // If needs name or single server, open modal with pre-filled data
-      if (parsed.needsName || parsed.servers.length === 1) {
-        const server = parsed.servers[0];
-        const type = getMcpServerType(server.config);
-        const modal = new McpServerModal(
-          this.plugin.app,
-          this.plugin,
-          null,
-          async (savedServer) => {
-            await this.saveServer(savedServer, null);
-          },
-          type,
-          server  // Pre-fill with parsed config
-        );
-        modal.open();
-        if (parsed.needsName) {
-          new Notice('Enter a name for the server');
-        }
-        return;
-      }
-
-      // Multiple servers - import them all
-      await this.importServers(parsed.servers);
-    } catch {
-      new Notice('Failed to read clipboard');
+  private async importFromTextOrUrl() {
+    const modal = new McpImportModal(this.plugin.app);
+    const result = await modal.openAndWait();
+    if (!result) {
+      return;
     }
+
+    const parsed = McpStorage.tryParseClipboardConfig(result.text);
+    if (!parsed || parsed.servers.length === 0) {
+      new Notice('No valid MCP configuration found in the provided URL or JSON');
+      return;
+    }
+
+    if (parsed.needsName || parsed.servers.length === 1) {
+      const server = parsed.servers[0];
+      const type = getMcpServerType(server.config);
+      const serverModal = new McpServerModal(
+        this.plugin.app,
+        this.plugin,
+        null,
+        async (savedServer) => {
+          await this.saveServer(savedServer, null);
+        },
+        type,
+        server
+      );
+      serverModal.open();
+      if (parsed.needsName) {
+        new Notice('Enter a name for the imported server');
+      }
+      return;
+    }
+
+    await this.importServers(parsed.servers);
   }
 
   private async saveServer(server: CopilotMcpServer, existing: CopilotMcpServer | null) {

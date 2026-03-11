@@ -176,6 +176,40 @@ export class InputController {
 
     fileContextManager?.startSession();
 
+    const images = imageContextManager?.getAttachedImages() || [];
+    const imagesForMessage = images.length > 0 ? [...images] : undefined;
+
+    const userMsg: ChatMessage = {
+      id: this.deps.generateId(),
+      role: 'user',
+      content,
+      timestamp: Date.now(),
+      images: imagesForMessage,
+      hidden: options?.hidden,
+    };
+    state.addMessage(userMsg);
+    if (!options?.hidden) {
+      renderer.addMessage(userMsg);
+    }
+
+    const assistantMsg: ChatMessage = {
+      id: this.deps.generateId(),
+      role: 'assistant',
+      content: '',
+      timestamp: Date.now(),
+      toolCalls: [],
+      contentBlocks: [],
+    };
+    state.addMessage(assistantMsg);
+    const msgEl = renderer.addMessage(assistantMsg);
+    const contentEl = msgEl.querySelector('.ocop-message-content') as HTMLElement;
+
+    state.toolCallElements.clear();
+    state.currentContentEl = contentEl;
+    state.currentTextEl = null;
+    state.currentTextContent = '';
+    streamController.showThinkingIndicator(contentEl);
+
     // Check for slash command and expand it
     const displayContent = content;
     let queryOptions: QueryOptions | undefined;
@@ -218,9 +252,6 @@ export class InputController {
       }
     }
 
-    const images = imageContextManager?.getAttachedImages() || [];
-    const imagesForMessage = images.length > 0 ? [...images] : undefined;
-
     // Only clear images if we consumed user input (not for programmatic content override)
     if (shouldUseInput) {
       imageContextManager?.clearImages();
@@ -262,6 +293,9 @@ export class InputController {
       currentNoteForMessage = currentNotePath;
     }
 
+    userMsg.displayContent = displayContent !== content ? displayContent : undefined;
+    userMsg.currentNote = currentNoteForMessage;
+
     if (options?.promptPrefix) {
       promptToSend = `${options.promptPrefix}\n\n${promptToSend}`;
     }
@@ -272,40 +306,6 @@ export class InputController {
     }
 
     fileContextManager?.markCurrentNoteSent();
-
-    const userMsg: ChatMessage = {
-      id: this.deps.generateId(),
-      role: 'user',
-      content,
-      displayContent: displayContent !== content ? displayContent : undefined,
-      timestamp: Date.now(),
-      currentNote: currentNoteForMessage,
-      images: imagesForMessage,
-      hidden: options?.hidden,
-    };
-    state.addMessage(userMsg);
-    if (!options?.hidden) {
-      renderer.addMessage(userMsg);
-    }
-
-    const assistantMsg: ChatMessage = {
-      id: this.deps.generateId(),
-      role: 'assistant',
-      content: '',
-      timestamp: Date.now(),
-      toolCalls: [],
-      contentBlocks: [],
-    };
-    state.addMessage(assistantMsg);
-    const msgEl = renderer.addMessage(assistantMsg);
-    const contentEl = msgEl.querySelector('.ocop-message-content') as HTMLElement;
-
-    state.toolCallElements.clear();
-    state.currentContentEl = contentEl;
-    state.currentTextEl = null;
-    state.currentTextContent = '';
-
-    streamController.showThinkingIndicator(contentEl);
 
     // Extract @-mentioned MCP servers from prompt
     const mcpMentions = plugin.mcpService.extractMentions(promptToSend);

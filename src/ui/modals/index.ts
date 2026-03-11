@@ -11,5 +11,6 @@ export {
   InstructionModal,
   type InstructionModalCallbacks,
 } from './InstructionConfirmModal';
+export { McpImportModal, toRawGitHubUrl } from './McpImportModal';
 export { McpServerModal } from './McpServerModal';
 export { McpTestModal } from './McpTestModal';
