@@ -197,9 +197,9 @@ export class ThinkingBudgetSelector {
     const label = currentBudgetInfo?.label || 'off';
     this.gearsEl.createDiv({
       cls: 'ocop-thinking-current ocop-thinking-disabled',
-      text: `${label} • model-managed`,
+      text: label,
     });
-    this.gearsEl.setAttribute('title', 'Thinking follows the selected model default in this Copilot integration.');
+    this.gearsEl.setAttribute('title', 'Thinking follows the selected model default.');
   }
 
   setPremiumRequests(count: number): void {
