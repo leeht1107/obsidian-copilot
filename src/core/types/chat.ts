@@ -116,4 +116,5 @@ export interface UsageInfo {
   contextWindow: number;
   contextTokens: number;
   percentage: number;
+  premiumRequests?: number;
 }

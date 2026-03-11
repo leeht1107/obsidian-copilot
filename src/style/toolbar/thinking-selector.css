@@ -6,6 +6,10 @@
   margin-left: 12px;
 }
 
+.ocop-thinking-selector.is-disabled {
+  opacity: 0.72;
+}
+
 .ocop-thinking-label-text {
   font-size: 11px;
   color: var(--text-muted);
@@ -28,6 +32,11 @@
   border-radius: 3px;
   white-space: nowrap;
   background: transparent;
+}
+
+.ocop-thinking-disabled {
+  cursor: default;
+  color: var(--text-muted);
 }
 
 /* Options container - expands vertically upward */

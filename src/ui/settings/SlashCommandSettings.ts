@@ -193,7 +193,7 @@ export class SlashCommandSettings {
 
     // Header with add button
     const headerEl = this.containerEl.createDiv({ cls: 'ocop-slash-header' });
-    headerEl.createSpan({ text: 'Slash Commands', cls: 'ocop-slash-label' });
+    headerEl.createSpan({ text: 'Slash Commands / Workflows', cls: 'ocop-slash-label' });
 
     const actionsEl = headerEl.createDiv({ cls: 'ocop-slash-header-actions' });
 
@@ -222,7 +222,7 @@ export class SlashCommandSettings {
 
     if (commands.length === 0) {
       const emptyEl = this.containerEl.createDiv({ cls: 'ocop-slash-empty-state' });
-      emptyEl.setText('No slash commands configured. Click "Add" to create one.');
+      emptyEl.setText('No workflow presets configured. Click "Add" to create one.');
       return;
     }
 

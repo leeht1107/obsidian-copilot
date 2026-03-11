@@ -32,6 +32,52 @@ export interface ToolbarCallbacks {
   isPlanModeRequested?: () => boolean;
 }
 
+type CostBucket = 'best' | '0x' | '0.33x' | '1x' | '3x';
+
+function getProviderGroup(model: CopilotModel): string {
+  if (model === 'auto') return 'recommended';
+  if (model.startsWith('gpt-')) return 'openai';
+  if (model.startsWith('claude-')) return 'anthropic';
+  if (model.startsWith('gemini-')) return 'google';
+  if (model.startsWith('raptor-')) return 'github';
+  return 'other';
+}
+
+function getCostOrder(costLabel: string): number {
+  const order: Record<CostBucket, number> = {
+    best: 0,
+    '0x': 1,
+    '0.33x': 2,
+    '1x': 3,
+    '3x': 4,
+  };
+  return order[(costLabel as CostBucket)] ?? 99;
+}
+
+function getProviderOrder(provider: string): number {
+  const order: Record<string, number> = {
+    recommended: 0,
+    openai: 1,
+    anthropic: 2,
+    google: 3,
+    github: 4,
+    other: 5,
+  };
+  return order[provider] ?? 99;
+}
+
+function getProviderLabel(provider: string): string {
+  const labels: Record<string, string> = {
+    recommended: 'recommended',
+    openai: 'openai',
+    anthropic: 'anthropic',
+    google: 'google',
+    github: 'github',
+    other: 'other',
+  };
+  return labels[provider] ?? provider;
+}
+
 export class ModelSelector {
   private container: HTMLElement;
   private buttonEl: HTMLElement | null = null;
@@ -64,6 +110,9 @@ export class ModelSelector {
 
     this.buttonEl.empty();
     this.buttonEl.createSpan({ cls: 'ocop-model-label', text: modelInfo?.label || 'Unknown' });
+    if (modelInfo?.costLabel) {
+      this.buttonEl.createSpan({ cls: 'ocop-model-cost', text: modelInfo.costLabel });
+    }
   }
 
   renderOptions() {
@@ -71,19 +120,41 @@ export class ModelSelector {
     this.dropdownEl.empty();
 
     const currentModel = this.callbacks.getSettings().model;
-    const models = this.getAvailableModels();
+    const models = [...this.getAvailableModels()].sort((a, b) => {
+      const costDiff = getCostOrder(a.costLabel) - getCostOrder(b.costLabel);
+      if (costDiff !== 0) return costDiff;
+      const providerDiff = getProviderOrder(getProviderGroup(a.value)) - getProviderOrder(getProviderGroup(b.value));
+      if (providerDiff !== 0) return providerDiff;
+      return a.label.localeCompare(b.label);
+    });
 
-    for (const model of [...models].reverse()) {
+    let lastCostLabel: string | null = null;
+    let lastProvider: string | null = null;
+
+    for (const model of models) {
+      const provider = getProviderGroup(model.value);
+      if (model.costLabel !== lastCostLabel) {
+        this.dropdownEl.createDiv({ cls: 'ocop-model-section-label', text: model.costLabel });
+        lastCostLabel = model.costLabel;
+        lastProvider = null;
+      }
+      if (provider !== lastProvider) {
+        this.dropdownEl.createDiv({ cls: 'ocop-model-provider-label', text: getProviderLabel(provider) });
+        lastProvider = provider;
+      }
+
       const option = this.dropdownEl.createDiv({ cls: 'ocop-model-option' });
       if (model.value === currentModel) {
         option.addClass('selected');
       }
 
-      option.createSpan({ text: model.label });
+      const textEl = option.createDiv({ cls: 'ocop-model-option-text' });
+      textEl.createSpan({ cls: 'ocop-model-option-label', text: model.label });
       if (model.description) {
         option.setAttribute('title', model.description);
-        option.createSpan({ cls: 'ocop-model-desc', text: model.description });
+        textEl.createSpan({ cls: 'ocop-model-desc', text: model.description });
       }
+      option.createSpan({ cls: 'ocop-model-option-cost', text: model.costLabel });
 
       option.addEventListener('click', async (event) => {
         event.stopPropagation();
@@ -110,6 +181,17 @@ export class ThinkingBudgetSelector {
     this.container.empty();
     this.container.createSpan({ cls: 'ocop-thinking-label-text', text: 'Thinking:' });
     this.gearsEl = this.container.createDiv({ cls: 'ocop-thinking-gears' });
+    if (THINKING_BUDGETS.length <= 1) {
+      this.container.addClass('is-disabled');
+      this.gearsEl.createDiv({
+        cls: 'ocop-thinking-current ocop-thinking-disabled',
+        text: 'model-managed',
+      });
+      this.gearsEl.setAttribute('title', 'Copilot CLI does not expose a direct thinking toggle in this integration.');
+      return;
+    }
+
+    this.container.removeClass('is-disabled');
     this.renderGears();
   }
 
@@ -642,8 +724,9 @@ export class ContextUsageMeter {
     if (this.fillPath) {
       this.fillPath.style.strokeDashoffset = String(this.circumference - fillLength);
     }
+    const premiumRequests = usage.premiumRequests ?? 0;
     if (this.percentEl) {
-      this.percentEl.setText(`${usage.percentage}%`);
+      this.percentEl.setText(premiumRequests > 0 ? `${usage.percentage}% • ${premiumRequests}p` : `${usage.percentage}%`);
     }
 
     if (usage.percentage > 80) {
@@ -652,7 +735,9 @@ export class ContextUsageMeter {
       this.container.removeClass('warning');
     }
 
-    this.container.setAttribute('data-tooltip', `${this.formatTokens(usage.contextTokens)} / ${this.formatTokens(usage.contextWindow)}`);
+    const tooltip = `${this.formatTokens(usage.contextTokens)} / ${this.formatTokens(usage.contextWindow)}` +
+      (premiumRequests > 0 ? ` • premium ${premiumRequests}` : '');
+    this.container.setAttribute('data-tooltip', tooltip);
   }
 
   private formatTokens(tokens: number): string {

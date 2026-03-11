@@ -204,6 +204,7 @@ function buildUsageChunkFromResult(event: CopilotJsonEvent): { type: 'usage'; us
 
   const contextTokens = inputTokens + cacheCreationInputTokens + cacheReadInputTokens;
   const percentage = Math.max(0, Math.min(100, Math.round((contextTokens / contextWindow) * 100)));
+  const premiumRequests = toFiniteNumber(usage.premiumRequests) ?? 0;
 
   return {
     type: 'usage',
@@ -215,6 +216,7 @@ function buildUsageChunkFromResult(event: CopilotJsonEvent): { type: 'usage'; us
       contextWindow,
       contextTokens,
       percentage,
+      premiumRequests,
     },
   };
 }
@@ -269,6 +271,7 @@ export class CopilotBridgeService {
   private currentPlanFilePath: string | null = null;
   private approvedPlanContent: string | null = null;
   private askUserQuestionAnswers = new Map<string, Record<string, string | string[]>>();
+  private isAskUserQuestionSupported = true;
   private originalContents = new Map<string, DiffContentEntry>();
   private pendingDiffData = new Map<string, ToolDiffData>();
 
@@ -491,6 +494,7 @@ export class CopilotBridgeService {
 
     const cwd = this.getWorkingDirectory();
     const capabilities = await this.getCliCapabilities(copilotPath);
+    this.isAskUserQuestionSupported = !capabilities.noAskUser;
     const fullPrompt = this.buildPromptWithHistory(prompt, conversationHistory, cwd, queryOptions);
     const sessionId = this.ensureSessionId();
     const args = ['--no-color'];
@@ -743,6 +747,10 @@ export class CopilotBridgeService {
 
   setAskUserQuestionCallback(callback: AskUserQuestionCallback | null): void {
     this.askUserQuestionCallback = callback;
+  }
+
+  isAskUserQuestionToolSupported(): boolean {
+    return this.isAskUserQuestionSupported;
   }
 
   setExitPlanModeCallback(callback: ExitPlanModeCallback | null): void {

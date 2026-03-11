@@ -35,13 +35,40 @@ export class McpSettingsManager {
 
   private render() {
     this.containerEl.empty();
+    const enabledCount = this.servers.filter((server) => server.enabled).length;
 
     // Header with Add dropdown
     const headerEl = this.containerEl.createDiv({ cls: 'ocop-mcp-header' });
-    headerEl.createSpan({ text: 'MCP Servers', cls: 'ocop-mcp-label' });
+    const titleWrap = headerEl.createDiv({ cls: 'ocop-mcp-title-wrap' });
+    titleWrap.createSpan({ text: 'MCP Servers', cls: 'ocop-mcp-label' });
+    titleWrap.createSpan({
+      text: `${enabledCount}/${this.servers.length} enabled`,
+      cls: 'ocop-mcp-summary',
+    });
 
     // Add button with dropdown
-    const addContainer = headerEl.createDiv({ cls: 'ocop-mcp-add-container' });
+    const actionsWrap = headerEl.createDiv({ cls: 'ocop-mcp-header-actions' });
+    const bulkEnableBtn = actionsWrap.createEl('button', {
+      cls: 'ocop-settings-action-btn',
+      text: 'Enable all',
+      attr: { 'aria-label': 'Enable all MCP servers' },
+    });
+    bulkEnableBtn.disabled = this.servers.length === 0 || enabledCount === this.servers.length;
+    bulkEnableBtn.addEventListener('click', () => {
+      void this.setAllServersEnabled(true);
+    });
+
+    const bulkDisableBtn = actionsWrap.createEl('button', {
+      cls: 'ocop-settings-action-btn',
+      text: 'Disable all',
+      attr: { 'aria-label': 'Disable all MCP servers' },
+    });
+    bulkDisableBtn.disabled = enabledCount === 0;
+    bulkDisableBtn.addEventListener('click', () => {
+      void this.setAllServersEnabled(false);
+    });
+
+    const addContainer = actionsWrap.createDiv({ cls: 'ocop-mcp-add-container' });
     const addBtn = addContainer.createEl('button', {
       cls: 'ocop-settings-action-btn',
       attr: { 'aria-label': 'Add' },
@@ -388,6 +415,25 @@ export class McpSettingsManager {
     await this.plugin.agentService.reloadMcpServers();
     this.render();
     new Notice(`MCP server "${server.name}" ${server.enabled ? 'enabled' : 'disabled'}`);
+  }
+
+  private async setAllServersEnabled(enabled: boolean) {
+    let changed = false;
+    for (const server of this.servers) {
+      if (server.enabled !== enabled) {
+        server.enabled = enabled;
+        changed = true;
+      }
+    }
+
+    if (!changed) {
+      return;
+    }
+
+    await this.plugin.storage.mcp.save(this.servers);
+    await this.plugin.agentService.reloadMcpServers();
+    this.render();
+    new Notice(enabled ? 'All MCP servers enabled' : 'All MCP servers disabled');
   }
 
   private async deleteServer(server: CopilotMcpServer) {

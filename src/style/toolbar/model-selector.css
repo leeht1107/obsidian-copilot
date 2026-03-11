@@ -18,8 +18,7 @@
 
 .ocop-model-label {
   font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
 }
 
 .ocop-model-cost {
@@ -57,6 +56,24 @@
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.15s ease, visibility 0.15s ease;
+}
+
+.ocop-model-section-label {
+  margin: 6px 2px 2px;
+  color: var(--text-faint);
+  font-size: 10px;
+  font-family: var(--font-monospace);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ocop-model-provider-label {
+  margin: 2px 4px 0;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-family: var(--font-monospace);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .ocop-model-selector:hover .ocop-model-dropdown {

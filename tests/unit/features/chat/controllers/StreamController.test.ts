@@ -114,6 +114,7 @@ function createMockDeps(): StreamControllerDeps {
     getAskUserQuestionAnswers: jest.fn().mockReturnValue(undefined),
     getDiffData: jest.fn().mockReturnValue(undefined),
     getSessionId: jest.fn().mockReturnValue('session-1'),
+    isAskUserQuestionToolSupported: jest.fn().mockReturnValue(true),
   };
   const fileContextManager = {
     markFileBeingEdited: jest.fn(),

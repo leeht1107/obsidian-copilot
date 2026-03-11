@@ -158,6 +158,7 @@ describe('CopilotBridgeService helpers', () => {
             contextWindow: 100,
             contextTokens: 50,
             percentage: 50,
+            premiumRequests: 0,
           },
         },
       ]);
