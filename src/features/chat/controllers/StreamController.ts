@@ -6,7 +6,7 @@
  */
 
 import { isPlanModeTool, isWriteEditTool, TOOL_AGENT_OUTPUT, TOOL_ASK_USER_QUESTION, TOOL_TASK, TOOL_TODO_WRITE } from '../../../core/tools/toolNames';
-import type { ChatMessage, StreamChunk, SubagentInfo, ToolCallInfo } from '../../../core/types';
+import type { AskUserQuestionQuestion, ChatMessage, StreamChunk, SubagentInfo, ToolCallInfo } from '../../../core/types';
 import type ObsidianCopilotPlugin from '../../../main';
 import {
   addSubagentToolCall,
@@ -119,7 +119,7 @@ export class StreamController {
         }
 
         if (chunk.name === TOOL_ASK_USER_QUESTION) {
-          this.handleAskUserQuestionToolUse(chunk, msg);
+          await this.handleAskUserQuestionToolUse(chunk, msg);
           break;
         }
 
@@ -236,11 +236,17 @@ export class StreamController {
   }
 
   /** Handles AskUserQuestion tool_use chunks. */
-  private handleAskUserQuestionToolUse(
+  private async handleAskUserQuestionToolUse(
     chunk: { type: 'tool_use'; id: string; name: string; input: Record<string, unknown> },
     msg: ChatMessage
-  ): void {
+  ): Promise<void> {
     const { state } = this.deps;
+    if (!this.deps.plugin.agentService.isAskUserQuestionToolSupported()) {
+      const parsedInput = parseAskUserQuestionInput(chunk.input);
+      await this.appendText(`\n\n${this.formatAskUserQuestionFallback(parsedInput?.questions)}`);
+      return;
+    }
+
     if (!state.currentContentEl) return;
 
     const toolCall: ToolCallInfo = {
@@ -263,6 +269,17 @@ export class StreamController {
     if (state.currentContentEl) {
       this.showThinkingIndicator(state.currentContentEl);
     }
+  }
+
+  private formatAskUserQuestionFallback(questions?: AskUserQuestionQuestion[]): string {
+    const firstQuestion = questions?.[0];
+    if (!firstQuestion) {
+      return 'I need your input before continuing. Please reply in chat.';
+    }
+
+    const optionLabels = firstQuestion.options.map((option) => option.label).filter(Boolean);
+    const optionHint = optionLabels.length > 0 ? ` Options: ${optionLabels.join(', ')}.` : '';
+    return `${firstQuestion.question}${optionHint} Reply in chat and I will continue.`;
   }
 
   /** Handles tool_result chunks. */
