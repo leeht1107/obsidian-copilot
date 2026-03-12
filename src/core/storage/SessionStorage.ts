@@ -36,11 +36,13 @@ interface SessionMetaRecord {
   messageCount?: number;
   preview?: string;
   currentNote?: string;
+  externalContextPaths?: string[];
   usage?: UsageInfo;
   approvedPlan?: string;
   pendingPlanContent?: string;
   isInPlanMode?: boolean;
   titleGenerationStatus?: 'pending' | 'success' | 'failed';
+  enabledMcpServers?: string[];
 }
 
 /** Message record stored as subsequent lines. */
@@ -245,11 +247,13 @@ export class SessionStorage {
       sessionId: meta.sessionId,
       messages,
       currentNote: meta.currentNote,
+      externalContextPaths: meta.externalContextPaths,
       usage: meta.usage,
       approvedPlan: meta.approvedPlan,
       pendingPlanContent: meta.pendingPlanContent,
       isInPlanMode: meta.isInPlanMode,
       titleGenerationStatus: meta.titleGenerationStatus,
+      enabledMcpServers: meta.enabledMcpServers,
     };
   }
 
@@ -269,11 +273,13 @@ export class SessionStorage {
       messageCount: conversation.messages.length,
       preview: buildConversationPreview(conversation.messages),
       currentNote: conversation.currentNote,
+      externalContextPaths: conversation.externalContextPaths,
       usage: conversation.usage,
       approvedPlan: conversation.approvedPlan,
       pendingPlanContent: conversation.pendingPlanContent,
       isInPlanMode: conversation.isInPlanMode,
       titleGenerationStatus: conversation.titleGenerationStatus,
+      enabledMcpServers: conversation.enabledMcpServers,
     };
     lines.push(JSON.stringify(meta));
 

@@ -225,6 +225,8 @@ describe('SessionStorage JSONL format', () => {
         lastResponseAt: 1500,
         sessionId: 'sess-rt',
         currentNote: 'a.md',
+        externalContextPaths: ['/ext/a', '/ext/b'],
+        enabledMcpServers: ['alpha', 'beta'],
         messages: [
           { id: 'msg-1', role: 'user', content: 'Hello', timestamp: 1001 },
           { id: 'msg-2', role: 'assistant', content: 'World', timestamp: 1002 },
@@ -242,6 +244,8 @@ describe('SessionStorage JSONL format', () => {
       expect(parsed!.lastResponseAt).toBe(original.lastResponseAt);
       expect(parsed!.sessionId).toBe(original.sessionId);
       expect(parsed!.currentNote).toBe(original.currentNote);
+      expect(parsed!.externalContextPaths).toEqual(original.externalContextPaths);
+      expect(parsed!.enabledMcpServers).toEqual(original.enabledMcpServers);
       expect(parsed!.messages).toHaveLength(2);
     });
   });
@@ -544,7 +548,9 @@ interface SessionMetaRecord {
   messageCount?: number;
   preview?: string;
   currentNote?: string;
+  externalContextPaths?: string[];
   titleGenerationStatus?: 'pending' | 'success' | 'failed';
+  enabledMcpServers?: string[];
 }
 
 interface SessionMessageRecord {
@@ -595,6 +601,8 @@ function parseJSONLHelper(content: string): Conversation | null {
     sessionId: meta.sessionId,
     messages,
     currentNote: meta.currentNote,
+    externalContextPaths: meta.externalContextPaths,
+    enabledMcpServers: meta.enabledMcpServers,
   };
 }
 
@@ -654,6 +662,8 @@ function serializeToJSONLHelper(conversation: Conversation): string {
     messageCount: conversation.messages.length,
     preview: buildConversationPreviewHelper(conversation.messages),
     currentNote: conversation.currentNote,
+    externalContextPaths: conversation.externalContextPaths,
+    enabledMcpServers: conversation.enabledMcpServers,
   };
   lines.push(JSON.stringify(meta));
 
