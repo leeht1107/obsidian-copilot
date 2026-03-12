@@ -210,6 +210,13 @@ export class InputController {
     state.currentTextContent = '';
     streamController.showThinkingIndicator(contentEl);
 
+    const currentNotePath = fileContextManager?.getCurrentNotePath() || null;
+    const shouldSendCurrentNote = fileContextManager?.shouldSendCurrentNote(currentNotePath) ?? false;
+    const shouldForceCurrentNoteScope = this.shouldUseCurrentNoteOnlyScope(content);
+    const currentNoteContentPromise = shouldSendCurrentNote && currentNotePath && shouldForceCurrentNoteScope
+      ? this.readCurrentNoteContent(currentNotePath)
+      : Promise.resolve<string | null>(null);
+
     // Check for slash command and expand it
     const displayContent = content;
     let queryOptions: QueryOptions | undefined;
@@ -257,10 +264,6 @@ export class InputController {
       imageContextManager?.clearImages();
     }
 
-    const currentNotePath = fileContextManager?.getCurrentNotePath() || null;
-    const shouldSendCurrentNote = fileContextManager?.shouldSendCurrentNote(currentNotePath) ?? false;
-    const shouldForceCurrentNoteScope = this.shouldUseCurrentNoteOnlyScope(displayContent);
-
     const editorContextOverride = options?.editorContextOverride;
     const editorContext = editorContextOverride !== undefined
       ? editorContextOverride
@@ -277,7 +280,7 @@ export class InputController {
 
     if (shouldSendCurrentNote && currentNotePath) {
       if (shouldForceCurrentNoteScope) {
-        const currentNoteContent = await this.readCurrentNoteContent(currentNotePath);
+        const currentNoteContent = await currentNoteContentPromise;
         if (currentNoteContent !== null) {
           promptToSend = prependCurrentNoteContent(promptToSend, currentNotePath, currentNoteContent);
           queryOptions = {
