@@ -33,6 +33,8 @@ interface SessionMetaRecord {
   updatedAt: number;
   lastResponseAt?: number;
   sessionId: string | null;
+  messageCount?: number;
+  preview?: string;
   currentNote?: string;
   usage?: UsageInfo;
   approvedPlan?: string;
@@ -49,6 +51,16 @@ interface SessionMessageRecord {
 
 /** Union type for JSONL records. */
 type SessionRecord = SessionMetaRecord | SessionMessageRecord;
+
+function buildConversationPreview(messages: ChatMessage[]): string {
+  const firstUserMessage = messages.find((message) => message.role === 'user' && message.content.trim().length > 0);
+  if (!firstUserMessage) {
+    return 'New conversation';
+  }
+
+  const content = firstUserMessage.content;
+  return content.substring(0, 50) + (content.length > 50 ? '...' : '');
+}
 
 export class SessionStorage {
   constructor(private adapter: VaultFileAdapter) {}
@@ -165,23 +177,23 @@ export class SessionStorage {
       const record = JSON.parse(firstLine) as SessionRecord;
       if (record.type !== 'meta') return null;
 
-      // Count messages by counting remaining lines
-      const lines = content.split(/\r?\n/).filter(l => l.trim());
-      const messageCount = lines.length - 1;
-
-      // Get preview from first user message
-      let preview = 'New conversation';
-      for (let i = 1; i < lines.length; i++) {
-        try {
-          const msgRecord = JSON.parse(lines[i]) as SessionRecord;
-          if (msgRecord.type === 'message' && msgRecord.message.role === 'user') {
-            const content = msgRecord.message.content;
-            preview = content.substring(0, 50) + (content.length > 50 ? '...' : '');
-            break;
+      let messageCount = record.messageCount;
+      let preview = record.preview;
+      if (messageCount === undefined || preview === undefined) {
+        const lines = content.split(/\r?\n/).filter(l => l.trim());
+        const parsedMessages: ChatMessage[] = [];
+        for (let i = 1; i < lines.length; i++) {
+          try {
+            const msgRecord = JSON.parse(lines[i]) as SessionRecord;
+            if (msgRecord.type === 'message') {
+              parsedMessages.push(msgRecord.message);
+            }
+          } catch {
+            continue;
           }
-        } catch {
-          continue;
         }
+        messageCount = parsedMessages.length;
+        preview = buildConversationPreview(parsedMessages);
       }
 
       return {
@@ -190,8 +202,8 @@ export class SessionStorage {
         createdAt: record.createdAt,
         updatedAt: record.updatedAt,
         lastResponseAt: record.lastResponseAt,
-        messageCount,
-        preview,
+        messageCount: messageCount ?? 0,
+        preview: preview ?? 'New conversation',
         titleGenerationStatus: record.titleGenerationStatus,
       };
     } catch {
@@ -254,6 +266,8 @@ export class SessionStorage {
       updatedAt: conversation.updatedAt,
       lastResponseAt: conversation.lastResponseAt,
       sessionId: conversation.sessionId,
+      messageCount: conversation.messages.length,
+      preview: buildConversationPreview(conversation.messages),
       currentNote: conversation.currentNote,
       usage: conversation.usage,
       approvedPlan: conversation.approvedPlan,

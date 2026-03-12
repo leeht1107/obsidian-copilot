@@ -4,7 +4,7 @@
  * Tests for SessionStorage (JSONL), SlashCommandStorage, and StorageService (migration).
  */
 
-import type { ChatMessage, Conversation, SlashCommand } from '@/core/types';
+import type { ChatMessage, Conversation, ConversationMeta, SlashCommand } from '@/core/types';
 import { parseSlashCommandContent } from '@/utils/slashCommand';
 
 // ============================================================================
@@ -103,6 +103,8 @@ describe('SessionStorage JSONL format', () => {
       expect(meta.id).toBe('conv-456');
       expect(meta.title).toBe('My Chat');
       expect(meta.sessionId).toBe('sess-abc');
+      expect(meta.messageCount).toBe(2);
+      expect(meta.preview).toBe('Question');
 
       const msg1 = JSON.parse(lines[1]);
       expect(msg1.type).toBe('message');
@@ -199,6 +201,19 @@ describe('SessionStorage JSONL format', () => {
       const meta = JSON.parse(jsonl.split('\n')[0]);
 
       expect(meta.lastResponseAt).toBe(1500);
+    });
+
+    it('should use persisted messageCount and preview from meta when present', () => {
+      const jsonl = [
+        '{"type":"meta","id":"conv-fast","title":"Fast","createdAt":1000,"updatedAt":2000,"sessionId":null,"messageCount":7,"preview":"Stored preview"}',
+        '{"type":"message","message":{"id":"msg-1","role":"user","content":"Hello","timestamp":1001}}',
+      ].join('\n');
+
+      const meta = loadMetaOnlyHelper(jsonl);
+
+      expect(meta).not.toBeNull();
+      expect(meta!.messageCount).toBe(7);
+      expect(meta!.preview).toBe('Stored preview');
     });
 
     it('should round-trip conversation correctly', () => {
@@ -526,7 +541,10 @@ interface SessionMetaRecord {
   updatedAt: number;
   lastResponseAt?: number;
   sessionId: string | null;
+  messageCount?: number;
+  preview?: string;
   currentNote?: string;
+  titleGenerationStatus?: 'pending' | 'success' | 'failed';
 }
 
 interface SessionMessageRecord {
@@ -535,6 +553,16 @@ interface SessionMessageRecord {
 }
 
 type SessionRecord = SessionMetaRecord | SessionMessageRecord;
+
+function buildConversationPreviewHelper(messages: ChatMessage[]): string {
+  const firstUserMessage = messages.find((message) => message.role === 'user' && message.content.trim().length > 0);
+  if (!firstUserMessage) {
+    return 'New conversation';
+  }
+
+  const content = firstUserMessage.content;
+  return content.substring(0, 50) + (content.length > 50 ? '...' : '');
+}
 
 function parseJSONLHelper(content: string): Conversation | null {
   const lines = content.split('\n').filter(l => l.trim());
@@ -570,6 +598,48 @@ function parseJSONLHelper(content: string): Conversation | null {
   };
 }
 
+function loadMetaOnlyHelper(content: string): ConversationMeta | null {
+  const firstLine = content.split(/\r?\n/)[0];
+  if (!firstLine) return null;
+
+  try {
+    const record = JSON.parse(firstLine) as SessionRecord;
+    if (record.type !== 'meta') return null;
+
+    let messageCount = record.messageCount;
+    let preview = record.preview;
+    if (messageCount === undefined || preview === undefined) {
+      const lines = content.split(/\r?\n/).filter((l) => l.trim());
+      const messages: ChatMessage[] = [];
+      for (let i = 1; i < lines.length; i++) {
+        try {
+          const msgRecord = JSON.parse(lines[i]) as SessionRecord;
+          if (msgRecord.type === 'message') {
+            messages.push(msgRecord.message);
+          }
+        } catch {
+          continue;
+        }
+      }
+      messageCount = messages.length;
+      preview = buildConversationPreviewHelper(messages);
+    }
+
+    return {
+      id: record.id,
+      title: record.title,
+      createdAt: record.createdAt,
+      updatedAt: record.updatedAt,
+      lastResponseAt: record.lastResponseAt,
+      messageCount: messageCount ?? 0,
+      preview: preview ?? 'New conversation',
+      titleGenerationStatus: record.titleGenerationStatus,
+    };
+  } catch {
+    return null;
+  }
+}
+
 function serializeToJSONLHelper(conversation: Conversation): string {
   const lines: string[] = [];
 
@@ -581,6 +651,8 @@ function serializeToJSONLHelper(conversation: Conversation): string {
     updatedAt: conversation.updatedAt,
     lastResponseAt: conversation.lastResponseAt,
     sessionId: conversation.sessionId,
+    messageCount: conversation.messages.length,
+    preview: buildConversationPreviewHelper(conversation.messages),
     currentNote: conversation.currentNote,
   };
   lines.push(JSON.stringify(meta));
