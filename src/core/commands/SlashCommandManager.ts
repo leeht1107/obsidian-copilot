@@ -213,28 +213,49 @@ export class SlashCommandManager {
       match = pattern.exec(content);
     }
 
-    // Process matches in reverse order to maintain correct indices
-    let result = content;
-    for (let i = matches.length - 1; i >= 0; i--) {
-      const m = matches[i];
+    const resolved = await Promise.all(matches.map(async (m) => {
       try {
         const normalizedPath = m.path.replace(/\\/g, '/');
         const file = this.resolveVaultFile(normalizedPath);
-        if (isVaultFileCandidate(file)) {
-          const fileContent = await this.app.vault.read(file);
-          result =
-            result.slice(0, m.index) +
-            m.prefix +
-            fileContent +
-            result.slice(m.index + m.full.length);
-        } else {
-          errors.push(`File reference not found: ${normalizedPath}`);
+        if (!isVaultFileCandidate(file)) {
+          return {
+            ...m,
+            replacement: null,
+            error: `File reference not found: ${normalizedPath}`,
+          };
         }
+
+        const fileContent = await this.app.vault.read(file);
+        return {
+          ...m,
+          replacement: `${m.prefix}${fileContent}`,
+          error: null,
+        };
       } catch (error) {
-        errors.push(
-          `File reference failed: ${m.path} (${error instanceof Error ? error.message : 'Unknown error'})`
-        );
+        return {
+          ...m,
+          replacement: null,
+          error: `File reference failed: ${m.path} (${error instanceof Error ? error.message : 'Unknown error'})`,
+        };
       }
+    }));
+
+    let result = content;
+    for (let i = resolved.length - 1; i >= 0; i--) {
+      const item = resolved[i];
+      if (item.error) {
+        errors.push(item.error);
+        continue;
+      }
+
+      if (item.replacement === null) {
+        continue;
+      }
+
+      result =
+        result.slice(0, item.index) +
+        item.replacement +
+        result.slice(item.index + item.full.length);
     }
 
     return { content: result, errors };
