@@ -704,6 +704,11 @@ export class ContextUsageMeter {
       return;
     }
 
+    if (usage.contextWindow <= 0) {
+      this.container.style.display = 'none';
+      return;
+    }
+
     this.container.style.display = 'flex';
     const fillLength = (usage.percentage / 100) * this.circumference;
     if (this.fillPath) {

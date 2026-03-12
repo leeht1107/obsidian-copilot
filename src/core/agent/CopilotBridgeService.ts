@@ -197,14 +197,30 @@ function buildUsageChunkFromResult(event: CopilotJsonEvent): { type: 'usage'; us
   const cacheCreationInputTokens = toFiniteNumber(usage.cacheCreationInputTokens) ?? 0;
   const cacheReadInputTokens = toFiniteNumber(usage.cacheReadInputTokens) ?? 0;
   const contextWindow = toFiniteNumber(usage.contextWindow);
+  const premiumRequests = toFiniteNumber(usage.premiumRequests) ?? 0;
 
   if (inputTokens === null || contextWindow === null || contextWindow <= 0) {
-    return null;
+    if (premiumRequests <= 0) {
+      return null;
+    }
+
+    return {
+      type: 'usage',
+      sessionId: event.sessionId ?? null,
+      usage: {
+        inputTokens: 0,
+        cacheCreationInputTokens: 0,
+        cacheReadInputTokens: 0,
+        contextWindow: 0,
+        contextTokens: 0,
+        percentage: 0,
+        premiumRequests,
+      },
+    };
   }
 
   const contextTokens = inputTokens + cacheCreationInputTokens + cacheReadInputTokens;
   const percentage = Math.max(0, Math.min(100, Math.round((contextTokens / contextWindow) * 100)));
-  const premiumRequests = toFiniteNumber(usage.premiumRequests) ?? 0;
 
   return {
     type: 'usage',

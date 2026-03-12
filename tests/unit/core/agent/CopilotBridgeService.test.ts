@@ -164,14 +164,28 @@ describe('CopilotBridgeService helpers', () => {
       ]);
     });
 
-    it('skips usage chunks when result usage lacks required token fields', () => {
+    it('emits a premium-only usage chunk when token fields are absent', () => {
       expect(translateCopilotJsonEvent({
         type: 'result',
         exitCode: 0,
         usage: {
-          premiumRequests: 1,
+          premiumRequests: 0.33,
         },
-      })).toEqual([]);
+      })).toEqual([
+        {
+          type: 'usage',
+          sessionId: null,
+          usage: {
+            inputTokens: 0,
+            cacheCreationInputTokens: 0,
+            cacheReadInputTokens: 0,
+            contextWindow: 0,
+            contextTokens: 0,
+            percentage: 0,
+            premiumRequests: 0.33,
+          },
+        },
+      ]);
     });
 
     it('returns an error chunk for non-zero result exit codes', () => {
