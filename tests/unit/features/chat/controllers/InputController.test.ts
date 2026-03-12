@@ -411,7 +411,7 @@ describe('InputController - Message Queue', () => {
       }) as any;
       deps.plugin.agentService.query = jest.fn().mockImplementation(() => createMockStream([{ type: 'done' }]));
 
-      inputEl.value = 'hello';
+      inputEl.value = '@server-a hello';
 
       await controller.sendMessage();
 

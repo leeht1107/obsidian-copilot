@@ -56,6 +56,7 @@ export interface StreamControllerDeps {
  */
 export class StreamController {
   private deps: StreamControllerDeps;
+  private pendingScrollFrameId: number | ReturnType<typeof setTimeout> | null = null;
 
   constructor(deps: StreamControllerDeps) {
     this.deps = deps;
@@ -72,7 +73,7 @@ export class StreamController {
     // Route subagent chunks
     if ('parentToolUseId' in chunk && chunk.parentToolUseId) {
       await this.handleSubagentChunk(chunk, msg);
-      this.scrollToBottom();
+      this.queueScrollToBottom();
       return;
     }
 
@@ -170,7 +171,7 @@ export class StreamController {
       }
     }
 
-    this.scrollToBottom();
+    this.queueScrollToBottom();
   }
 
   // ============================================
@@ -670,7 +671,7 @@ export class StreamController {
     }
 
     this.updateSubagentInMessages(subagent);
-    this.scrollToBottom();
+    this.queueScrollToBottom();
   }
 
   /** Updates subagent info in messages array. */
@@ -726,15 +727,42 @@ export class StreamController {
   // Utilities
   // ============================================
 
-  /** Scrolls messages to bottom. */
-  private scrollToBottom(): void {
-    const messagesEl = this.deps.getMessagesEl();
-    messagesEl.scrollTop = messagesEl.scrollHeight;
+  /** Schedules a batched auto-scroll on the next animation frame. */
+  private queueScrollToBottom(): void {
+    if (this.pendingScrollFrameId !== null) {
+      return;
+    }
+
+    const schedule = typeof requestAnimationFrame === 'function'
+      ? requestAnimationFrame
+      : (callback: FrameRequestCallback) => globalThis.setTimeout(() => callback(Date.now()), 16);
+
+    this.pendingScrollFrameId = schedule(() => {
+      this.pendingScrollFrameId = null;
+      if (typeof this.deps.renderer.scrollToBottomIfNeeded === 'function') {
+        this.deps.renderer.scrollToBottomIfNeeded();
+      } else {
+        const messagesEl = this.deps.getMessagesEl();
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+    });
+  }
+
+  private cancelQueuedScroll(): void {
+    if (this.pendingScrollFrameId !== null) {
+      if (typeof cancelAnimationFrame === 'function' && typeof this.pendingScrollFrameId === 'number') {
+        cancelAnimationFrame(this.pendingScrollFrameId);
+      } else {
+        clearTimeout(this.pendingScrollFrameId);
+      }
+      this.pendingScrollFrameId = null;
+    }
   }
 
   /** Resets streaming state after completion. */
   resetStreamingState(): void {
     const { state } = this.deps;
+    this.cancelQueuedScroll();
     this.hideThinkingIndicator();
     state.currentContentEl = null;
     state.currentTextEl = null;

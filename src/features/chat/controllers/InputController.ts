@@ -303,25 +303,34 @@ export class InputController {
       promptToSend = `${options.promptPrefix}\n\n${promptToSend}`;
     }
 
+    const containsMentions = promptToSend.includes('@');
+
     // Transform context file mentions (e.g., @folder/file.ts) to absolute paths
-    if (fileContextManager) {
+    if (containsMentions && fileContextManager) {
       promptToSend = fileContextManager.transformContextMentions(promptToSend);
     }
 
     fileContextManager?.markCurrentNoteSent();
 
-    // Extract @-mentioned MCP servers from prompt
-    const mcpMentions = plugin.mcpService.extractMentions(promptToSend);
-
-    // Transform @mcpname to @mcpname MCP in API request only
-    promptToSend = plugin.mcpService.transformMentions(promptToSend);
-
-    // Add MCP options to query
     const enabledMcpServers = mcpServerSelector?.getEnabledServers();
-    if (mcpMentions.size > 0 || (enabledMcpServers && enabledMcpServers.size > 0)) {
+    if (containsMentions) {
+      // Extract @-mentioned MCP servers from prompt
+      const mcpMentions = plugin.mcpService.extractMentions(promptToSend);
+
+      // Transform @mcpname to @mcpname MCP in API request only
+      promptToSend = plugin.mcpService.transformMentions(promptToSend);
+
+      // Add MCP options to query
+      if (mcpMentions.size > 0 || (enabledMcpServers && enabledMcpServers.size > 0)) {
+        queryOptions = {
+          ...queryOptions,
+          mcpMentions,
+          enabledMcpServers,
+        };
+      }
+    } else if (enabledMcpServers && enabledMcpServers.size > 0) {
       queryOptions = {
         ...queryOptions,
-        mcpMentions,
         enabledMcpServers,
       };
     }
