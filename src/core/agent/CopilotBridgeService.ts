@@ -12,6 +12,7 @@ import { buildContextFromHistory, getLastUserMessage } from '../../utils/session
 import type { McpServerManager } from '../mcp';
 import { buildSystemPrompt } from '../prompts/mainAgent';
 import { TOOL_EDIT, TOOL_WRITE } from '../tools/toolNames';
+import { queryViaCopilotAcp } from './CopilotAcpSpikeTransport';
 import type {
   AskUserQuestionCallback,
   ChatMessage,
@@ -373,6 +374,12 @@ export class CopilotBridgeService {
     return env;
   }
 
+  private shouldUseExperimentalAcpTransport(customEnv: NodeJS.ProcessEnv, queryOptions?: QueryOptions): boolean {
+    if (queryOptions?.planMode) return false;
+    const raw = customEnv.OCOP_EXPERIMENTAL_ACP;
+    return raw === '1' || raw === 'true';
+  }
+
   async prewarmCapabilities(): Promise<void> {
     const copilotPath = this.getCopilotPath();
     if (!copilotPath) {
@@ -493,9 +500,30 @@ export class CopilotBridgeService {
     }
 
     const cwd = this.getWorkingDirectory();
+    const customEnv = this.getCustomEnv(copilotPath);
+    const fullPrompt = this.buildPromptWithHistory(prompt, conversationHistory, cwd, queryOptions);
+
+    if (this.shouldUseExperimentalAcpTransport(customEnv, queryOptions)) {
+      const enabledServerNames = queryOptions?.enabledMcpServers ?? new Set<string>();
+      const mentionedServerNames = queryOptions?.mcpMentions ?? new Set<string>();
+      const activeServerNames = new Set([...enabledServerNames, ...mentionedServerNames]);
+      const acpMcpServers = this.mcpManager
+        .getServers()
+        .filter((server) => server.enabled && (activeServerNames.size === 0 || activeServerNames.has(server.name)));
+
+      yield* queryViaCopilotAcp({
+        command: copilotPath,
+        cwd,
+        env: customEnv,
+        prompt: fullPrompt,
+        mcpServers: acpMcpServers,
+        onApprovalRequest: this.approvalCallback ?? undefined,
+      });
+      return;
+    }
+
     const capabilities = await this.getCliCapabilities(copilotPath);
     this.isAskUserQuestionSupported = !capabilities.noAskUser;
-    const fullPrompt = this.buildPromptWithHistory(prompt, conversationHistory, cwd, queryOptions);
     const sessionId = this.ensureSessionId();
     const args = ['--no-color'];
 
@@ -531,7 +559,7 @@ export class CopilotBridgeService {
       let bufferedPlanText = '';
       let sawDone = false;
 
-      for await (const chunk of this.spawnCopilot(copilotPath, args, this.getCustomEnv(copilotPath))) {
+      for await (const chunk of this.spawnCopilot(copilotPath, args, customEnv)) {
         if (chunk.type === 'tool_use') {
           this.trackWriteEditOriginalContent(chunk.id, chunk.name, chunk.input);
         } else if (chunk.type === 'tool_result') {
