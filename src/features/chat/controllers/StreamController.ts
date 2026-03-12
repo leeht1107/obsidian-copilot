@@ -165,7 +165,13 @@ export class StreamController {
           break;
         }
         if (!state.ignoreUsageUpdates) {
-          state.usage = chunk.usage;
+          const previousUsage = state.usage;
+          state.usage = previousUsage
+            ? {
+                ...chunk.usage,
+                premiumRequests: (previousUsage.premiumRequests ?? 0) + (chunk.usage.premiumRequests ?? 0),
+              }
+            : chunk.usage;
         }
         break;
       }

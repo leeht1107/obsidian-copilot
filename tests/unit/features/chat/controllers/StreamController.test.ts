@@ -256,11 +256,44 @@ describe('StreamController - Text Content', () => {
         contextWindow: 100,
         contextTokens: 10,
         percentage: 10,
+        premiumRequests: 0.33,
       };
 
       await controller.handleStreamChunk({ type: 'usage', usage, sessionId: 'session-1' }, msg);
 
       expect(deps.state.usage).toEqual(usage);
+    });
+
+    it('should accumulate premium request usage across chunks in the same session', async () => {
+      const msg = createTestMessage();
+      const usageA = {
+        model: 'model-a',
+        inputTokens: 10,
+        cacheCreationInputTokens: 0,
+        cacheReadInputTokens: 0,
+        contextWindow: 100,
+        contextTokens: 10,
+        percentage: 10,
+        premiumRequests: 0.33,
+      };
+      const usageB = {
+        model: 'model-a',
+        inputTokens: 20,
+        cacheCreationInputTokens: 0,
+        cacheReadInputTokens: 0,
+        contextWindow: 100,
+        contextTokens: 20,
+        percentage: 20,
+        premiumRequests: 1,
+      };
+
+      await controller.handleStreamChunk({ type: 'usage', usage: usageA, sessionId: 'session-1' }, msg);
+      await controller.handleStreamChunk({ type: 'usage', usage: usageB, sessionId: 'session-1' }, msg);
+
+      expect(deps.state.usage).toEqual({
+        ...usageB,
+        premiumRequests: 1.33,
+      });
     });
 
     it('should ignore usage from other sessions', async () => {
