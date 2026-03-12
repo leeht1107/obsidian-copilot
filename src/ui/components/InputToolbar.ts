@@ -170,7 +170,6 @@ export class ModelSelector {
 export class ThinkingBudgetSelector {
   private container: HTMLElement;
   private gearsEl: HTMLElement | null = null;
-  private premiumEl: HTMLElement | null = null;
   private callbacks: ToolbarCallbacks;
 
   constructor(parentEl: HTMLElement, callbacks: ToolbarCallbacks) {
@@ -183,7 +182,6 @@ export class ThinkingBudgetSelector {
     this.container.empty();
     this.container.createSpan({ cls: 'ocop-thinking-label-text', text: 'Thinking:' });
     this.gearsEl = this.container.createDiv({ cls: 'ocop-thinking-gears' });
-    this.premiumEl = this.container.createDiv({ cls: 'ocop-thinking-premium' });
     this.container.addClass('is-disabled');
     this.updateDisplay();
   }
@@ -200,13 +198,6 @@ export class ThinkingBudgetSelector {
       text: label,
     });
     this.gearsEl.setAttribute('title', 'Thinking follows the selected model default.');
-  }
-
-  setPremiumRequests(count: number): void {
-    if (!this.premiumEl) return;
-    this.premiumEl.setText(`${count}p used`);
-    this.premiumEl.addClass('is-visible');
-    this.premiumEl.setAttribute('title', `Premium requests used: ${count}`);
   }
 }
 
