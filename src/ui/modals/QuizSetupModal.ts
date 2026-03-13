@@ -178,28 +178,31 @@ export class QuizSetupModal extends Modal {
     let sourceReference = '';
 
     if (this.quizScope === 'current-note' && this.activeFilePath) {
-      scopeInstruction = 'Use the current note only as the source material.';
+      scopeInstruction = `Use only the current note as ground truth source material: @${this.activeFilePath}`;
     } else if (this.quizScope === 'note') {
       const selectedPaths = Array.from(this.selectedNotePaths);
-      scopeInstruction = `Use only these selected notes as source material: ${selectedPaths.map((path) => `@${path}`).join(', ')}`;
+      scopeInstruction = `Use only these selected notes as ground truth source material: ${selectedPaths.map((path) => `@${path}`).join(', ')}`;
       sourceReference = ` (${selectedPaths.length} notes)`;
     } else {
-      scopeInstruction = `Use notes in the selected folder as source material and build a quiz from recurring concepts: ${this.selectedFolderPath}`;
+      scopeInstruction = `Use only notes in the selected folder as ground truth source material: ${this.selectedFolderPath}`;
       sourceReference = ` (${this.selectedFolderPath})`;
     }
 
     return {
       displayContent: this.focusText ? `/quiz ${this.focusText}${sourceReference}` : `/quiz${sourceReference}`,
       prompt: [
-        `한국어로 ${this.questionCount}문제 퀴즈를 만들어 줘.`,
+        `Create a ${this.questionCount}-question quiz in Korean.`,
         scopeInstruction,
-        this.focusText ? `퀴즈는 특히 ${this.focusText} 중심으로 출제해.` : '',
+        'Do not use any knowledge outside the selected ground truth notes/folder. If the selected material does not support a claim, do not invent it.',
+        this.focusText ? `Focus especially on this topic: ${this.focusText}.` : '',
         this.questionCount === '5'
-          ? '기본은 4지선다 객관식으로 하되, 자료 특성상 더 적합하면 다른 형식도 허용해.'
-          : '기본은 4지선다 객관식으로 하되, 문제 수가 많으므로 주관식, 단답식, OX, multi-select를 적절히 섞어도 좋아.',
-        '중요: 한 번에 모든 문제를 내지 말고 반드시 한 문제씩만 내라.',
-        '학생이 답을 고르거나 입력하면, 바로 정답 여부를 알려주고 왜 그런지 한국어로 해설한 뒤 다음 문제로 넘어가라.',
-        '각 문제에는 문제 번호를 붙이고, 객관식/멀티셀렉트는 선택지를 명확히 제시하라.',
+          ? 'Default to four-choice multiple choice unless another format is clearly better for the selected material.'
+          : 'Default to four-choice multiple choice, but you may mix in short-answer, true/false, and multi-select questions when useful.',
+        'It is acceptable to revisit the same concept multiple times in different question styles (for example multiple choice, short answer, true/false, or multi-select) if that improves learning.',
+        'Ask exactly one question at a time.',
+        'After the student answers, immediately tell them whether they are correct, explain why in Korean, and then move to the next question.',
+        'All student-facing output must be in Korean.',
+        'Number each question. For multiple-choice and multi-select questions, provide clear answer choices.',
       ].join(' '),
     };
   }
