@@ -7,6 +7,26 @@ export interface QuizSetupResult {
   displayContent: string;
 }
 
+function getBasename(path: string): string {
+  const normalized = path.replace(/\\/g, '/');
+  const parts = normalized.split('/').filter(Boolean);
+  return parts[parts.length - 1] || normalized;
+}
+
+function summarizeSelectedNotes(paths: string[]): string {
+  if (paths.length === 0) return '노트 0개';
+  const names = paths.map(getBasename);
+  if (names.length === 1) return `노트 · ${names[0]}`;
+  if (names.length === 2) return `노트 2개 · ${names[0]}, ${names[1]}`;
+  return `노트 ${names.length}개 · ${names[0]}, ${names[1]} 외 ${names.length - 2}개`;
+}
+
+function summarizeFolder(path: string): string {
+  const normalized = path.replace(/\\/g, '/');
+  const parts = normalized.split('/').filter(Boolean);
+  return parts.slice(-2).join('/') || normalized;
+}
+
 export class QuizSetupModal extends Modal {
   private resolvePromise: ((result: QuizSetupResult | null) => void) | null = null;
   private quizScope: QuizScope = 'current-note';
@@ -92,6 +112,10 @@ export class QuizSetupModal extends Modal {
           });
           noteItem.createSpan({ text: notePath });
         }
+        detailsEl.createDiv({
+          cls: 'setting-item-description',
+          text: `현재 선택: ${this.selectedNotePaths.size}개 노트`,
+        });
       }
       if (this.quizScope === 'folder') {
         new Setting(detailsEl)
@@ -108,6 +132,11 @@ export class QuizSetupModal extends Modal {
               this.selectedFolderPath = value;
             });
           });
+        const folderNoteCount = candidateNotes.filter((notePath) => notePath.startsWith(`${this.selectedFolderPath}/`) || notePath === this.selectedFolderPath).length;
+        detailsEl.createDiv({
+          cls: 'setting-item-description',
+          text: this.selectedFolderPath ? `이 폴더 포함 노트: ${folderNoteCount}개` : '이 폴더 포함 노트: 0개',
+        });
       }
     };
 
@@ -175,21 +204,26 @@ export class QuizSetupModal extends Modal {
 
   private buildResult(): QuizSetupResult {
     let scopeInstruction = '';
-    let sourceReference = '';
+    let displayScope = '현재 노트';
 
     if (this.quizScope === 'current-note' && this.activeFilePath) {
       scopeInstruction = `Use only the current note as ground truth source material: @${this.activeFilePath}`;
+      displayScope = `현재 노트 · ${getBasename(this.activeFilePath)}`;
     } else if (this.quizScope === 'note') {
       const selectedPaths = Array.from(this.selectedNotePaths);
       scopeInstruction = `Use only these selected notes as ground truth source material: ${selectedPaths.map((path) => `@${path}`).join(', ')}`;
-      sourceReference = ` (${selectedPaths.length} notes)`;
+      displayScope = summarizeSelectedNotes(selectedPaths);
     } else {
       scopeInstruction = `Use only notes in the selected folder as ground truth source material: ${this.selectedFolderPath}`;
-      sourceReference = ` (${this.selectedFolderPath})`;
+      displayScope = `폴더 · ${summarizeFolder(this.selectedFolderPath)}`;
     }
 
+    const displayLabel = [`/quiz`, displayScope, `${this.questionCount}문제`, this.focusText || '전체 범위']
+      .filter(Boolean)
+      .join(' · ');
+
     return {
-      displayContent: this.focusText ? `/quiz ${this.focusText}${sourceReference}` : `/quiz${sourceReference}`,
+      displayContent: displayLabel,
       prompt: [
         `Create a ${this.questionCount}-question quiz in Korean.`,
         scopeInstruction,
@@ -202,7 +236,13 @@ export class QuizSetupModal extends Modal {
         'Ask exactly one question at a time.',
         'After the student answers, immediately tell them whether they are correct, explain why in Korean, and then move to the next question.',
         'All student-facing output must be in Korean.',
-        'Number each question. For multiple-choice and multi-select questions, provide clear answer choices.',
+        'Format each question in clean markdown.',
+        'Use this structure for each turn: "## {current}/{total}번 문제" on the first line, then the question text, then answer choices on separate lines for multiple-choice or multi-select questions.',
+        'Do not wrap the question in code fences or quote blocks.',
+        'After each question, include a short answer-format hint line. For example: "답안 형식: A" for multiple choice, "답안 형식: A,C" for multi-select, or "답안 형식: 자유 서술" for short-answer.',
+        'For multiple-choice and multi-select questions, accept answers case-insensitively (for example b or B) and also accept the selected choice text when it is unambiguous.',
+        'After the student answers, respond in markdown with this exact structure: "### 정답 확인", then bullet lines for "정오", "정답", "해설", and "핵심 포인트".',
+        'After the feedback block, add a horizontal rule (---) and then continue with the next question.',
         'Never dump or quote raw source material, pasted notes, markdown headings, XML tags, or long excerpts from the source. Only show the quiz question, the student feedback, the correct answer, and the explanation.',
       ].join(' '),
     };
