@@ -197,12 +197,13 @@ export class QuizSetupModal extends Modal {
         this.focusText ? `Focus especially on this topic: ${this.focusText}.` : '',
         this.questionCount === '5'
           ? 'Default to four-choice multiple choice unless another format is clearly better for the selected material.'
-          : 'Default to four-choice multiple choice, but you may mix in short-answer, true/false, and multi-select questions when useful.',
+          : 'Use a deliberate mix of question formats. For a 10-question quiz, include at least: 4 multiple-choice questions, 2 short-answer or short-response questions, 2 true/false questions, and 2 multi-select questions.',
         'It is acceptable to revisit the same concept multiple times in different question styles (for example multiple choice, short answer, true/false, or multi-select) if that improves learning.',
         'Ask exactly one question at a time.',
         'After the student answers, immediately tell them whether they are correct, explain why in Korean, and then move to the next question.',
         'All student-facing output must be in Korean.',
         'Number each question. For multiple-choice and multi-select questions, provide clear answer choices.',
+        'Never dump or quote raw source material, pasted notes, markdown headings, XML tags, or long excerpts from the source. Only show the quiz question, the student feedback, the correct answer, and the explanation.',
       ].join(' '),
     };
   }
