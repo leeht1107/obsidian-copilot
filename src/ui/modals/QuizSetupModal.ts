@@ -14,6 +14,7 @@ export class QuizSetupModal extends Modal {
   private selectedFolderPath = '';
   private questionCount = '10';
   private focusText = '';
+  private useFullVault = false;
 
   constructor(app: App, private readonly activeFilePath: string | null, initialFocusText = '') {
     super(app);
@@ -27,15 +28,26 @@ export class QuizSetupModal extends Modal {
     this.setTitle('Create quiz');
     this.modalEl.addClass('ocop-slash-modal');
 
+    this.renderContent();
+  }
+
+  private renderContent() {
+    this.contentEl.empty();
+
     const allNotes = this.app.vault.getMarkdownFiles().map((file) => file.path).sort();
-    const allFolders = Array.from(new Set(allNotes
+    const subjectRoot = this.getSubjectRoot(this.activeFilePath);
+    const scopedNotes = subjectRoot
+      ? allNotes.filter((notePath) => notePath === subjectRoot || notePath.startsWith(`${subjectRoot}/`))
+      : allNotes;
+    const candidateNotes = this.useFullVault ? allNotes : scopedNotes;
+    const allFolders = Array.from(new Set(candidateNotes
       .map((notePath) => notePath.includes('/') ? notePath.split('/').slice(0, -1).join('/') : '')
       .filter(Boolean))).sort();
 
     if (this.selectedNotePaths.size === 0 && this.activeFilePath) {
       this.selectedNotePaths.add(this.activeFilePath);
-    } else if (this.selectedNotePaths.size === 0 && allNotes.length > 0) {
-      this.selectedNotePaths.add(allNotes[0]);
+    } else if (this.selectedNotePaths.size === 0 && candidateNotes.length > 0) {
+      this.selectedNotePaths.add(candidateNotes[0]);
     }
     if (!this.selectedFolderPath && allFolders.length > 0) {
       this.selectedFolderPath = allFolders[0];
@@ -45,13 +57,27 @@ export class QuizSetupModal extends Modal {
 
     const renderDetails = () => {
       detailsEl.empty();
+      if (subjectRoot) {
+        new Setting(detailsEl)
+          .setName('Scope source')
+          .setDesc(this.useFullVault ? 'Showing the full vault.' : `Showing notes under ${subjectRoot}`)
+          .addToggle((toggle) => {
+            toggle.setValue(this.useFullVault).onChange((value) => {
+              this.useFullVault = value;
+              this.selectedNotePaths.clear();
+              this.selectedFolderPath = '';
+              this.renderContent();
+            });
+          });
+      }
+
       if (this.quizScope === 'note') {
         detailsEl.createDiv({
           cls: 'setting-item-description',
           text: 'Choose one or more notes.',
         });
         const noteListEl = detailsEl.createDiv({ cls: 'ocop-quiz-note-list' });
-        for (const notePath of allNotes) {
+        for (const notePath of candidateNotes) {
           const noteItem = noteListEl.createDiv({ cls: 'ocop-quiz-note-item' });
           const checkbox = noteItem.createEl('input', { attr: { type: 'checkbox' } });
           checkbox.checked = this.selectedNotePaths.has(notePath);
@@ -74,7 +100,11 @@ export class QuizSetupModal extends Modal {
             for (const folderPath of allFolders) {
               dropdown.addOption(folderPath, folderPath);
             }
-            dropdown.setValue(this.selectedFolderPath).onChange((value) => {
+            const initialFolder = allFolders.includes(this.selectedFolderPath) ? this.selectedFolderPath : (allFolders[0] ?? '');
+            if (initialFolder) {
+              this.selectedFolderPath = initialFolder;
+            }
+            dropdown.setValue(initialFolder).onChange((value) => {
               this.selectedFolderPath = value;
             });
           });
@@ -172,6 +202,16 @@ export class QuizSetupModal extends Modal {
         '각 문제에는 문제 번호를 붙이고, 객관식/멀티셀렉트는 선택지를 명확히 제시하라.',
       ].join(' '),
     };
+  }
+
+  private getSubjectRoot(activeFilePath: string | null): string | null {
+    if (!activeFilePath || !activeFilePath.includes('/')) {
+      return null;
+    }
+
+    const segments = activeFilePath.split('/').slice(0, -1);
+    const subjectSegments = segments.slice(0, Math.min(3, segments.length));
+    return subjectSegments.length > 0 ? subjectSegments.join('/') : null;
   }
 
   private finish(result: QuizSetupResult | null) {
