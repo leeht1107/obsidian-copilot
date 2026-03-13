@@ -101,7 +101,7 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
           });
       });
 
-    new Setting(containerEl).setName('Obsidian Context').setHeading();
+    new Setting(containerEl).setName('Skills & Obsidian Context').setHeading();
 
     const skillsDesc = containerEl.createDiv({ cls: 'ocop-skills-settings-desc' });
     skillsDesc.createEl('p', {
@@ -138,6 +138,78 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
           });
         }
       });
+
+    let skillUrl = '';
+    let textInput: HTMLInputElement | null = null;
+    new Setting(containerEl)
+      .setName('Install custom skill from GitHub')
+      .setDesc('Enter a GitHub repository URL or raw SKILL.md link to add another skill to Copilot.')
+      .addText((text) => {
+        textInput = text.inputEl;
+        text
+          .setPlaceholder('https://github.com/username/repo')
+          .onChange(async (value) => {
+            skillUrl = value;
+          });
+      })
+      .addButton((button) => {
+        button.setButtonText('Install').setCta().onClick(async () => {
+          if (!skillUrl) {
+            new Notice('Please enter a URL');
+            return;
+          }
+
+          button.setButtonText('Installing...').setDisabled(true);
+          try {
+            const success = await installSkillFromUrl(this.app, skillUrl);
+            if (success) {
+              if (textInput) textInput.value = '';
+              skillUrl = '';
+              this.display();
+            }
+          } finally {
+            button.setButtonText('Install').setDisabled(false);
+          }
+        });
+      });
+
+    const installedSkills = getInstalledSkills(this.app);
+    if (installedSkills.length > 0) {
+      const installedSkillsDesc = containerEl.createDiv({ cls: 'ocop-skills-installed-desc' });
+      installedSkillsDesc.createEl('p', {
+        text: `Installed Skills (${installedSkills.length}):`,
+        cls: 'setting-item-description',
+      });
+
+      const skillsListEl = containerEl.createDiv({ cls: 'ocop-skills-list' });
+      for (const skill of installedSkills) {
+        const skillItemEl = skillsListEl.createDiv({ cls: 'ocop-skills-item' });
+        const skillInfoEl = skillItemEl.createDiv({ cls: 'ocop-skills-item-info' });
+        skillInfoEl.createSpan({ cls: 'ocop-skills-item-name', text: skill.name });
+        if (skill.isBuiltIn) {
+          skillInfoEl.createSpan({ cls: 'ocop-skills-builtin-badge', text: 'Built-in' });
+        } else if (skill.isGlobal) {
+          skillInfoEl.createSpan({ cls: 'ocop-skills-builtin-badge', text: 'Global' });
+        }
+        skillInfoEl.createDiv({
+          cls: 'ocop-skills-item-desc',
+          text: skill.description.length > 100 ? `${skill.description.substring(0, 100)}...` : skill.description,
+        });
+
+        if (!skill.isBuiltIn && !skill.isGlobal) {
+          const removeBtn = skillItemEl.createEl('button', {
+            text: 'Remove',
+            cls: 'ocop-skills-remove-btn',
+          });
+          removeBtn.addEventListener('click', async () => {
+            await removeSkill(this.app, skill.name);
+            this.display();
+          });
+        }
+      }
+    } else {
+      containerEl.createDiv({ cls: 'ocop-skills-empty', text: 'No skills installed. Install Obsidian context skills above or add a custom skill from GitHub.' });
+    }
 
     new Setting(containerEl).setName('MCP Tools').setHeading();
     const mcpDesc = containerEl.createDiv({ cls: 'ocop-mcp-settings-desc' });
@@ -222,78 +294,6 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
       cls: 'setting-item-description',
       text: 'Configure optional workflow presets and keyboard shortcuts once you are comfortable with the basics.',
     });
-
-    let skillUrl = '';
-    let textInput: HTMLInputElement | null = null;
-    new Setting(containerEl)
-      .setName('Install Skill from GitHub')
-      .setDesc('Enter a GitHub URL (repository URL or raw SKILL.md link) to install a custom skill.')
-      .addText((text) => {
-        textInput = text.inputEl;
-        text
-          .setPlaceholder('https://github.com/username/repo')
-          .onChange(async (value) => {
-            skillUrl = value;
-          });
-      })
-      .addButton((button) => {
-        button.setButtonText('Install').setCta().onClick(async () => {
-          if (!skillUrl) {
-            new Notice('Please enter a URL');
-            return;
-          }
-
-          button.setButtonText('Installing...').setDisabled(true);
-          try {
-            const success = await installSkillFromUrl(this.app, skillUrl);
-            if (success) {
-              if (textInput) textInput.value = '';
-              skillUrl = '';
-              this.display();
-            }
-          } finally {
-            button.setButtonText('Install').setDisabled(false);
-          }
-        });
-      });
-
-    const installedSkills = getInstalledSkills(this.app);
-    if (installedSkills.length > 0) {
-      const installedSkillsDesc = containerEl.createDiv({ cls: 'ocop-skills-installed-desc' });
-      installedSkillsDesc.createEl('p', {
-        text: `Installed Skills (${installedSkills.length}):`,
-        cls: 'setting-item-description',
-      });
-
-      const skillsListEl = containerEl.createDiv({ cls: 'ocop-skills-list' });
-      for (const skill of installedSkills) {
-        const skillItemEl = skillsListEl.createDiv({ cls: 'ocop-skills-item' });
-        const skillInfoEl = skillItemEl.createDiv({ cls: 'ocop-skills-item-info' });
-        skillInfoEl.createSpan({ cls: 'ocop-skills-item-name', text: skill.name });
-        if (skill.isBuiltIn) {
-          skillInfoEl.createSpan({ cls: 'ocop-skills-builtin-badge', text: 'Built-in' });
-        } else if (skill.isGlobal) {
-          skillInfoEl.createSpan({ cls: 'ocop-skills-builtin-badge', text: 'Global' });
-        }
-        skillInfoEl.createDiv({
-          cls: 'ocop-skills-item-desc',
-          text: skill.description.length > 100 ? `${skill.description.substring(0, 100)}...` : skill.description,
-        });
-
-        if (!skill.isBuiltIn && !skill.isGlobal) {
-          const removeBtn = skillItemEl.createEl('button', {
-            text: 'Remove',
-            cls: 'ocop-skills-remove-btn',
-          });
-          removeBtn.addEventListener('click', async () => {
-            await removeSkill(this.app, skill.name);
-            this.display();
-          });
-        }
-      }
-    } else {
-      containerEl.createDiv({ cls: 'ocop-skills-empty', text: 'No skills installed. Install Obsidian Skills above or add custom skills from GitHub.' });
-    }
 
     const inlineEditCommandId = 'obsidian-copilot:inline-edit';
     const inlineEditHotkey = getHotkeyForCommand(this.app, inlineEditCommandId);
