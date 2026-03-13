@@ -10,7 +10,7 @@ export interface QuizSetupResult {
 export class QuizSetupModal extends Modal {
   private resolvePromise: ((result: QuizSetupResult | null) => void) | null = null;
   private quizScope: QuizScope = 'current-note';
-  private selectedNotePath = '';
+  private selectedNotePaths = new Set<string>();
   private selectedFolderPath = '';
   private questionCount = '10';
 
@@ -30,10 +30,10 @@ export class QuizSetupModal extends Modal {
       .map((notePath) => notePath.includes('/') ? notePath.split('/').slice(0, -1).join('/') : '')
       .filter(Boolean))).sort();
 
-    if (!this.selectedNotePath && this.activeFilePath) {
-      this.selectedNotePath = this.activeFilePath;
-    } else if (!this.selectedNotePath && allNotes.length > 0) {
-      this.selectedNotePath = allNotes[0];
+    if (this.selectedNotePaths.size === 0 && this.activeFilePath) {
+      this.selectedNotePaths.add(this.activeFilePath);
+    } else if (this.selectedNotePaths.size === 0 && allNotes.length > 0) {
+      this.selectedNotePaths.add(allNotes[0]);
     }
     if (!this.selectedFolderPath && allFolders.length > 0) {
       this.selectedFolderPath = allFolders[0];
@@ -44,16 +44,26 @@ export class QuizSetupModal extends Modal {
     const renderDetails = () => {
       detailsEl.empty();
       if (this.quizScope === 'note') {
-        new Setting(detailsEl)
-          .setName('Choose note')
-          .addDropdown((dropdown) => {
-            for (const notePath of allNotes) {
-              dropdown.addOption(notePath, notePath);
+        detailsEl.createDiv({
+          cls: 'setting-item-description',
+          text: 'Choose one or more notes.',
+        });
+        const noteListEl = detailsEl.createDiv({ cls: 'ocop-quiz-note-list' });
+        for (const notePath of allNotes) {
+          const noteItem = noteListEl.createDiv({ cls: 'ocop-quiz-note-item' });
+          const checkbox = noteItem.createEl('input', { attr: { type: 'checkbox' } });
+          checkbox.checked = this.selectedNotePaths.has(notePath);
+          checkbox.addEventListener('change', () => {
+            if (checkbox.checked) {
+              this.selectedNotePaths.add(notePath);
+            } else if (this.selectedNotePaths.size > 1) {
+              this.selectedNotePaths.delete(notePath);
+            } else {
+              checkbox.checked = true;
             }
-            dropdown.setValue(this.selectedNotePath).onChange((value) => {
-              this.selectedNotePath = value;
-            });
           });
+          noteItem.createSpan({ text: notePath });
+        }
       }
       if (this.quizScope === 'folder') {
         new Setting(detailsEl)
@@ -126,8 +136,9 @@ export class QuizSetupModal extends Modal {
     if (this.quizScope === 'current-note' && this.activeFilePath) {
       scopeInstruction = 'Use the current note only as the source material.';
     } else if (this.quizScope === 'note') {
-      scopeInstruction = `Use only the selected note as source material: @${this.selectedNotePath}`;
-      sourceReference = ` (${this.selectedNotePath})`;
+      const selectedPaths = Array.from(this.selectedNotePaths);
+      scopeInstruction = `Use only these selected notes as source material: ${selectedPaths.map((path) => `@${path}`).join(', ')}`;
+      sourceReference = ` (${selectedPaths.length} notes)`;
     } else {
       scopeInstruction = `Use notes in the selected folder as source material and build a quiz from recurring concepts: ${this.selectedFolderPath}`;
       sourceReference = ` (${this.selectedFolderPath})`;
@@ -136,12 +147,14 @@ export class QuizSetupModal extends Modal {
     return {
       displayContent: `/quiz${sourceReference}`,
       prompt: [
-        `Create a ${this.questionCount}-question quiz for a student.`,
+        `한국어로 ${this.questionCount}문제 퀴즈를 만들어 줘.`,
         scopeInstruction,
         this.questionCount === '5'
-          ? 'Default to multiple-choice questions unless another format is clearly better for the material.'
-          : 'Use mostly multiple-choice questions, but mix in short-answer, true/false, and multi-select questions when they improve coverage.',
-        'Include answer choices where needed and provide a clear answer key after the quiz.',
+          ? '기본은 4지선다 객관식으로 하되, 자료 특성상 더 적합하면 다른 형식도 허용해.'
+          : '기본은 4지선다 객관식으로 하되, 문제 수가 많으므로 주관식, 단답식, OX, multi-select를 적절히 섞어도 좋아.',
+        '중요: 한 번에 모든 문제를 내지 말고 반드시 한 문제씩만 내라.',
+        '학생이 답을 고르거나 입력하면, 바로 정답 여부를 알려주고 왜 그런지 한국어로 해설한 뒤 다음 문제로 넘어가라.',
+        '각 문제에는 문제 번호를 붙이고, 객관식/멀티셀렉트는 선택지를 명확히 제시하라.',
       ].join(' '),
     };
   }
