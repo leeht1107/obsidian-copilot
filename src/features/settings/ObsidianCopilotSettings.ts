@@ -7,6 +7,7 @@ import { getCurrentPlatformKey } from '../../core/types';
 import { COPILOT_MODELS } from '../../core/types/models';
 import type ObsidianCopilotPlugin from '../../main';
 import { EnvSnippetManager, McpSettingsManager, SlashCommandSettings } from '../../ui';
+import { setupCollapsible } from '../../ui/utils/collapsible';
 import { expandHomePath } from '../../utils/path';
 import { buildNavMappingText, parseNavMappings } from './keyboardNavigation';
 import {
@@ -289,42 +290,57 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
         });
     }
 
-    new Setting(containerEl).setName('Workflows & Shortcuts').setHeading();
-    containerEl.createDiv({
+    const advancedWrapperEl = containerEl.createDiv({ cls: 'ocop-settings-advanced-wrapper' });
+    const advancedHeaderEl = advancedWrapperEl.createDiv({ cls: 'ocop-settings-advanced-header' });
+    advancedHeaderEl.setAttribute('tabindex', '0');
+    advancedHeaderEl.createSpan({ cls: 'ocop-settings-advanced-title', text: 'Advanced & Power User' });
+    advancedHeaderEl.createSpan({ cls: 'ocop-settings-advanced-toggle', text: 'Show' });
+    const advancedContentEl = advancedWrapperEl.createDiv({ cls: 'ocop-settings-advanced-content' });
+    setupCollapsible(advancedWrapperEl, advancedHeaderEl, advancedContentEl, { isExpanded: false } as any, {
+      initiallyExpanded: false,
+      onToggle: (isExpanded) => {
+        const toggleEl = advancedHeaderEl.querySelector('.ocop-settings-advanced-toggle');
+        if (toggleEl) toggleEl.textContent = isExpanded ? 'Hide' : 'Show';
+      },
+      baseAriaLabel: 'Advanced settings',
+    });
+
+    new Setting(advancedContentEl).setName('Workflows & Shortcuts').setHeading();
+    advancedContentEl.createDiv({
       cls: 'setting-item-description',
       text: 'Configure optional workflow presets and keyboard shortcuts once you are comfortable with the basics.',
     });
 
     const inlineEditCommandId = 'obsidian-copilot:inline-edit';
     const inlineEditHotkey = getHotkeyForCommand(this.app, inlineEditCommandId);
-    new Setting(containerEl)
+    new Setting(advancedContentEl)
       .setName('Inline edit hotkey')
       .setDesc(inlineEditHotkey ? `Current: ${inlineEditHotkey}` : 'No hotkey set. Click to configure.')
       .addButton((button) => button.setButtonText(inlineEditHotkey ? 'Change' : 'Set hotkey').onClick(() => openHotkeySettings(this.app)));
 
     const openChatCommandId = 'obsidian-copilot:open-view';
     const openChatHotkey = getHotkeyForCommand(this.app, openChatCommandId);
-    new Setting(containerEl)
+    new Setting(advancedContentEl)
       .setName('Open chat hotkey')
       .setDesc(openChatHotkey ? `Current: ${openChatHotkey}` : 'No hotkey set. Click to configure.')
       .addButton((button) => button.setButtonText(openChatHotkey ? 'Change' : 'Set hotkey').onClick(() => openHotkeySettings(this.app)));
 
-    new Setting(containerEl).setName('Workflow Presets').setHeading();
-    const slashCommandsDesc = containerEl.createDiv({ cls: 'ocop-slash-settings-desc' });
+    new Setting(advancedContentEl).setName('Workflow Presets').setHeading();
+    const slashCommandsDesc = advancedContentEl.createDiv({ cls: 'ocop-slash-settings-desc' });
     slashCommandsDesc.createEl('p', {
       text: 'Create custom prompt templates triggered by /command. Use $ARGUMENTS for all arguments, $1/$2 for positional args, @file for file content, and !`bash` for command output.',
       cls: 'setting-item-description',
     });
-    const slashCommandsContainer = containerEl.createDiv({ cls: 'ocop-slash-commands-container' });
+    const slashCommandsContainer = advancedContentEl.createDiv({ cls: 'ocop-slash-commands-container' });
     new SlashCommandSettings(slashCommandsContainer, this.plugin);
 
-    new Setting(containerEl).setName('Safety & Permissions').setHeading();
-    containerEl.createDiv({
+    new Setting(advancedContentEl).setName('Safety & Permissions').setHeading();
+    advancedContentEl.createDiv({
       cls: 'setting-item-description',
       text: 'The toggle below is the main safety control for beginners. Detailed allow/block rules are in Advanced.',
     });
 
-    new Setting(containerEl)
+    new Setting(advancedContentEl)
       .setName('Enable command blocklist')
       .setDesc('Block potentially dangerous shell commands')
       .addToggle((toggle) =>
@@ -340,7 +356,7 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
     const isWindows = platformKey === 'windows';
     const platformLabel = isWindows ? 'Windows' : 'Unix';
 
-    new Setting(containerEl)
+    new Setting(advancedContentEl)
       .setName(`Blocked commands (${platformLabel})`)
       .setDesc(`Patterns to block on ${platformLabel} (one per line). Supports regex.`)
       .addTextArea((text) => {
@@ -362,7 +378,7 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
       });
 
     if (isWindows) {
-      new Setting(containerEl)
+      new Setting(advancedContentEl)
         .setName('Blocked commands (Unix/Git Bash)')
         .setDesc('Unix patterns also blocked on Windows because Git Bash can invoke them.')
         .addTextArea((text) => {
@@ -381,7 +397,7 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
         });
     }
 
-    new Setting(containerEl)
+    new Setting(advancedContentEl)
       .setName('Allowed export paths')
       .setDesc('Paths outside the vault where files can be exported (one per line). Supports ~ for home directory.')
       .addTextArea((text) => {
@@ -400,19 +416,19 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
         text.inputEl.cols = 40;
       });
 
-    const approvedDesc = containerEl.createDiv({ cls: 'ocop-approved-desc' });
+    const approvedDesc = advancedContentEl.createDiv({ cls: 'ocop-approved-desc' });
     approvedDesc.createEl('p', {
       text: 'Actions that have been permanently approved (via Always Allow). These will not require approval in Safe mode.',
       cls: 'setting-item-description',
     });
 
     if (this.plugin.settings.permissions.length === 0) {
-      containerEl.createDiv({
+      advancedContentEl.createDiv({
         cls: 'ocop-approved-empty',
         text: 'No approved actions yet. When you click Always Allow in the approval dialog, actions will appear here.',
       });
     } else {
-      const listEl = containerEl.createDiv({ cls: 'ocop-approved-list' });
+      const listEl = advancedContentEl.createDiv({ cls: 'ocop-approved-list' });
       for (const action of this.plugin.settings.permissions) {
         const itemEl = listEl.createDiv({ cls: 'ocop-approved-item' });
         const infoEl = itemEl.createDiv({ cls: 'ocop-approved-item-info' });
@@ -427,7 +443,7 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
         });
       }
 
-      new Setting(containerEl)
+      new Setting(advancedContentEl)
         .setName('Clear all approved actions')
         .setDesc('Remove all permanently approved actions')
         .addButton((button) =>
@@ -439,13 +455,13 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
         );
     }
 
-    new Setting(containerEl).setName('Authentication & Environment').setHeading();
-    containerEl.createDiv({
+    new Setting(advancedContentEl).setName('Authentication & Environment').setHeading();
+    advancedContentEl.createDiv({
       cls: 'setting-item-description',
       text: 'Most students can leave these alone if `copilot login` already worked in the terminal.',
     });
 
-    new Setting(containerEl)
+    new Setting(advancedContentEl)
       .setName('GitHub token')
       .setDesc('Optional. Uses COPILOT_GITHUB_TOKEN, GH_TOKEN, and GITHUB_TOKEN for the Copilot child process when set.')
       .addText((text) =>
@@ -458,7 +474,7 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
           })
       );
 
-    new Setting(containerEl)
+    new Setting(advancedContentEl)
       .setName('Custom variables')
       .setDesc('Environment variables for Copilot CLI (KEY=VALUE format, one per line)')
       .addTextArea((text) => {
@@ -473,16 +489,16 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
         text.inputEl.addClass('ocop-settings-env-textarea');
       });
 
-    const envSnippetsContainer = containerEl.createDiv({ cls: 'ocop-env-snippets-container' });
+    const envSnippetsContainer = advancedContentEl.createDiv({ cls: 'ocop-env-snippets-container' });
     new EnvSnippetManager(envSnippetsContainer, this.plugin);
 
-    new Setting(containerEl).setName('Advanced & Developer').setHeading();
-    containerEl.createDiv({
+    new Setting(advancedContentEl).setName('Advanced & Developer').setHeading();
+    advancedContentEl.createDiv({
       cls: 'setting-item-description',
       text: 'Only change these if you know why you need them. They are preserved here for power users and debugging.',
     });
 
-    new Setting(containerEl)
+    new Setting(advancedContentEl)
       .setName('Custom system prompt')
       .setDesc('Additional instructions appended to the default Copilot prompt')
       .addTextArea((text) => {
@@ -497,7 +513,7 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
         text.inputEl.cols = 50;
       });
 
-    new Setting(containerEl)
+    new Setting(advancedContentEl)
       .setName('Vim-style navigation mappings')
       .setDesc('One mapping per line. Format: "map <key> <action>" (actions: scrollUp, scrollDown, focusInput).')
       .addTextArea((text) => {
@@ -553,11 +569,11 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
 
     const cliPathDescription = 'Custom path to GitHub Copilot CLI. Leave empty for auto-detection. Paste the output of "which copilot" (macOS/Linux) or the full executable path on Windows. You must install the Copilot CLI (`npm install -g @github/copilot`) and run `copilot login` once in your terminal.';
 
-    const cliPathSetting = new Setting(containerEl)
+    const cliPathSetting = new Setting(advancedContentEl)
       .setName('Copilot CLI path')
       .setDesc(cliPathDescription);
 
-    const validationEl = containerEl.createDiv({ cls: 'ocop-cli-path-validation' });
+    const validationEl = advancedContentEl.createDiv({ cls: 'ocop-cli-path-validation' });
     validationEl.style.color = 'var(--text-error)';
     validationEl.style.fontSize = '0.85em';
     validationEl.style.marginTop = '-0.5em';

@@ -22,6 +22,7 @@ import {
   type InstructionModeManager,
   type McpServerSelector,
   type PlanBanner,
+  QuizSetupModal,
   showAskUserQuestionPanel,
   showPlanApprovalPanel,
 } from '../../../ui';
@@ -110,6 +111,7 @@ export class InputController {
     hidden?: boolean;
     content?: string;
     promptPrefix?: string;
+    displayContentOverride?: string;
   }): Promise<void> {
     const { plugin, state, renderer, streamController, selectionController, conversationController } = this.deps;
     const inputEl = this.deps.getInputEl();
@@ -123,6 +125,23 @@ export class InputController {
     let content = (contentOverride ?? inputEl.value).trim();
     const hasImages = imageContextManager?.hasImages() ?? false;
     if (!content && !hasImages) return;
+
+    if (content === '/quiz') {
+      const quizModal = new QuizSetupModal(plugin.app, fileContextManager?.getCurrentNotePath() || null);
+      const quizResult = await quizModal.openAndWait();
+      if (!quizResult) {
+        return;
+      }
+
+      await this.sendMessage({
+        content: quizResult.prompt,
+        displayContentOverride: quizResult.displayContent,
+        promptPrefix: options?.promptPrefix,
+        hidden: options?.hidden,
+        editorContextOverride: options?.editorContextOverride,
+      });
+      return;
+    }
 
     // If agent is working, queue the message instead of dropping it
     if (state.isStreaming) {
@@ -296,7 +315,7 @@ export class InputController {
       currentNoteForMessage = currentNotePath;
     }
 
-    userMsg.displayContent = displayContent !== content ? displayContent : undefined;
+    userMsg.displayContent = options?.displayContentOverride ?? (displayContent !== content ? displayContent : undefined);
     userMsg.currentNote = currentNoteForMessage;
 
     if (options?.promptPrefix) {

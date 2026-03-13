@@ -60,6 +60,41 @@
   color: var(--text-error);
 }
 
+.ocop-settings-advanced-wrapper {
+  margin-top: 18px;
+  border-top: 1px solid var(--background-modifier-border);
+  padding-top: 12px;
+}
+
+.ocop-settings-advanced-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--background-secondary);
+}
+
+.ocop-settings-advanced-header:hover {
+  background: var(--background-modifier-hover);
+}
+
+.ocop-settings-advanced-title {
+  font-weight: var(--font-semibold);
+  color: var(--text-normal);
+}
+
+.ocop-settings-advanced-toggle {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.ocop-settings-advanced-content {
+  padding-top: 8px;
+}
+
 /* Media folder input width */
 .ocop-settings-media-input {
   width: 200px;
