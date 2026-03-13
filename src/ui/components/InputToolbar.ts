@@ -27,6 +27,7 @@ export interface ToolbarCallbacks {
   onModelChange: (model: CopilotModel) => Promise<void>;
   onThinkingBudgetChange: (budget: ThinkingBudget) => Promise<void>;
   onPermissionModeChange: (mode: PermissionMode) => Promise<void>;
+  onOpenQuiz?: () => Promise<void>;
   getSettings: () => ToolbarSettings;
   getEnvironmentVariables?: () => string;
   isAgentInitiatedPlanMode?: () => boolean;
@@ -292,6 +293,30 @@ export class PermissionToggle {
 
     this.onPlanModeToggle?.(!this.isPlanModeRequested());
     this.updateDisplay();
+  }
+}
+
+export class QuizLauncherButton {
+  private container: HTMLElement;
+  private callbacks: ToolbarCallbacks;
+
+  constructor(parentEl: HTMLElement, callbacks: ToolbarCallbacks) {
+    this.callbacks = callbacks;
+    this.container = parentEl.createDiv({ cls: 'ocop-quiz-launcher' });
+    this.render();
+  }
+
+  private render() {
+    this.container.empty();
+    const button = this.container.createEl('button', {
+      cls: 'ocop-quiz-launcher-btn',
+      text: 'Quiz',
+      attr: { 'aria-label': 'Open guided quiz setup' },
+    });
+    button.type = 'button';
+    button.addEventListener('click', async () => {
+      await this.callbacks.onOpenQuiz?.();
+    });
   }
 }
 
@@ -739,6 +764,7 @@ export function createInputToolbar(
   externalContextSelector: ExternalContextSelector;
   mcpServerSelector: McpServerSelector;
   permissionToggle: PermissionToggle;
+  quizLauncherButton: QuizLauncherButton;
 } {
   const modelSelector = new ModelSelector(parentEl, callbacks);
   const thinkingBudgetSelector = new ThinkingBudgetSelector(parentEl, callbacks);
@@ -746,6 +772,7 @@ export function createInputToolbar(
   const externalContextSelector = new ExternalContextSelector(parentEl);
   const mcpServerSelector = new McpServerSelector(parentEl);
   const permissionToggle = new PermissionToggle(parentEl, callbacks);
+  const quizLauncherButton = new QuizLauncherButton(parentEl, callbacks);
 
   return {
     modelSelector,
@@ -754,5 +781,6 @@ export function createInputToolbar(
     externalContextSelector,
     mcpServerSelector,
     permissionToggle,
+    quizLauncherButton,
   };
 }

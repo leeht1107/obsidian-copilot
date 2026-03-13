@@ -26,6 +26,7 @@ import {
   type ThinkingBudgetSelector,
   TodoPanel,
 } from '../../ui';
+import { QuizSetupModal } from '../../ui';
 import { getVaultPath } from '../../utils/path';
 import { LOGO_SVG } from './constants';
 import {
@@ -319,6 +320,18 @@ export class ObsidianCopilotView extends ItemView {
         }
 
         this.updatePlanModeUiState();
+      },
+      onOpenQuiz: async () => {
+        const quizModal = new QuizSetupModal(this.plugin.app, this.fileContextManager?.getCurrentNotePath() || null);
+        const quizResult = await quizModal.openAndWait();
+        if (!quizResult) {
+          return;
+        }
+
+        await this.inputController?.sendMessage({
+          content: quizResult.prompt,
+          displayContentOverride: quizResult.displayContent,
+        });
       },
     });
 

@@ -76,6 +76,29 @@
   gap: 6px;
 }
 
+.ocop-quiz-launcher {
+  margin-left: auto;
+}
+
+.ocop-quiz-launcher-btn {
+  border: 1px solid color-mix(in srgb, #38bdf8 35%, var(--background-modifier-border));
+  background: color-mix(in srgb, #38bdf8 12%, var(--background-secondary));
+  color: #e0f2fe;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+
+.ocop-quiz-launcher-btn:hover {
+  background: color-mix(in srgb, #38bdf8 18%, var(--background-secondary));
+  border-color: #38bdf8;
+  transform: translateY(-1px);
+}
+
 /* File indicator (attached files) */
 .ocop-file-indicator {
   display: none;
