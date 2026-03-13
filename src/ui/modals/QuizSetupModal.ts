@@ -13,9 +13,11 @@ export class QuizSetupModal extends Modal {
   private selectedNotePaths = new Set<string>();
   private selectedFolderPath = '';
   private questionCount = '10';
+  private focusText = '';
 
-  constructor(app: App, private readonly activeFilePath: string | null) {
+  constructor(app: App, private readonly activeFilePath: string | null, initialFocusText = '') {
     super(app);
+    this.focusText = initialFocusText.trim();
     if (!activeFilePath) {
       this.quizScope = 'note';
     }
@@ -107,6 +109,18 @@ export class QuizSetupModal extends Modal {
         });
       });
 
+    new Setting(this.contentEl)
+      .setName('Focus topic (optional)')
+      .setDesc('Example: PK, 정규화, 트랜잭션')
+      .addText((text) => {
+        text
+          .setPlaceholder('Leave empty to cover the full selected scope')
+          .setValue(this.focusText)
+          .onChange((value) => {
+            this.focusText = value.trim();
+          });
+      });
+
     const buttonsEl = this.contentEl.createDiv({ cls: 'ocop-mcp-buttons' });
     const cancelBtn = buttonsEl.createEl('button', { text: 'Cancel', cls: 'ocop-cancel-btn' });
     cancelBtn.addEventListener('click', () => this.finish(null));
@@ -145,10 +159,11 @@ export class QuizSetupModal extends Modal {
     }
 
     return {
-      displayContent: `/quiz${sourceReference}`,
+      displayContent: this.focusText ? `/quiz ${this.focusText}${sourceReference}` : `/quiz${sourceReference}`,
       prompt: [
         `한국어로 ${this.questionCount}문제 퀴즈를 만들어 줘.`,
         scopeInstruction,
+        this.focusText ? `퀴즈는 특히 ${this.focusText} 중심으로 출제해.` : '',
         this.questionCount === '5'
           ? '기본은 4지선다 객관식으로 하되, 자료 특성상 더 적합하면 다른 형식도 허용해.'
           : '기본은 4지선다 객관식으로 하되, 문제 수가 많으므로 주관식, 단답식, OX, multi-select를 적절히 섞어도 좋아.',

@@ -126,8 +126,9 @@ export class InputController {
     const hasImages = imageContextManager?.hasImages() ?? false;
     if (!content && !hasImages) return;
 
-    if (content === '/quiz') {
-      const quizModal = new QuizSetupModal(plugin.app, fileContextManager?.getCurrentNotePath() || null);
+    if (content === '/quiz' || content.startsWith('/quiz ')) {
+      const quizFocusText = content === '/quiz' ? '' : content.slice('/quiz'.length).trim();
+      const quizModal = new QuizSetupModal(plugin.app, fileContextManager?.getCurrentNotePath() || null, quizFocusText);
       const quizResult = await quizModal.openAndWait();
       if (!quizResult) {
         return;
