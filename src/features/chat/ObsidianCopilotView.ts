@@ -499,6 +499,26 @@ export class ObsidianCopilotView extends ItemView {
       this.inputEl.setSelectionRange(prompt.length, prompt.length);
     });
 
+    this.registerDomEvent(this.containerEl, 'click', (event) => {
+      const target = event.target as HTMLElement | null;
+      const answerBtn = target?.closest('.ocop-quiz-answer-btn') as HTMLButtonElement | null;
+      if (answerBtn && this.inputController) {
+        const isMultiSelect = answerBtn.dataset.multiSelect === 'true';
+        if (!isMultiSelect) {
+          void this.inputController.sendMessage({ content: answerBtn.dataset.answerLabel || answerBtn.textContent || '' });
+        }
+        return;
+      }
+
+      const submitBtn = target?.closest('.ocop-quiz-submit-btn') as HTMLButtonElement | null;
+      if (submitBtn && this.inputController) {
+        const answerValue = submitBtn.getAttribute('data-answer-value') || '';
+        if (answerValue) {
+          void this.inputController.sendMessage({ content: answerValue });
+        }
+      }
+    });
+
     this.registerDomEvent(document, 'keydown', (e: KeyboardEvent) => {
       if (e.key === 'Escape' && this.state.isStreaming) {
         e.preventDefault();

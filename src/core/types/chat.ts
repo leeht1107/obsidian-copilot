@@ -31,6 +31,25 @@ export type ContentBlock =
   | { type: 'thinking'; content: string; durationSeconds?: number }
   | { type: 'subagent'; subagentId: string; mode?: SubagentMode };
 
+export interface QuizQuestionOption {
+  label: string;
+  text: string;
+}
+
+export interface QuizQuestionMeta {
+  current: number;
+  total: number;
+  multiSelect: boolean;
+  options: QuizQuestionOption[];
+}
+
+export interface QuizSessionState {
+  totalQuestions: number;
+  currentQuestion: number;
+  scopeLabel: string;
+  focusText?: string;
+}
+
 /** Chat message with content, tool calls, and attachments. */
 export interface ChatMessage {
   id: string;
@@ -53,6 +72,7 @@ export interface ChatMessage {
     type: 'approve' | 'approve_new_session' | 'revise';
     feedback?: string; // For revise
   };
+  quizQuestion?: QuizQuestionMeta;
 }
 
 /** Persisted conversation with messages and session state. */
@@ -80,6 +100,7 @@ export interface Conversation {
   titleGenerationStatus?: 'pending' | 'success' | 'failed';
   /** UI-enabled MCP servers for this session (context-saving servers activated via selector). */
   enabledMcpServers?: string[];
+  quizSession?: QuizSessionState;
 }
 
 /** Lightweight conversation metadata for the history dropdown. */

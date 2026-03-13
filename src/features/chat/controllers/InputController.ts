@@ -91,6 +91,12 @@ interface PlanModeSendOptions extends PlanModeResendPayload {
   hidden?: boolean;
 }
 
+interface QuizSessionInit {
+  totalQuestions: number;
+  scopeLabel: string;
+  focusText?: string;
+}
+
 /**
  * InputController handles user input and message sending.
  */
@@ -112,6 +118,7 @@ export class InputController {
     content?: string;
     promptPrefix?: string;
     displayContentOverride?: string;
+    quizSessionInit?: QuizSessionInit;
   }): Promise<void> {
     const { plugin, state, renderer, streamController, selectionController, conversationController } = this.deps;
     const inputEl = this.deps.getInputEl();
@@ -140,6 +147,11 @@ export class InputController {
         promptPrefix: options?.promptPrefix,
         hidden: options?.hidden,
         editorContextOverride: options?.editorContextOverride,
+        quizSessionInit: {
+          totalQuestions: quizResult.totalQuestions,
+          scopeLabel: quizResult.displayContent,
+          focusText: quizResult.focusText,
+        },
       });
       return;
     }
@@ -183,6 +195,16 @@ export class InputController {
     if (shouldUseInput) {
       inputEl.value = '';
     }
+
+    if (options?.quizSessionInit) {
+      state.quizSession = {
+        totalQuestions: options.quizSessionInit.totalQuestions,
+        currentQuestion: 1,
+        scopeLabel: options.quizSessionInit.scopeLabel,
+        focusText: options.quizSessionInit.focusText,
+      };
+    }
+
     state.isStreaming = true;
     state.cancelRequested = false;
     state.ignoreUsageUpdates = false; // Allow usage updates for new query
@@ -323,6 +345,18 @@ export class InputController {
       promptToSend = `${options.promptPrefix}\n\n${promptToSend}`;
     }
 
+    if (!options?.quizSessionInit && state.quizSession) {
+      const quizSession = state.quizSession;
+      const isFinalQuestion = quizSession.currentQuestion >= quizSession.totalQuestions;
+      const nextQuestionNumber = Math.min(quizSession.currentQuestion + 1, quizSession.totalQuestions);
+      const quizControl = isFinalQuestion
+        ? `You are continuing an active quiz. The student is answering question ${quizSession.currentQuestion} of ${quizSession.totalQuestions}. Evaluate the student's answer, give Korean feedback, and stop after the final feedback and final performance summary. Do not ask another question.`
+        : `You are continuing an active quiz. The student is answering question ${quizSession.currentQuestion} of ${quizSession.totalQuestions}. Evaluate the student's answer, then ask exactly question ${nextQuestionNumber} of ${quizSession.totalQuestions}.`;
+      promptToSend = `${quizControl}
+
+${promptToSend}`;
+    }
+
     const containsMentions = promptToSend.includes('@');
 
     // Transform context file mentions (e.g., @folder/file.ts) to absolute paths
@@ -389,6 +423,17 @@ export class InputController {
       streamController.finalizeCurrentThinkingBlock(assistantMsg);
       await streamController.finalizeCurrentTextBlock(assistantMsg);
       state.activeSubagents.clear();
+
+      if (state.quizSession && !options?.quizSessionInit) {
+        if (state.quizSession.currentQuestion < state.quizSession.totalQuestions) {
+          state.quizSession = {
+            ...state.quizSession,
+            currentQuestion: state.quizSession.currentQuestion + 1,
+          };
+        } else {
+          state.quizSession = null;
+        }
+      }
 
       await conversationController.save(true);
 

@@ -293,6 +293,56 @@ export class MessageRenderer {
         }
       }
     }
+
+    if (msg.quizQuestion) {
+      this.renderQuizAnswerActions(contentEl, msg.quizQuestion);
+    }
+  }
+
+  private renderQuizAnswerActions(contentEl: HTMLElement, quizQuestion: NonNullable<ChatMessage['quizQuestion']>): void {
+    const actionsEl = contentEl.createDiv({ cls: 'ocop-quiz-actions' });
+    const selected = new Set<string>();
+    let submitBtn: HTMLButtonElement | null = null;
+
+    if (quizQuestion.multiSelect) {
+      submitBtn = actionsEl.createEl('button', {
+        cls: 'ocop-quiz-submit-btn',
+        text: '선택 제출',
+        attr: { 'data-answer-submit': 'true' },
+      });
+      submitBtn.type = 'button';
+      submitBtn.disabled = true;
+      submitBtn.addEventListener('click', () => {
+        submitBtn?.setAttribute('data-answer-value', Array.from(selected).sort().join(','));
+      });
+    }
+
+    for (const option of quizQuestion.options) {
+      const button = actionsEl.createEl('button', {
+        cls: 'ocop-quiz-answer-btn',
+        text: `${option.label}. ${option.text}`,
+        attr: {
+          'data-answer-label': option.label,
+          'data-answer-text': option.text,
+          'data-multi-select': quizQuestion.multiSelect ? 'true' : 'false',
+        },
+      });
+      button.type = 'button';
+      if (quizQuestion.multiSelect) {
+        button.addEventListener('click', () => {
+          if (selected.has(option.label)) {
+            selected.delete(option.label);
+            button.removeClass('is-selected');
+          } else {
+            selected.add(option.label);
+            button.addClass('is-selected');
+          }
+          if (submitBtn) {
+            submitBtn.disabled = selected.size === 0;
+          }
+        });
+      }
+    }
   }
 
   /**

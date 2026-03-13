@@ -7,6 +7,7 @@ import type { EditorView } from '@codemirror/view';
 import type {
   ChatMessage,
   ImageAttachment,
+  QuizSessionState,
   SubagentInfo,
   ToolCallInfo,
   UsageInfo,
@@ -104,6 +105,9 @@ export interface ChatStateData {
 
   // Current todo items for the persistent bottom panel
   currentTodos: TodoItem[] | null;
+
+  // Active quiz session state
+  quizSession: QuizSessionState | null;
 }
 
 /** Callbacks for ChatState changes. */

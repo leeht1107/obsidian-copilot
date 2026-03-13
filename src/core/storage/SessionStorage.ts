@@ -17,6 +17,7 @@ import type {
   Conversation,
   ConversationMeta,
   ImageAttachment,
+  QuizSessionState,
   UsageInfo,
 } from '../types';
 import type { VaultFileAdapter } from './VaultFileAdapter';
@@ -43,6 +44,7 @@ interface SessionMetaRecord {
   isInPlanMode?: boolean;
   titleGenerationStatus?: 'pending' | 'success' | 'failed';
   enabledMcpServers?: string[];
+  quizSession?: QuizSessionState;
 }
 
 /** Message record stored as subsequent lines. */
@@ -254,6 +256,7 @@ export class SessionStorage {
       isInPlanMode: meta.isInPlanMode,
       titleGenerationStatus: meta.titleGenerationStatus,
       enabledMcpServers: meta.enabledMcpServers,
+      quizSession: meta.quizSession,
     };
   }
 
@@ -280,6 +283,7 @@ export class SessionStorage {
       isInPlanMode: conversation.isInPlanMode,
       titleGenerationStatus: conversation.titleGenerationStatus,
       enabledMcpServers: conversation.enabledMcpServers,
+      quizSession: conversation.quizSession,
     };
     lines.push(JSON.stringify(meta));
 

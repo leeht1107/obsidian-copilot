@@ -5,6 +5,8 @@ type QuizScope = 'current-note' | 'note' | 'folder';
 export interface QuizSetupResult {
   prompt: string;
   displayContent: string;
+  totalQuestions: number;
+  focusText?: string;
 }
 
 function getBasename(path: string): string {
@@ -224,6 +226,8 @@ export class QuizSetupModal extends Modal {
 
     return {
       displayContent: displayLabel,
+      totalQuestions: Number(this.questionCount),
+      focusText: this.focusText || undefined,
       prompt: [
         `Create a ${this.questionCount}-question quiz in Korean.`,
         scopeInstruction,

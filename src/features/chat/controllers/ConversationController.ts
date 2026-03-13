@@ -161,6 +161,7 @@ export class ConversationController {
     // Restore pending plan content
     state.pendingPlanContent = conversation.pendingPlanContent ?? null;
     this.restorePlanModeState();
+    state.quizSession = conversation.quizSession ?? null;
 
     const hasMessages = state.messages.length > 0;
     const fileCtx = this.deps.getFileContextManager();
@@ -237,6 +238,7 @@ export class ConversationController {
     // Restore pending plan content
     state.pendingPlanContent = conversation.pendingPlanContent ?? null;
     this.restorePlanModeState();
+    state.quizSession = conversation.quizSession ?? null;
 
     this.deps.getInputEl().value = '';
     this.deps.clearQueuedMessage();
@@ -308,6 +310,7 @@ export class ConversationController {
       pendingPlanContent: state.pendingPlanContent ?? undefined,
       isInPlanMode: state.planModeState?.isActive ?? undefined,
       enabledMcpServers: enabledMcpServers.length > 0 ? enabledMcpServers : undefined,
+      quizSession: state.quizSession ?? undefined,
     };
 
     if (updateLastResponse) {

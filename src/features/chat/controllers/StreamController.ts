@@ -6,7 +6,7 @@
  */
 
 import { isPlanModeTool, isWriteEditTool, TOOL_AGENT_OUTPUT, TOOL_ASK_USER_QUESTION, TOOL_TASK, TOOL_TODO_WRITE } from '../../../core/tools/toolNames';
-import type { AskUserQuestionQuestion, ChatMessage, StreamChunk, SubagentInfo, ToolCallInfo } from '../../../core/types';
+import type { AskUserQuestionQuestion, ChatMessage, QuizQuestionMeta, QuizQuestionOption, StreamChunk, SubagentInfo, ToolCallInfo } from '../../../core/types';
 import type ObsidianCopilotPlugin from '../../../main';
 import {
   addSubagentToolCall,
@@ -410,9 +410,13 @@ export class StreamController {
   /** Finalizes the current text block. */
   async finalizeCurrentTextBlock(msg?: ChatMessage): Promise<void> {
     const { state, renderer } = this.deps;
+    const finalizedText = state.currentTextContent;
     if (msg && state.currentTextContent) {
       msg.contentBlocks = msg.contentBlocks || [];
       msg.contentBlocks.push({ type: 'text', content: state.currentTextContent });
+      if (msg.role === 'assistant') {
+        msg.quizQuestion = parseQuizQuestionMeta(finalizedText);
+      }
     }
 
     if (state.currentTextEl && state.currentTextContent) {
@@ -776,4 +780,27 @@ export class StreamController {
     state.currentThinkingState = null;
     state.activeSubagents.clear();
   }
+}
+
+function parseQuizQuestionMeta(content: string): QuizQuestionMeta | undefined {
+  const headerMatch = content.match(/^##\s*(\d+)\s*\/\s*(\d+)번 문제/im);
+  if (!headerMatch) {
+    return undefined;
+  }
+
+  const options = Array.from(content.matchAll(/^([A-D])\.\s+(.+)$/gm)).map<QuizQuestionOption>((match) => ({
+    label: match[1],
+    text: match[2].trim(),
+  }));
+  if (options.length === 0) {
+    return undefined;
+  }
+
+  const multiSelect = /복수 선택 가능|답안 형식:\s*[A-D](?:\s*,\s*[A-D])+/i.test(content);
+  return {
+    current: Number(headerMatch[1]),
+    total: Number(headerMatch[2]),
+    multiSelect,
+    options,
+  };
 }

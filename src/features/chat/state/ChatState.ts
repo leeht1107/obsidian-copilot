@@ -5,7 +5,7 @@
  * pattern established by AsyncSubagentManager.
  */
 
-import type { UsageInfo } from '../../../core/types';
+import type { QuizSessionState, UsageInfo } from '../../../core/types';
 import type {
   AskUserQuestionState,
   AsyncSubagentState,
@@ -47,6 +47,7 @@ function createInitialState(): ChatStateData {
     planModeActivationPending: false,
     pendingPlanContent: null,
     currentTodos: null,
+    quizSession: null,
   };
 }
 
@@ -299,6 +300,14 @@ export class ChatState {
     this.callbacks.onTodosChanged?.(normalizedValue);
   }
 
+  get quizSession(): QuizSessionState | null {
+    return this.state.quizSession;
+  }
+
+  set quizSession(value: QuizSessionState | null) {
+    this.state.quizSession = value;
+  }
+
   // ============================================
   // Reset Methods
   // ============================================
@@ -332,6 +341,7 @@ export class ChatState {
     this.state.planModeActivationPending = false;
     this.usage = null;
     this.currentTodos = null;
+    this.quizSession = null;
   }
 
   /** Gets persisted messages (strips image data). */
