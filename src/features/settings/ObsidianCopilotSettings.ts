@@ -67,7 +67,11 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
     containerEl.empty();
     containerEl.addClass('ocop-settings');
 
-    new Setting(containerEl).setName('Customization').setHeading();
+    new Setting(containerEl).setName('Quick Start').setHeading();
+    containerEl.createDiv({
+      cls: 'setting-item-description',
+      text: 'Start here: choose your default model, install Obsidian context support, and set up MCP if you need external tools.',
+    });
 
     new Setting(containerEl)
       .setName('What should Obsidian Copilot call you?')
@@ -96,6 +100,59 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
           });
       });
+
+    new Setting(containerEl).setName('Obsidian Context').setHeading();
+
+    const skillsDesc = containerEl.createDiv({ cls: 'ocop-skills-settings-desc' });
+    skillsDesc.createEl('p', {
+      text: 'Install Obsidian-specific skills so Copilot understands wikilinks, callouts, properties, and canvas files.',
+      cls: 'setting-item-description',
+    });
+
+    const skillsInstalled = isObsidianSkillsInstalled(this.app);
+    new Setting(containerEl)
+      .setName('Obsidian context skills')
+      .setDesc(
+        skillsInstalled
+          ? 'Installed - Copilot understands Obsidian syntax better.'
+          : 'Not installed - recommended for most students.'
+      )
+      .addButton((button) => {
+        if (skillsInstalled) {
+          button.setButtonText('Reinstall').onClick(async () => {
+            await installObsidianSkills(this.app);
+            this.display();
+          });
+        } else {
+          button.setButtonText('Install').setCta().onClick(async () => {
+            await installObsidianSkills(this.app);
+            this.display();
+          });
+        }
+      })
+      .addButton((button) => {
+        if (skillsInstalled) {
+          button.setButtonText('Remove').onClick(async () => {
+            await uninstallObsidianSkills(this.app);
+            this.display();
+          });
+        }
+      });
+
+    new Setting(containerEl).setName('MCP Tools').setHeading();
+    const mcpDesc = containerEl.createDiv({ cls: 'ocop-mcp-settings-desc' });
+    mcpDesc.createEl('p', {
+      text: 'Connect external MCP tools here. Beginners can use the built-in import flow with a GitHub URL or pasted JSON.',
+      cls: 'setting-item-description',
+    });
+    const mcpContainer = containerEl.createDiv({ cls: 'ocop-mcp-container' });
+    new McpSettingsManager(mcpContainer, this.plugin);
+
+    new Setting(containerEl).setName('Chat Behavior').setHeading();
+    containerEl.createDiv({
+      cls: 'setting-item-description',
+      text: 'Control how chat behaves day to day without touching advanced system settings.',
+    });
 
     new Setting(containerEl)
       .setName('Excluded tags')
@@ -130,21 +187,6 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
       });
 
     new Setting(containerEl)
-      .setName('Custom system prompt')
-      .setDesc('Additional instructions appended to the default Copilot prompt')
-      .addTextArea((text) => {
-        text
-          .setPlaceholder('Add custom instructions here...')
-          .setValue(this.plugin.settings.systemPrompt)
-          .onChange(async (value) => {
-            this.plugin.settings.systemPrompt = value;
-            await this.plugin.saveSettings();
-          });
-        text.inputEl.rows = 6;
-        text.inputEl.cols = 50;
-      });
-
-    new Setting(containerEl)
       .setName('Auto-generate conversation titles')
       .setDesc('Automatically generate conversation titles after the first exchange.')
       .addToggle((toggle) =>
@@ -175,97 +217,11 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
         });
     }
 
-    new Setting(containerEl)
-      .setName('Vim-style navigation mappings')
-      .setDesc('One mapping per line. Format: "map <key> <action>" (actions: scrollUp, scrollDown, focusInput).')
-      .addTextArea((text) => {
-        let pendingValue = buildNavMappingText(this.plugin.settings.keyboardNavigation);
-        let saveTimeout: number | null = null;
-
-        const commitValue = async (showError: boolean): Promise<void> => {
-          if (saveTimeout !== null) {
-            window.clearTimeout(saveTimeout);
-            saveTimeout = null;
-          }
-
-          const result = parseNavMappings(pendingValue);
-          if (!result.settings) {
-            if (showError) {
-              new Notice(`Invalid navigation mappings: ${result.error}`);
-              pendingValue = buildNavMappingText(this.plugin.settings.keyboardNavigation);
-              text.setValue(pendingValue);
-            }
-            return;
-          }
-
-          this.plugin.settings.keyboardNavigation.scrollUpKey = result.settings.scrollUp;
-          this.plugin.settings.keyboardNavigation.scrollDownKey = result.settings.scrollDown;
-          this.plugin.settings.keyboardNavigation.focusInputKey = result.settings.focusInput;
-          await this.plugin.saveSettings();
-          pendingValue = buildNavMappingText(this.plugin.settings.keyboardNavigation);
-          text.setValue(pendingValue);
-        };
-
-        const scheduleSave = (): void => {
-          if (saveTimeout !== null) {
-            window.clearTimeout(saveTimeout);
-          }
-          saveTimeout = window.setTimeout(() => {
-            void commitValue(false);
-          }, 500);
-        };
-
-        text
-          .setPlaceholder('map w scrollUp\nmap s scrollDown\nmap i focusInput')
-          .setValue(pendingValue)
-          .onChange((value) => {
-            pendingValue = value;
-            scheduleSave();
-          });
-
-        text.inputEl.rows = 3;
-        text.inputEl.addEventListener('blur', async () => {
-          await commitValue(true);
-        });
-      });
-
-    new Setting(containerEl).setName('Obsidian Skills').setHeading();
-
-    const skillsDesc = containerEl.createDiv({ cls: 'ocop-skills-settings-desc' });
-    skillsDesc.createEl('p', {
-      text: 'Install Obsidian-specific skills to help Copilot understand Obsidian Flavored Markdown, wikilinks, callouts, properties, and JSON Canvas format.',
+    new Setting(containerEl).setName('Workflows & Shortcuts').setHeading();
+    containerEl.createDiv({
       cls: 'setting-item-description',
+      text: 'Configure optional workflow presets and keyboard shortcuts once you are comfortable with the basics.',
     });
-
-    const skillsInstalled = isObsidianSkillsInstalled(this.app);
-    new Setting(containerEl)
-      .setName('Obsidian Skills')
-      .setDesc(
-        skillsInstalled
-          ? 'Installed - Copilot now understands Obsidian syntax better.'
-          : 'Not installed - Click to install skills for better Obsidian support.'
-      )
-      .addButton((button) => {
-        if (skillsInstalled) {
-          button.setButtonText('Reinstall').onClick(async () => {
-            await installObsidianSkills(this.app);
-            this.display();
-          });
-        } else {
-          button.setButtonText('Install Skills').setCta().onClick(async () => {
-            await installObsidianSkills(this.app);
-            this.display();
-          });
-        }
-      })
-      .addButton((button) => {
-        if (skillsInstalled) {
-          button.setButtonText('Remove').onClick(async () => {
-            await uninstallObsidianSkills(this.app);
-            this.display();
-          });
-        }
-      });
 
     let skillUrl = '';
     let textInput: HTMLInputElement | null = null;
@@ -339,8 +295,6 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
       containerEl.createDiv({ cls: 'ocop-skills-empty', text: 'No skills installed. Install Obsidian Skills above or add custom skills from GitHub.' });
     }
 
-    new Setting(containerEl).setName('Hotkeys').setHeading();
-
     const inlineEditCommandId = 'obsidian-copilot:inline-edit';
     const inlineEditHotkey = getHotkeyForCommand(this.app, inlineEditCommandId);
     new Setting(containerEl)
@@ -355,7 +309,7 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
       .setDesc(openChatHotkey ? `Current: ${openChatHotkey}` : 'No hotkey set. Click to configure.')
       .addButton((button) => button.setButtonText(openChatHotkey ? 'Change' : 'Set hotkey').onClick(() => openHotkeySettings(this.app)));
 
-    new Setting(containerEl).setName('Slash Commands').setHeading();
+    new Setting(containerEl).setName('Workflow Presets').setHeading();
     const slashCommandsDesc = containerEl.createDiv({ cls: 'ocop-slash-settings-desc' });
     slashCommandsDesc.createEl('p', {
       text: 'Create custom prompt templates triggered by /command. Use $ARGUMENTS for all arguments, $1/$2 for positional args, @file for file content, and !`bash` for command output.',
@@ -364,16 +318,11 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
     const slashCommandsContainer = containerEl.createDiv({ cls: 'ocop-slash-commands-container' });
     new SlashCommandSettings(slashCommandsContainer, this.plugin);
 
-    new Setting(containerEl).setName('MCP Servers').setHeading();
-    const mcpDesc = containerEl.createDiv({ cls: 'ocop-mcp-settings-desc' });
-    mcpDesc.createEl('p', {
-      text: 'Configure Model Context Protocol servers for Obsidian Copilot. Copilot CLI support still depends on your local setup.',
+    new Setting(containerEl).setName('Safety & Permissions').setHeading();
+    containerEl.createDiv({
       cls: 'setting-item-description',
+      text: 'The toggle below is the main safety control for beginners. Detailed allow/block rules are in Advanced.',
     });
-    const mcpContainer = containerEl.createDiv({ cls: 'ocop-mcp-container' });
-    new McpSettingsManager(mcpContainer, this.plugin);
-
-    new Setting(containerEl).setName('Safety').setHeading();
 
     new Setting(containerEl)
       .setName('Enable command blocklist')
@@ -490,7 +439,11 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
         );
     }
 
-    new Setting(containerEl).setName('Environment').setHeading();
+    new Setting(containerEl).setName('Authentication & Environment').setHeading();
+    containerEl.createDiv({
+      cls: 'setting-item-description',
+      text: 'Most students can leave these alone if `copilot login` already worked in the terminal.',
+    });
 
     new Setting(containerEl)
       .setName('GitHub token')
@@ -523,7 +476,80 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
     const envSnippetsContainer = containerEl.createDiv({ cls: 'ocop-env-snippets-container' });
     new EnvSnippetManager(envSnippetsContainer, this.plugin);
 
-    new Setting(containerEl).setName('Advanced').setHeading();
+    new Setting(containerEl).setName('Advanced & Developer').setHeading();
+    containerEl.createDiv({
+      cls: 'setting-item-description',
+      text: 'Only change these if you know why you need them. They are preserved here for power users and debugging.',
+    });
+
+    new Setting(containerEl)
+      .setName('Custom system prompt')
+      .setDesc('Additional instructions appended to the default Copilot prompt')
+      .addTextArea((text) => {
+        text
+          .setPlaceholder('Add custom instructions here...')
+          .setValue(this.plugin.settings.systemPrompt)
+          .onChange(async (value) => {
+            this.plugin.settings.systemPrompt = value;
+            await this.plugin.saveSettings();
+          });
+        text.inputEl.rows = 6;
+        text.inputEl.cols = 50;
+      });
+
+    new Setting(containerEl)
+      .setName('Vim-style navigation mappings')
+      .setDesc('One mapping per line. Format: "map <key> <action>" (actions: scrollUp, scrollDown, focusInput).')
+      .addTextArea((text) => {
+        let pendingValue = buildNavMappingText(this.plugin.settings.keyboardNavigation);
+        let saveTimeout: number | null = null;
+
+        const commitValue = async (showError: boolean): Promise<void> => {
+          if (saveTimeout !== null) {
+            window.clearTimeout(saveTimeout);
+            saveTimeout = null;
+          }
+
+          const result = parseNavMappings(pendingValue);
+          if (!result.settings) {
+            if (showError) {
+              new Notice(`Invalid navigation mappings: ${result.error}`);
+              pendingValue = buildNavMappingText(this.plugin.settings.keyboardNavigation);
+              text.setValue(pendingValue);
+            }
+            return;
+          }
+
+          this.plugin.settings.keyboardNavigation.scrollUpKey = result.settings.scrollUp;
+          this.plugin.settings.keyboardNavigation.scrollDownKey = result.settings.scrollDown;
+          this.plugin.settings.keyboardNavigation.focusInputKey = result.settings.focusInput;
+          await this.plugin.saveSettings();
+          pendingValue = buildNavMappingText(this.plugin.settings.keyboardNavigation);
+          text.setValue(pendingValue);
+        };
+
+        const scheduleSave = (): void => {
+          if (saveTimeout !== null) {
+            window.clearTimeout(saveTimeout);
+          }
+          saveTimeout = window.setTimeout(() => {
+            void commitValue(false);
+          }, 500);
+        };
+
+        text
+          .setPlaceholder('map w scrollUp\nmap s scrollDown\nmap i focusInput')
+          .setValue(pendingValue)
+          .onChange((value) => {
+            pendingValue = value;
+            scheduleSave();
+          });
+
+        text.inputEl.rows = 3;
+        text.inputEl.addEventListener('blur', async () => {
+          await commitValue(true);
+        });
+      });
 
     const cliPathDescription = 'Custom path to GitHub Copilot CLI. Leave empty for auto-detection. Paste the output of "which copilot" (macOS/Linux) or the full executable path on Windows. You must install the Copilot CLI (`npm install -g @github/copilot`) and run `copilot login` once in your terminal.';
 
