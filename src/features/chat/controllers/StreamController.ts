@@ -224,16 +224,16 @@ export class StreamController {
           renderToolCall(state.currentContentEl, toolCall, state.toolCallElements);
         }
       }
-    } else {
+    } else if (state.currentContentEl) {
       msg.contentBlocks = msg.contentBlocks || [];
       msg.contentBlocks.push({ type: 'tool_use', toolId: chunk.id });
 
       if (isWriteEditTool(chunk.name)) {
-        const writeEditState = createWriteEditBlock(state.currentContentEl!, toolCall);
+        const writeEditState = createWriteEditBlock(state.currentContentEl, toolCall);
         state.writeEditStates.set(chunk.id, writeEditState);
         state.toolCallElements.set(chunk.id, writeEditState.wrapperEl);
       } else {
-        renderToolCall(state.currentContentEl!, toolCall, state.toolCallElements);
+        renderToolCall(state.currentContentEl, toolCall, state.toolCallElements);
       }
     }
 
@@ -790,7 +790,7 @@ function parseQuizQuestionMeta(content: string): QuizQuestionMeta | undefined {
     return undefined;
   }
 
-  const options = Array.from(content.matchAll(/^([A-D])\.\s+(.+)$/gm)).map<QuizQuestionOption>((match) => ({
+  const options = Array.from(content.matchAll(/^([A-Z])\.\s+(.+)$/gm)).map<QuizQuestionOption>((match) => ({
     label: match[1],
     text: match[2].trim(),
   }));
@@ -798,7 +798,7 @@ function parseQuizQuestionMeta(content: string): QuizQuestionMeta | undefined {
     return undefined;
   }
 
-  const multiSelect = /복수 선택 가능|답안 형식:\s*[A-D](?:\s*,\s*[A-D])+/i.test(content);
+  const multiSelect = /복수 선택 가능|답안 형식:\s*[A-Z](?:\s*,\s*[A-Z])+/i.test(content);
   return {
     current: Number(headerMatch[1]),
     total: Number(headerMatch[2]),

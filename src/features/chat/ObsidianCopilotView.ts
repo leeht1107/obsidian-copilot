@@ -505,7 +505,10 @@ export class ObsidianCopilotView extends ItemView {
       if (answerBtn && this.inputController) {
         const isMultiSelect = answerBtn.dataset.multiSelect === 'true';
         if (!isMultiSelect) {
-          void this.inputController.sendMessage({ content: answerBtn.dataset.answerLabel || answerBtn.textContent || '' });
+          const answer = answerBtn.dataset.answerLabel || answerBtn.textContent || '';
+          if (answer) {
+            void this.inputController.sendMessage({ content: answer });
+          }
         }
         return;
       }

@@ -413,6 +413,7 @@ ${promptToSend}`;
         await streamController.handleStreamChunk(chunk, assistantMsg);
       }
     } catch (error) {
+      console.error('[Copilot] Stream error:', error);
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       await streamController.appendText(`\n\n**Error:** ${errorMsg}`);
     } finally {
@@ -428,7 +429,7 @@ ${promptToSend}`;
       await streamController.finalizeCurrentTextBlock(assistantMsg);
       state.activeSubagents.clear();
 
-      if (state.quizSession && !options?.quizSessionInit) {
+      if (state.quizSession && !options?.quizSessionInit && !wasInterrupted) {
         if (state.quizSession.currentQuestion < state.quizSession.totalQuestions) {
           state.quizSession = {
             ...state.quizSession,
