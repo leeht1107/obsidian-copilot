@@ -245,6 +245,48 @@ describe('StreamController - Text Content', () => {
     });
   });
 
+  describe('Quiz formatting normalization', () => {
+    it('normalizes duplicated 문제 markers and removes answer prompt clutter', async () => {
+      const msg = createTestMessage();
+      deps.state.currentContentEl = createMockElement();
+      deps.state.currentTextEl = createMockElement();
+      deps.state.currentTextContent = [
+        '## 1/3번 문제',
+        '문제',
+        '문제',
+        '다음 중 테이블의 "행(row)"에 대한 설명으로 옳은 것은 무엇입니까?',
+        '',
+        'A. 테이블의 행은 데이터의 항목(속성)을 의미한다.',
+        'B. 테이블의 행은 데이터 한 건을 나타낸다.',
+        'C. 테이블의 행은 테이블의 이름을 의미한다.',
+        'D. 테이블의 행은 항상 중복될 수 있다.',
+        '',
+        '답안 형식: B',
+        '',
+        '(정답을 입력해 주세요.)',
+      ].join('\n');
+
+      await controller.finalizeCurrentTextBlock(msg);
+
+      expect(msg.contentBlocks?.[0]).toEqual({
+        type: 'text',
+        content: [
+          '## 1/3번 문제',
+          '',
+          '#### 문제',
+          '다음 중 테이블의 "행(row)"에 대한 설명으로 옳은 것은 무엇입니까?',
+          '',
+          'A. 테이블의 행은 데이터의 항목(속성)을 의미한다.',
+          'B. 테이블의 행은 데이터 한 건을 나타낸다.',
+          'C. 테이블의 행은 테이블의 이름을 의미한다.',
+          'D. 테이블의 행은 항상 중복될 수 있다.',
+          '',
+          '답안 형식: B',
+        ].join('\n'),
+      });
+    });
+  });
+
   describe('Usage handling', () => {
     it('should update usage for current session', async () => {
       const msg = createTestMessage();

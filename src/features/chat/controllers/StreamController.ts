@@ -808,6 +808,27 @@ function parseQuizQuestionMeta(content: string): QuizQuestionMeta | undefined {
 }
 
 function normalizeQuizMarkdown(content: string): string {
-  const headerPattern = /^(##\s*\d+\s*\/\s*\d+번 문제)\s*\n+(?!####\s*문제\b)/m;
-  return content.replace(headerPattern, '$1\n\n#### 문제\n');
+  const normalized = content.replace(/\r\n/g, '\n').replace(/\n+\(정답을 입력해 주세요[^\n]*\)/g, '');
+  const lines = normalized.split('\n');
+  const headerIndex = lines.findIndex((line) => /^##\s*\d+\s*\/\s*\d+번 문제$/i.test(line.trim()));
+  if (headerIndex === -1) {
+    return normalized;
+  }
+
+  let cursor = headerIndex + 1;
+  while (cursor < lines.length && lines[cursor].trim() === '') {
+    cursor += 1;
+  }
+  while (cursor < lines.length && (/^####\s*문제$/i.test(lines[cursor].trim()) || lines[cursor].trim() === '문제')) {
+    cursor += 1;
+  }
+
+  const rebuilt = [
+    ...lines.slice(0, headerIndex + 1),
+    '',
+    '#### 문제',
+    ...lines.slice(cursor),
+  ];
+
+  return rebuilt.join('\n');
 }
