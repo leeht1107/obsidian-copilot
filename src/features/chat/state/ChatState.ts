@@ -356,5 +356,3 @@ export class ChatState {
   }
 }
 
-/** Creates an index.ts barrel export for the state module. */
-export { createInitialState };

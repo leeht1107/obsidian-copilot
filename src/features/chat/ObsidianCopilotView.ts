@@ -279,7 +279,7 @@ export class ObsidianCopilotView extends ItemView {
       isPlanModeRequested: () => this.state.planModeRequested,
       onModelChange: async (model: CopilotModel) => {
         this.plugin.settings.model = model;
-        const isDefaultModel = COPILOT_MODELS.find((m: any) => m.value === model);
+        const isDefaultModel = COPILOT_MODELS.find((m) => m.value === model);
         if (isDefaultModel) {
           this.plugin.settings.thinkingBudget = DEFAULT_THINKING_BUDGET[model];
         }
@@ -548,7 +548,10 @@ export class ObsidianCopilotView extends ItemView {
       }
     });
 
-    this.registerDomEvent(this.inputEl!, 'keydown', (e) => {
+    const inputEl = this.inputEl;
+    if (!inputEl) return;
+
+    this.registerDomEvent(inputEl, 'keydown', (e) => {
       if (e.key === 'Tab' && e.shiftKey && !this.state.isStreaming) {
         e.preventDefault();
         e.stopPropagation();
@@ -556,7 +559,7 @@ export class ObsidianCopilotView extends ItemView {
       }
     }, { capture: true });
 
-    this.registerDomEvent(this.inputEl!, 'keydown', (e) => {
+    this.registerDomEvent(inputEl, 'keydown', (e) => {
       if (this.instructionModeManager?.handleTriggerKey(e)) {
         return;
       }
@@ -589,12 +592,12 @@ export class ObsidianCopilotView extends ItemView {
       }
     });
 
-    this.registerDomEvent(this.inputEl!, 'input', () => {
+    this.registerDomEvent(inputEl, 'input', () => {
       this.fileContextManager?.handleInputChange();
       this.instructionModeManager?.handleInputChange();
     });
 
-    this.registerDomEvent(this.inputEl!, 'focus', () => {
+    this.registerDomEvent(inputEl, 'focus', () => {
       this.selectionController?.showHighlight();
     });
   }

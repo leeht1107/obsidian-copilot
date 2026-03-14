@@ -273,9 +273,7 @@ export class StreamController {
     state.askUserQuestionStates.set(chunk.id, askQuestionState);
     state.toolCallElements.set(chunk.id, askQuestionState.wrapperEl);
 
-    if (state.currentContentEl) {
-      this.showThinkingIndicator(state.currentContentEl);
-    }
+    this.showThinkingIndicator(state.currentContentEl);
   }
 
   private formatAskUserQuestionFallback(questions?: AskUserQuestionQuestion[]): string {
@@ -492,9 +490,7 @@ export class StreamController {
     msg.contentBlocks = msg.contentBlocks || [];
     msg.contentBlocks.push({ type: 'subagent', subagentId: chunk.id });
 
-    if (state.currentContentEl) {
-      this.showThinkingIndicator(state.currentContentEl);
-    }
+    this.showThinkingIndicator(state.currentContentEl);
   }
 
   /** Routes chunks from subagents. */
@@ -533,7 +529,6 @@ export class StreamController {
           toolCall.status = isBlocked ? 'blocked' : (chunk.isError ? 'error' : 'completed');
           toolCall.result = chunk.content;
           updateSubagentToolResult(subagentState, chunk.id, toolCall);
-          this.deps.plugin.agentService.getDiffData(chunk.id);
         }
         break;
       }
@@ -590,9 +585,7 @@ export class StreamController {
     msg.contentBlocks = msg.contentBlocks || [];
     msg.contentBlocks.push({ type: 'subagent', subagentId: chunk.id, mode: 'async' });
 
-    if (state.currentContentEl) {
-      this.showThinkingIndicator(state.currentContentEl);
-    }
+    this.showThinkingIndicator(state.currentContentEl);
   }
 
   /** Handles AgentOutputTool tool_use (invisible, links to async subagent). */

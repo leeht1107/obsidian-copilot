@@ -2,7 +2,7 @@
  * Chat state module exports.
  */
 
-export { ChatState, createInitialState } from './ChatState';
+export { ChatState } from './ChatState';
 export type {
   AsyncSubagentState,
   ChatMessage,
