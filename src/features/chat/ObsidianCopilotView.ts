@@ -548,7 +548,7 @@ export class ObsidianCopilotView extends ItemView {
       }
     });
 
-    this.inputEl!.addEventListener('keydown', (e) => {
+    this.registerDomEvent(this.inputEl!, 'keydown', (e) => {
       if (e.key === 'Tab' && e.shiftKey && !this.state.isStreaming) {
         e.preventDefault();
         e.stopPropagation();
@@ -556,7 +556,7 @@ export class ObsidianCopilotView extends ItemView {
       }
     }, { capture: true });
 
-    this.inputEl!.addEventListener('keydown', (e) => {
+    this.registerDomEvent(this.inputEl!, 'keydown', (e) => {
       if (this.instructionModeManager?.handleTriggerKey(e)) {
         return;
       }
@@ -589,12 +589,12 @@ export class ObsidianCopilotView extends ItemView {
       }
     });
 
-    this.inputEl!.addEventListener('input', () => {
+    this.registerDomEvent(this.inputEl!, 'input', () => {
       this.fileContextManager?.handleInputChange();
       this.instructionModeManager?.handleInputChange();
     });
 
-    this.inputEl!.addEventListener('focus', () => {
+    this.registerDomEvent(this.inputEl!, 'focus', () => {
       this.selectionController?.showHighlight();
     });
   }

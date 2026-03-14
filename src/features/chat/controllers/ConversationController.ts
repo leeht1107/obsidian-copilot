@@ -90,6 +90,11 @@ export class ConversationController {
       ? await plugin.switchConversation(emptyConv.id) ?? await plugin.createConversation()
       : await plugin.createConversation();
 
+    if (!conversation) {
+      console.error('[ObsidianCopilot] Failed to create or switch conversation');
+      return;
+    }
+
     state.currentConversationId = conversation.id;
     state.clearMessages();
     state.usage = null;

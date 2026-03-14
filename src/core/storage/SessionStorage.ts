@@ -234,7 +234,7 @@ export class SessionStorage {
           messages.push(record.message);
         }
       } catch (error) {
-          console.warn('[ObsidianCopilot] Failed to parse JSONL line:', error);
+          console.warn('[ObsidianCopilot] Failed to parse JSONL line (skipped):', line.substring(0, 100), error);
       }
     }
 
