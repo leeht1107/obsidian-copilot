@@ -33,7 +33,7 @@ export class QuizSetupModal extends Modal {
   private resolvePromise: ((result: QuizSetupResult | null) => void) | null = null;
   private quizScope: QuizScope = 'current-note';
   private selectedNotePaths = new Set<string>();
-  private selectedFolderPath = '';
+  private selectedFolderPaths = new Set<string>();
   private questionCount = '10';
   private focusText = '';
   private useFullVault = false;
@@ -71,8 +71,8 @@ export class QuizSetupModal extends Modal {
     } else if (this.selectedNotePaths.size === 0 && candidateNotes.length > 0) {
       this.selectedNotePaths.add(candidateNotes[0]);
     }
-    if (!this.selectedFolderPath && allFolders.length > 0) {
-      this.selectedFolderPath = allFolders[0];
+    if (this.selectedFolderPaths.size === 0 && allFolders.length > 0) {
+      this.selectedFolderPaths.add(allFolders[0]);
     }
 
     const detailsEl = this.contentEl.createDiv();
@@ -87,7 +87,7 @@ export class QuizSetupModal extends Modal {
             toggle.setValue(this.useFullVault).onChange((value) => {
               this.useFullVault = value;
               this.selectedNotePaths.clear();
-              this.selectedFolderPath = '';
+              this.selectedFolderPaths.clear();
               this.renderContent();
             });
           });
@@ -120,24 +120,33 @@ export class QuizSetupModal extends Modal {
         });
       }
       if (this.quizScope === 'folder') {
-        new Setting(detailsEl)
-          .setName('Choose folder')
-          .addDropdown((dropdown) => {
-            for (const folderPath of allFolders) {
-              dropdown.addOption(folderPath, folderPath);
-            }
-            const initialFolder = allFolders.includes(this.selectedFolderPath) ? this.selectedFolderPath : (allFolders[0] ?? '');
-            if (initialFolder) {
-              this.selectedFolderPath = initialFolder;
-            }
-            dropdown.setValue(initialFolder).onChange((value) => {
-              this.selectedFolderPath = value;
-            });
-          });
-        const folderNoteCount = candidateNotes.filter((notePath) => notePath.startsWith(`${this.selectedFolderPath}/`) || notePath === this.selectedFolderPath).length;
         detailsEl.createDiv({
           cls: 'setting-item-description',
-          text: this.selectedFolderPath ? `이 폴더 포함 노트: ${folderNoteCount}개` : '이 폴더 포함 노트: 0개',
+          text: 'Choose one or more folders.',
+        });
+        const folderListEl = detailsEl.createDiv({ cls: 'ocop-quiz-note-list' });
+        for (const folderPath of allFolders) {
+          const folderItem = folderListEl.createDiv({ cls: 'ocop-quiz-note-item' });
+          const checkbox = folderItem.createEl('input', { attr: { type: 'checkbox' } });
+          checkbox.checked = this.selectedFolderPaths.has(folderPath);
+          checkbox.addEventListener('change', () => {
+            if (checkbox.checked) {
+              this.selectedFolderPaths.add(folderPath);
+            } else if (this.selectedFolderPaths.size > 1) {
+              this.selectedFolderPaths.delete(folderPath);
+            } else {
+              checkbox.checked = true;
+            }
+            renderDetails();
+          });
+          folderItem.createSpan({ text: folderPath });
+        }
+        const folderNoteCount = candidateNotes.filter((notePath) =>
+          Array.from(this.selectedFolderPaths).some((folderPath) => notePath.startsWith(`${folderPath}/`) || notePath === folderPath)
+        ).length;
+        detailsEl.createDiv({
+          cls: 'setting-item-description',
+          text: `현재 선택: 폴더 ${this.selectedFolderPaths.size}개 · 포함 노트 ${folderNoteCount}개`,
         });
       }
     };
@@ -162,7 +171,7 @@ export class QuizSetupModal extends Modal {
     new Setting(this.contentEl)
       .setName('Question count')
       .addDropdown((dropdown) => {
-        for (const count of ['5', '10']) {
+        for (const count of ['3', '4', '5', '6', '7', '8', '9', '10']) {
           dropdown.addOption(count, `${count} questions`);
         }
         dropdown.setValue(this.questionCount).onChange((value) => {
@@ -216,8 +225,11 @@ export class QuizSetupModal extends Modal {
       scopeInstruction = `Use only these selected notes as ground truth source material: ${selectedPaths.map((path) => `@${path}`).join(', ')}`;
       displayScope = summarizeSelectedNotes(selectedPaths);
     } else {
-      scopeInstruction = `Use only notes in the selected folder as ground truth source material: ${this.selectedFolderPath}`;
-      displayScope = `폴더 · ${summarizeFolder(this.selectedFolderPath)}`;
+      const selectedFolders = Array.from(this.selectedFolderPaths);
+      scopeInstruction = `Use only notes in these selected folders as ground truth source material: ${selectedFolders.join(', ')}`;
+      displayScope = selectedFolders.length === 1
+        ? `폴더 · ${summarizeFolder(selectedFolders[0])}`
+        : `폴더 ${selectedFolders.length}개`;
     }
 
     const displayLabel = [`/quiz`, displayScope, `${this.questionCount}문제`, this.focusText || '전체 범위']
