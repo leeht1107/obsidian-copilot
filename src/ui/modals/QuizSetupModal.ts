@@ -253,13 +253,12 @@ export class QuizSetupModal extends Modal {
         'After the student answers, immediately tell them whether they are correct, explain why in Korean, and then move to the next question.',
         'All student-facing output must be in Korean.',
         'Format each question in clean markdown.',
-        'Use this structure for each turn: "## {current}/{total}번 문제" on the first line, then the question text, then answer choices on separate lines for multiple-choice or multi-select questions.',
+        'Use this structure for each turn: "## {current}/{total}번 문제" on the first line, then the question text as a #### heading (no separate "#### 문제" label), then answer choices on separate lines for multiple-choice or multi-select questions.',
         `Follow this exact example format:
 
 ## 1/5번 문제
 
-#### 문제
-다음 중 SQL의 SELECT 문에 대한 설명으로 옳지 않은 것은 무엇입니까?
+#### 다음 중 SQL의 SELECT 문에 대한 설명으로 옳지 않은 것은 무엇입니까?
 
 A. SELECT 문은 데이터를 조회할 때 사용된다.
 B. SELECT 문에서 FROM 절은 데이터를 가져올 테이블을 지정한다.
