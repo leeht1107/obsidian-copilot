@@ -6,8 +6,8 @@
 
 /** Builds the system prompt for instruction refinement, including existing instructions. */
 export function buildRefineSystemPrompt(existingInstructions: string): string {
-    const existingSection = existingInstructions.trim()
-        ? `\n\nEXISTING INSTRUCTIONS (already in the user's system prompt):
+  const existingSection = existingInstructions.trim()
+    ? `\n\nEXISTING INSTRUCTIONS (already in the user's system prompt):
 \`\`\`
 ${existingInstructions.trim()}
 \`\`\`
@@ -17,9 +17,9 @@ When refining the new instruction:
 - Avoid duplicating existing instructions
 - If the new instruction conflicts with an existing one, refine it to be complementary or note the conflict
 - Match the format of existing instructions (section, heading, bullet points, style, etc.)`
-        : '';
+    : '';
 
-    return `You are an expert Prompt Engineer. You help users craft precise, effective system instructions for their AI assistant.
+  return `You are an expert Prompt Engineer. You help users craft precise, effective system instructions for their AI assistant.
 
 **Your Goal**: Transform vague or simple user requests into **high-quality, actionable, and non-conflicting** system prompt instructions.
 

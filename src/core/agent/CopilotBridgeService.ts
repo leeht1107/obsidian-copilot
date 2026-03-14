@@ -15,12 +15,12 @@ import { TOOL_EDIT, TOOL_WRITE } from '../tools/toolNames';
 import type {
   AskUserQuestionCallback,
   ChatMessage,
+  ExitPlanModeDecision,
   ImageAttachment,
   StreamChunk,
   ToolDiffData,
   UsageInfo,
 } from '../types';
-import type { ExitPlanModeDecision } from '../types';
 
 export interface QueryOptions {
   allowedTools?: string[];
@@ -41,19 +41,7 @@ export type ExitPlanModeCallback = (planContent: string) => Promise<ExitPlanMode
 export type EnterPlanModeCallback = () => Promise<void>;
 
 const MCP_CONFIG_RELATIVE_PATH = '.copilot/mcp.json';
-const PLAN_MODE_ALLOWED_TOOLS = [
-  'view',
-  'grep',
-  'glob',
-  'ls',
-  'task',
-  'agent_output',
-  'report_intent',
-  'webfetch',
-  'websearch',
-] as const;
-
-const NORMAL_MODE_ALLOWED_TOOLS = [
+const ALLOWED_TOOLS = [
   'view',
   'grep',
   'glob',
@@ -80,10 +68,10 @@ export function resolveCopilotAllowedTools(
 ): string[] {
   const requested = requestedTools?.map((tool) => tool.trim()).filter(Boolean) ?? [];
   const guardrailTools = planMode
-    ? [...PLAN_MODE_ALLOWED_TOOLS]
+    ? [...ALLOWED_TOOLS]
     : permissionMode === 'yolo'
       ? null
-      : [...NORMAL_MODE_ALLOWED_TOOLS];
+      : [...ALLOWED_TOOLS];
   const guardrailSet = guardrailTools ? new Set<string>(guardrailTools) : null;
   const effectiveTools = requested.length > 0
     ? guardrailSet

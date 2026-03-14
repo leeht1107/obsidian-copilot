@@ -132,6 +132,8 @@ export default class ObsidianCopilotPlugin extends Plugin {
             chatView.fileContextManager.attachFileFromCommand(normalizedPath);
             new Notice(`Attached: ${activeFile.name}`);
           }
+        }).catch((error: unknown) => {
+          console.error('[ObsidianCopilot] Failed to activate view for file attach:', error);
         });
         return true;
       },
@@ -147,13 +149,13 @@ export default class ObsidianCopilotPlugin extends Plugin {
   /** Opens the ObsidianCode sidebar view, creating it if necessary. */
   async activateView() {
     const { workspace } = this.app;
-      let leaf = workspace.getLeavesOfType(VIEW_TYPE_OBSIDIAN_COPILOT)[0];
+    let leaf = workspace.getLeavesOfType(VIEW_TYPE_OBSIDIAN_COPILOT)[0];
 
     if (!leaf) {
       const rightLeaf = workspace.getRightLeaf(false);
       if (rightLeaf) {
         await rightLeaf.setViewState({
-        type: VIEW_TYPE_OBSIDIAN_COPILOT,
+          type: VIEW_TYPE_OBSIDIAN_COPILOT,
           active: true,
         });
         leaf = rightLeaf;
@@ -422,7 +424,7 @@ export default class ObsidianCopilotPlugin extends Plugin {
   getView(): ObsidianCopilotView | null {
     const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_OBSIDIAN_COPILOT);
     if (leaves.length > 0) {
-    return leaves[0].view as ObsidianCopilotView;
+      return leaves[0].view as ObsidianCopilotView;
     }
     return null;
   }

@@ -8,7 +8,7 @@ import { getTodayDate } from '../../utils/date';
 
 /** Returns the system prompt for inline text editing (read-only tools). */
 export function getInlineEditSystemPrompt(): string {
-    return `Today is ${getTodayDate()}.
+  return `Today is ${getTodayDate()}.
 
 You are **Obsidian Copilot**, an expert editor and writing assistant embedded in Obsidian. You help users refine their text, answer questions, and generate content with high precision.
 

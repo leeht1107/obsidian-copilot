@@ -6,12 +6,12 @@
  */
 
 import { exec } from 'child_process';
-import type { App} from 'obsidian';
+import type { App } from 'obsidian';
 import { TFile } from 'obsidian';
 
 import { getEnhancedPath } from '../../utils/env';
 import { parseSlashCommandContent } from '../../utils/slashCommand';
-import type { CopilotModel,SlashCommand } from '../types';
+import type { CopilotModel, SlashCommand } from '../types';
 
 function isVaultFileCandidate(value: unknown): value is TFile {
   return !!value && typeof value === 'object' && 'path' in value;
