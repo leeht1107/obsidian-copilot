@@ -254,6 +254,19 @@ export class QuizSetupModal extends Modal {
         'All student-facing output must be in Korean.',
         'Format each question in clean markdown.',
         'Use this structure for each turn: "## {current}/{total}번 문제" on the first line, then the question text, then answer choices on separate lines for multiple-choice or multi-select questions.',
+        `Follow this exact example format:
+
+## 1/5번 문제
+
+#### 문제
+다음 중 SQL의 SELECT 문에 대한 설명으로 옳지 않은 것은 무엇입니까?
+
+A. SELECT 문은 데이터를 조회할 때 사용된다.
+B. SELECT 문에서 FROM 절은 데이터를 가져올 테이블을 지정한다.
+C. SELECT 문은 데이터를 삭제하는 데 사용된다.
+D. SELECT 문에서 컬럼명을 지정할 수 있다.
+
+답안 형식: A`,
         'Do not wrap the question in code fences or quote blocks.',
         'After each question, include a short answer-format hint line. For example: "답안 형식: A" for multiple choice, "답안 형식: A,C" for multi-select, or "답안 형식: 자유 서술" for short-answer.',
         'For multiple-choice and multi-select questions, accept answers case-insensitively (for example b or B) and also accept the selected choice text when it is unambiguous.',
