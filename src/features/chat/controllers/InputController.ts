@@ -229,6 +229,7 @@ export class InputController {
       id: this.deps.generateId(),
       role: 'user',
       content,
+      displayContent: options?.displayContentOverride,
       timestamp: Date.now(),
       images: imagesForMessage,
       hidden: options?.hidden,
