@@ -410,18 +410,20 @@ export class StreamController {
   /** Finalizes the current text block. */
   async finalizeCurrentTextBlock(msg?: ChatMessage): Promise<void> {
     const { state, renderer } = this.deps;
-    const finalizedText = state.currentTextContent;
-    if (msg && state.currentTextContent) {
+    const finalizedText = msg?.role === 'assistant'
+      ? normalizeQuizMarkdown(state.currentTextContent)
+      : state.currentTextContent;
+    if (msg && finalizedText) {
       msg.contentBlocks = msg.contentBlocks || [];
-      msg.contentBlocks.push({ type: 'text', content: state.currentTextContent });
+      msg.contentBlocks.push({ type: 'text', content: finalizedText });
       if (msg.role === 'assistant') {
         msg.quizQuestion = parseQuizQuestionMeta(finalizedText);
       }
     }
 
-    if (state.currentTextEl && state.currentTextContent) {
+    if (state.currentTextEl && finalizedText) {
       state.currentTextEl.removeClass('ocop-text-block-streaming');
-      await renderer.renderContent(state.currentTextEl, state.currentTextContent);
+      await renderer.renderContent(state.currentTextEl, finalizedText);
     }
     state.currentTextEl = null;
     state.currentTextContent = '';
@@ -803,4 +805,9 @@ function parseQuizQuestionMeta(content: string): QuizQuestionMeta | undefined {
     multiSelect,
     options,
   };
+}
+
+function normalizeQuizMarkdown(content: string): string {
+  const headerPattern = /^(##\s*\d+\s*\/\s*\d+번 문제)\s*\n+(?!####\s*문제\b)/m;
+  return content.replace(headerPattern, '$1\n\n#### 문제\n');
 }

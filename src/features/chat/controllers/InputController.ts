@@ -141,6 +141,10 @@ export class InputController {
         return;
       }
 
+      if (shouldUseInput) {
+        inputEl.value = '';
+      }
+
       await this.sendMessage({
         content: quizResult.prompt,
         displayContentOverride: quizResult.displayContent,
