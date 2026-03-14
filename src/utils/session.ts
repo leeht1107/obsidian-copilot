@@ -57,11 +57,11 @@ export function formatToolCallForContext(toolCall: ToolCallInfo, maxResultLength
   const base = `[Tool ${toolCall.name} status=${status}]`;
   const hasResult = typeof toolCall.result === 'string' && toolCall.result.trim().length > 0;
 
-  if (!hasResult) {
+  if (!hasResult || toolCall.result === undefined) {
     return base;
   }
 
-  const result = truncateToolResult(toolCall.result as string, maxResultLength);
+  const result = truncateToolResult(toolCall.result, maxResultLength);
   return `${base} result: ${result}`;
 }
 

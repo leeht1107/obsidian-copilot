@@ -153,14 +153,14 @@ export class FileContextManager {
   resetForNewConversation() {
     this.currentNotePath = null;
     this.state.resetForNewConversation();
-    this.refreshCurrentNoteChip();
+    this.refreshAllChips();
   }
 
   /** Resets state for loading an existing conversation. */
   resetForLoadedConversation(hasMessages: boolean) {
     this.currentNotePath = null;
     this.state.resetForLoadedConversation(hasMessages);
-    this.refreshCurrentNoteChip();
+    this.refreshAllChips();
   }
 
   /** Sets current note (for restoring persisted state). */
@@ -169,7 +169,7 @@ export class FileContextManager {
     if (notePath) {
       this.state.attachFile(notePath);
     }
-    this.refreshCurrentNoteChip();
+    this.refreshAllChips();
   }
 
   /** Auto-attaches the currently focused file (for new sessions). */
@@ -180,7 +180,7 @@ export class FileContextManager {
       if (normalizedPath) {
         this.currentNotePath = normalizedPath;
         this.state.attachFile(normalizedPath);
-        this.refreshCurrentNoteChip();
+        this.refreshAllChips();
       }
     }
   }
@@ -224,7 +224,7 @@ export class FileContextManager {
     } else {
       this.currentNotePath = null;
     }
-    this.refreshCurrentNoteChip();
+    this.refreshAllChips();
   }
 
   markFilesCacheDirty() {
@@ -342,10 +342,6 @@ export class FileContextManager {
     return normalizedRaw.replace(/\\/g, '/');
   }
 
-  private refreshCurrentNoteChip(): void {
-    this.refreshAllChips();
-  }
-
   /** Refreshes all file chips (current note + attached files + pinned status). */
   private refreshAllChips(): void {
     this.chipsView.renderCurrentNote(this.currentNotePath);
@@ -377,7 +373,7 @@ export class FileContextManager {
     }
 
     if (needsUpdate) {
-      this.refreshCurrentNoteChip();
+      this.refreshAllChips();
     }
   }
 
@@ -400,7 +396,7 @@ export class FileContextManager {
     }
 
     if (needsUpdate) {
-      this.refreshCurrentNoteChip();
+      this.refreshAllChips();
     }
   }
 

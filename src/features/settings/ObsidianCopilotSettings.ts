@@ -30,8 +30,25 @@ function formatHotkey(hotkey: { modifiers: string[]; key: string }): string {
   return isMac ? [...mods, key].join('') : [...mods, key].join('+');
 }
 
+interface ObsidianAppInternals {
+  setting?: {
+    open: () => void;
+    openTabById: (id: string) => void;
+    activeTab?: {
+      searchInputEl?: HTMLInputElement;
+      searchComponent?: { inputEl?: HTMLInputElement };
+      updateHotkeyVisibility?: () => void;
+    };
+  };
+  hotkeyManager?: {
+    customKeys?: Record<string, Array<{ modifiers: string[]; key: string }>>;
+    defaultKeys?: Record<string, Array<{ modifiers: string[]; key: string }>>;
+  };
+}
+
 function openHotkeySettings(app: App): void {
-  const setting = (app as any).setting;
+  const setting = (app as unknown as ObsidianAppInternals).setting;
+  if (!setting) return;
   setting.open();
   setting.openTabById('hotkeys');
   setTimeout(() => {
@@ -45,12 +62,12 @@ function openHotkeySettings(app: App): void {
 }
 
 function getHotkeyForCommand(app: App, commandId: string): string | null {
-  const hotkeyManager = (app as any).hotkeyManager;
+  const hotkeyManager = (app as unknown as ObsidianAppInternals).hotkeyManager;
   if (!hotkeyManager) return null;
 
   const customHotkeys = hotkeyManager.customKeys?.[commandId];
   const defaultHotkeys = hotkeyManager.defaultKeys?.[commandId];
-  const hotkeys = customHotkeys?.length > 0 ? customHotkeys : defaultHotkeys;
+  const hotkeys = customHotkeys && customHotkeys.length > 0 ? customHotkeys : defaultHotkeys;
   if (!hotkeys || hotkeys.length === 0) return null;
   return hotkeys.map(formatHotkey).join(', ');
 }
@@ -296,7 +313,7 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
     advancedHeaderEl.createSpan({ cls: 'ocop-settings-advanced-title', text: 'Advanced & Power User' });
     advancedHeaderEl.createSpan({ cls: 'ocop-settings-advanced-toggle', text: 'Show' });
     const advancedContentEl = advancedWrapperEl.createDiv({ cls: 'ocop-settings-advanced-content' });
-    setupCollapsible(advancedWrapperEl, advancedHeaderEl, advancedContentEl, { isExpanded: false } as any, {
+    setupCollapsible(advancedWrapperEl, advancedHeaderEl, advancedContentEl, { isExpanded: false }, {
       initiallyExpanded: false,
       onToggle: (isExpanded) => {
         const toggleEl = advancedHeaderEl.querySelector('.ocop-settings-advanced-toggle');

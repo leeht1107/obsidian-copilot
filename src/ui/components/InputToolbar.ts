@@ -1,3 +1,5 @@
+import * as os from 'os';
+
 import { Notice, setIcon } from 'obsidian';
 
 import type {
@@ -444,7 +446,6 @@ export class ExternalContextSelector {
 
   private shortenPath(fullPath: string): string {
     try {
-      const os = require('os');
       const homeDir = os.homedir();
       const normalize = (value: string) => value.replace(/\\/g, '/');
       const normalizedFull = normalize(fullPath);
@@ -455,6 +456,7 @@ export class ExternalContextSelector {
         return '~' + fullPath.slice(homeDir.length);
       }
     } catch {
+      // Ignore errors when getting home directory
     }
 
     return fullPath;

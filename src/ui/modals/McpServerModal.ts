@@ -18,6 +18,7 @@ import type {
 } from '../../core/types';
 import { DEFAULT_MCP_SERVER, getMcpServerType } from '../../core/types';
 import type ObsidianCopilotPlugin from '../../main';
+import { splitCommandString } from '../../utils/mcp';
 
 /** Modal for creating/editing MCP server configurations. */
 export class McpServerModal extends Modal {
@@ -285,7 +286,8 @@ export class McpServerModal extends Modal {
       }
 
       // Parse command string: first part is command, rest are args
-      const parts = this.parseCommandString(fullCommand);
+      const tokens = splitCommandString(fullCommand);
+      const parts = { command: tokens[0] ?? '', args: tokens.slice(1) };
       const stdioConfig: McpStdioServerConfig = { command: parts.command };
 
       if (parts.args.length > 0) {
@@ -332,46 +334,6 @@ export class McpServerModal extends Modal {
 
     this.onSave(server);
     this.close();
-  }
-
-  /** Parse a command string into command and args, handling quoted strings. */
-  private parseCommandString(cmdStr: string): { command: string; args: string[] } {
-    const parts: string[] = [];
-    let current = '';
-    let inQuote = false;
-    let quoteChar = '';
-
-    for (let i = 0; i < cmdStr.length; i++) {
-      const char = cmdStr[i];
-
-      if ((char === '"' || char === "'") && !inQuote) {
-        inQuote = true;
-        quoteChar = char;
-      } else if (char === quoteChar && inQuote) {
-        inQuote = false;
-        quoteChar = '';
-      } else if (/\s/.test(char) && !inQuote) {
-        if (current) {
-          parts.push(current);
-          current = '';
-        }
-      } else {
-        current += char;
-      }
-    }
-
-    if (current) {
-      parts.push(current);
-    }
-
-    if (parts.length === 0) {
-      return { command: '', args: [] };
-    }
-
-    return {
-      command: parts[0],
-      args: parts.slice(1),
-    };
   }
 
   private parseEnvString(envStr: string): Record<string, string> {

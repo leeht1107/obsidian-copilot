@@ -13,11 +13,15 @@ import * as path from 'path';
 // Vault Path
 // ============================================
 
+interface FileSystemAdapter {
+  basePath: string;
+}
+
 /** Returns the vault's absolute file path, or null if unavailable. */
 export function getVaultPath(app: App): string | null {
   const adapter = app.vault.adapter;
   if ('basePath' in adapter) {
-    return (adapter as any).basePath;
+    return (adapter as unknown as FileSystemAdapter).basePath;
   }
   return null;
 }

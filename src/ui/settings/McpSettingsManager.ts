@@ -21,6 +21,7 @@ export class McpSettingsManager {
   private containerEl: HTMLElement;
   private plugin: ObsidianCopilotPlugin;
   private servers: CopilotMcpServer[] = [];
+  private documentClickHandler: (() => void) | null = null;
 
   constructor(containerEl: HTMLElement, plugin: ObsidianCopilotPlugin) {
     this.containerEl = containerEl;
@@ -107,10 +108,12 @@ export class McpSettingsManager {
       dropdown.toggleClass('is-visible', !dropdown.hasClass('is-visible'));
     });
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', () => {
-      dropdown.removeClass('is-visible');
-    });
+    // Close dropdown when clicking outside — replace previous handler to avoid stacking
+    if (this.documentClickHandler) {
+      document.removeEventListener('click', this.documentClickHandler);
+    }
+    this.documentClickHandler = () => { dropdown.removeClass('is-visible'); };
+    document.addEventListener('click', this.documentClickHandler);
 
     // Empty state
     if (this.servers.length === 0) {
@@ -451,5 +454,13 @@ export class McpSettingsManager {
   /** Refresh the server list (call after external changes). */
   public refresh() {
     this.loadAndRender();
+  }
+
+  /** Clean up global event listeners. */
+  public destroy(): void {
+    if (this.documentClickHandler) {
+      document.removeEventListener('click', this.documentClickHandler);
+      this.documentClickHandler = null;
+    }
   }
 }
