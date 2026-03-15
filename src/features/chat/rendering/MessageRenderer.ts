@@ -105,6 +105,10 @@ export class MessageRenderer {
 
     const contentEl = msgEl.createDiv({ cls: 'ocop-message-content' });
 
+    if (msg.role === 'assistant') {
+      this.createCopyButton(msgEl, msg);
+    }
+
     if (msg.role === 'user') {
       const textToShow = msg.displayContent ?? msg.content;
       if (textToShow) {
@@ -204,6 +208,10 @@ export class MessageRenderer {
     }
 
     const contentEl = msgEl.createDiv({ cls: 'ocop-message-content' });
+
+    if (msg.role === 'assistant') {
+      this.createCopyButton(msgEl, msg);
+    }
 
     if (msg.role === 'user') {
       const textToShow = msg.displayContent ?? msg.content;
@@ -500,6 +508,25 @@ export class MessageRenderer {
   // ============================================
   // Utilities
   // ============================================
+
+  /** Creates a copy button for assistant messages. */
+  private createCopyButton(msgEl: HTMLElement, msg: ChatMessage): void {
+    const btn = msgEl.createEl('button', {
+      cls: 'ocop-msg-copy-btn',
+      attr: { 'aria-label': 'Copy message', type: 'button' },
+    });
+    setIcon(btn, 'copy');
+    btn.addEventListener('click', () => {
+      void navigator.clipboard.writeText(msg.content).then(() => {
+        setIcon(btn, 'check');
+        btn.classList.add('is-copied');
+        setTimeout(() => {
+          setIcon(btn, 'copy');
+          btn.classList.remove('is-copied');
+        }, 1500);
+      });
+    });
+  }
 
   /** Scrolls messages container to bottom. */
   scrollToBottom(): void {

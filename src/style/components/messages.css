@@ -238,3 +238,44 @@
 .ocop-messages::-webkit-scrollbar-thumb:hover {
   background: var(--background-modifier-border-hover);
 }
+
+/* Copy message button */
+.ocop-message-assistant {
+  position: relative;
+}
+
+.ocop-msg-copy-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+}
+
+.ocop-msg-copy-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.ocop-message-assistant:hover .ocop-msg-copy-btn {
+  opacity: 1;
+}
+
+.ocop-msg-copy-btn:hover {
+  color: var(--text-normal);
+  background: var(--background-modifier-hover);
+}
+
+.ocop-msg-copy-btn.is-copied {
+  opacity: 1;
+  color: #38bdf8;
+}
