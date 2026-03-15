@@ -356,7 +356,23 @@ export class InputController {
       const isFinalQuestion = quizSession.currentQuestion >= quizSession.totalQuestions;
       const nextQuestionNumber = Math.min(quizSession.currentQuestion + 1, quizSession.totalQuestions);
       const quizControl = isFinalQuestion
-        ? `You are continuing an active quiz. The student is answering question ${quizSession.currentQuestion} of ${quizSession.totalQuestions}. Evaluate the student's answer in Korean, then provide a concise wrong-answer review: list each question the student got wrong, explain the correct answer in depth using any relevant knowledge you have. Do not ask another question.`
+        ? `You are continuing an active quiz. The student is answering question ${quizSession.currentQuestion} of ${quizSession.totalQuestions}. Evaluate the student's answer in Korean, then provide a wrong-answer review as a teaching assistant (조교) persona. Use this exact format:
+
+### 오답 복습 정리
+
+For each question the student got wrong, write a numbered section:
+
+**N번 문제 — (topic keyword)**
+- **학생 답:** (what the student chose)
+- **정답:** (correct answer)
+- **왜 틀렸나:** 1-2 sentence explanation of the misconception
+- **핵심 정리:** concise summary of the correct concept, including a code snippet if relevant
+
+End with a "💡 조교 한마디" section: 1-2 sentences of encouragement and a study tip based on the error patterns observed.
+
+If the student got all questions correct, congratulate them and highlight the most important concept from the quiz.
+
+All output must be in Korean. Do not ask another question.`
         : `You are continuing an active quiz. The student is answering question ${quizSession.currentQuestion} of ${quizSession.totalQuestions}. Evaluate the student's answer, then ask exactly question ${nextQuestionNumber} of ${quizSession.totalQuestions}.`;
       promptToSend = `${quizControl}
 
