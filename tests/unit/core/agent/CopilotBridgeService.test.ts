@@ -18,6 +18,7 @@ describe('CopilotBridgeService helpers', () => {
         --disable-mcp-server <server-name>
         --deny-tool [tools...]
         --available-tools [tools...]
+        --allow-all-tools
         json
       `);
 
@@ -32,6 +33,7 @@ describe('CopilotBridgeService helpers', () => {
         disableMcpServer: true,
         denyTool: true,
         availableTools: true,
+        allowAllTools: true,
       });
     });
 
@@ -47,13 +49,14 @@ describe('CopilotBridgeService helpers', () => {
         disableMcpServer: false,
         denyTool: false,
         availableTools: false,
+        allowAllTools: false,
       });
     });
   });
 
   describe('resolveCopilotAllowedTools', () => {
-    it('keeps yolo mode unrestricted when no explicit tools are requested', () => {
-      expect(resolveCopilotAllowedTools('yolo')).toEqual([]);
+    it('keeps agent mode unrestricted when no explicit tools are requested', () => {
+      expect(resolveCopilotAllowedTools('agent')).toEqual([]);
     });
 
     it('applies safe guardrails in normal mode', () => {

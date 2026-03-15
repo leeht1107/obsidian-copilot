@@ -361,6 +361,10 @@ export function buildSystemPrompt(settings: SystemPromptSettings = {}): string {
   }
 
   if (settings.planMode) {
+    prompt = prompt.replace(
+      'Standard tools (Read, Write, Edit, Glob, Grep, LS, Bash, WebSearch, WebFetch, Skills) work as expected.',
+      'Standard tools (Read, Glob, Grep, LS, WebSearch, WebFetch) work as expected. Write, Edit, and Bash are disabled in plan mode.'
+    );
     prompt += getPlanModeInstructions();
   }
 

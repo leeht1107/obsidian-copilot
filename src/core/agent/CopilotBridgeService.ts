@@ -240,6 +240,7 @@ interface CopilotCliCapabilities {
   disableMcpServer: boolean;
   denyTool: boolean;
   availableTools: boolean;
+  allowAllTools: boolean;
 }
 
 export function detectCopilotCliCapabilities(helpText: string): CopilotCliCapabilities {
@@ -254,6 +255,7 @@ export function detectCopilotCliCapabilities(helpText: string): CopilotCliCapabi
     disableMcpServer: helpText.includes('--disable-mcp-server'),
     denyTool: helpText.includes('--deny-tool'),
     availableTools: helpText.includes('--available-tools'),
+    allowAllTools: helpText.includes('--allow-all-tools'),
   };
 }
 
@@ -512,6 +514,9 @@ export class CopilotBridgeService {
 
     if (capabilities.noAskUser) {
       args.push('--no-ask-user');
+    }
+    if (capabilities.allowAllTools && this.plugin.settings.permissionMode === 'agent') {
+      args.push('--allow-all-tools');
     }
     if (capabilities.noCustomInstructions) {
       args.push('--no-custom-instructions');

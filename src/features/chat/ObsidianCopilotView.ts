@@ -312,7 +312,7 @@ export class ObsidianCopilotView extends ItemView {
               planFilePath: null,
               planContent: null,
               originalQuery: null,
-              agentInitiated: true,
+              agentInitiated: false,
             };
           }
         } else {
