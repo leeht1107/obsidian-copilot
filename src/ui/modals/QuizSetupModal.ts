@@ -34,7 +34,7 @@ export class QuizSetupModal extends Modal {
   private quizScope: QuizScope = 'current-note';
   private selectedNotePaths = new Set<string>();
   private selectedFolderPaths = new Set<string>();
-  private questionCount = '10';
+  private questionCount = '5';
   private focusText = '';
   private useFullVault = false;
 
