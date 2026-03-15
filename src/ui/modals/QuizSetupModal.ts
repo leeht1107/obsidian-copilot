@@ -253,8 +253,8 @@ export class QuizSetupModal extends Modal {
         'After the student answers, immediately tell them whether they are correct, explain why in Korean, and then move to the next question.',
         'All student-facing output must be in Korean.',
         'Format each question in clean markdown.',
-        'Use this structure for each turn: "## {current}/{total}번 문제" on the first line, then the question text as a #### heading (no separate "#### 문제" label), then answer choices on separate lines for multiple-choice or multi-select questions.',
-        `Follow this exact example format:
+        'Use this EXACT structure for each question — copy it precisely: Line 1: "## {N}/{T}번 문제". Line 2: blank. Line 3: "#### {question text}" — the question sentence IS the #### heading, nothing else. NEVER write "#### 문제" or any other fixed label on line 3. Line 4: blank. Lines 5+: answer choices. Final line: "답안 형식: ...".',
+        `Exact format to copy (no deviations):
 
 ## 1/5번 문제
 
