@@ -83,7 +83,7 @@ export class QuizAnswerPanel {
 
     const progressEl = document.createElement('div');
     progressEl.className = 'ocop-quiz-progress';
-    const fillPct = Math.round(((this.quizQuestion.current - 1) / this.quizQuestion.total) * 100);
+    const fillPct = Math.round((this.quizQuestion.current / this.quizQuestion.total) * 100);
     const fillEl = document.createElement('div');
     fillEl.className = 'ocop-quiz-progress-fill';
     fillEl.style.width = `${fillPct}%`;

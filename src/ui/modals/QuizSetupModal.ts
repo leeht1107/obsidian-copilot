@@ -271,6 +271,7 @@ D. SELECT 문에서 컬럼명을 지정할 수 있다.
         'For multiple-choice and multi-select questions, accept answers case-insensitively (for example b or B) and also accept the selected choice text when it is unambiguous.',
         'After the student answers, respond in markdown with this exact structure: "### 정답 확인", then bullet lines for "정오", "정답", "해설", and "핵심 포인트".',
         'After the feedback block, add a horizontal rule (---) and then continue with the next question.',
+        'When a question references specific code, functions, variables, or commands from the source material, you MUST include the relevant code snippet as a fenced code block (```) inside the question itself. The student must be able to answer without looking at the original note.',
         'Never dump or quote raw source material, pasted notes, markdown headings, XML tags, or long excerpts from the source. Only show the quiz question, the student feedback, the correct answer, and the explanation.',
       ].join(' '),
     };
