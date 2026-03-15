@@ -183,6 +183,12 @@ export default class ObsidianCopilotPlugin extends Plugin {
       slashCommands,
     };
 
+    // Migrate legacy permission mode values (yolo→agent, normal→ask)
+    if ((this.settings.permissionMode as string) === 'yolo') this.settings.permissionMode = 'agent';
+    if ((this.settings.permissionMode as string) === 'normal') this.settings.permissionMode = 'ask';
+    if ((this.settings.lastNonPlanPermissionMode as string) === 'yolo') this.settings.lastNonPlanPermissionMode = 'agent';
+    if ((this.settings.lastNonPlanPermissionMode as string) === 'normal') this.settings.lastNonPlanPermissionMode = 'ask';
+
     // Load all conversations from session files
     this.conversations = await this.storage.sessions.loadAllConversations();
     this.activeConversationId = state.activeConversationId;

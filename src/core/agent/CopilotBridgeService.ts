@@ -69,7 +69,7 @@ export function resolveCopilotAllowedTools(
   const requested = requestedTools?.map((tool) => tool.trim()).filter(Boolean) ?? [];
   const guardrailTools = planMode
     ? [...ALLOWED_TOOLS]
-    : permissionMode === 'yolo'
+    : permissionMode === 'agent'
       ? null
       : [...ALLOWED_TOOLS];
   const guardrailSet = guardrailTools ? new Set<string>(guardrailTools) : null;

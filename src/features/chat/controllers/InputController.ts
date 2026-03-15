@@ -285,7 +285,7 @@ export class InputController {
                   plugin.settings.enableBlocklist
                 ),
               requestApproval:
-                plugin.settings.permissionMode !== 'yolo'
+                plugin.settings.permissionMode !== 'agent'
                   ? (bashCommand) => this.requestInlineBashApproval(bashCommand)
                   : undefined,
             },
@@ -515,7 +515,7 @@ ${promptToSend}`;
 
   private async exitPlanPermissionMode(): Promise<void> {
     const { plugin, state } = this.deps;
-    const restored = plugin.settings.lastNonPlanPermissionMode ?? 'yolo';
+    const restored = plugin.settings.lastNonPlanPermissionMode ?? 'agent';
     if (plugin.settings.permissionMode === 'plan') {
       plugin.settings.permissionMode = restored;
       plugin.settings.lastNonPlanPermissionMode = restored;

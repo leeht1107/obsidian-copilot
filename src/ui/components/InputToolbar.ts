@@ -22,7 +22,7 @@ export interface ToolbarSettings {
   model: CopilotModel;
   thinkingBudget: ThinkingBudget;
   permissionMode: PermissionMode;
-  lastNonPlanPermissionMode?: 'yolo' | 'normal';
+  lastNonPlanPermissionMode?: 'agent' | 'ask';
 }
 
 export interface ToolbarCallbacks {
@@ -262,12 +262,12 @@ export class PermissionToggle {
       iconEl.style.fontSize = '0.8em';
       iconEl.style.letterSpacing = '-4px';
       this.labelEl.createSpan({ text: 'Plan' });
-    } else if (mode === 'yolo') {
+    } else if (mode === 'agent') {
       this.toggleEl.addClass('active');
-      this.labelEl.setText('AUTO');
+      this.labelEl.setText('Agent');
     } else {
       this.toggleEl.removeClass('active');
-      this.labelEl.setText('Safe');
+      this.labelEl.setText('Ask');
     }
   }
 
@@ -275,12 +275,12 @@ export class PermissionToggle {
     const current = this.callbacks.getSettings().permissionMode;
     let next: PermissionMode;
 
-    if (current === 'yolo') {
+    if (current === 'agent') {
       next = 'plan';
     } else if (current === 'plan') {
-      next = 'normal';
+      next = 'ask';
     } else {
-      next = 'yolo';
+      next = 'agent';
     }
 
     await this.callbacks.onPermissionModeChange(next);
