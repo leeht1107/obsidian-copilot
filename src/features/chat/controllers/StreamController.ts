@@ -717,7 +717,6 @@ export class StreamController {
     if (!this.deps.plugin.agentService.isCliReady()) {
       state.thinkingEl.createSpan({ text: ' Copilot 시작 중...', cls: 'ocop-thinking-startup' });
     }
-    state.thinkingEl.createSpan({ text: ' (esc to interrupt)', cls: 'ocop-thinking-hint' });
 
     // Queue indicator line (initially hidden)
     state.queueIndicatorEl = state.thinkingEl.createDiv({ cls: 'ocop-queue-indicator' });

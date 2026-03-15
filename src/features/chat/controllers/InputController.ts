@@ -355,7 +355,7 @@ export class InputController {
       const isFinalQuestion = quizSession.currentQuestion >= quizSession.totalQuestions;
       const nextQuestionNumber = Math.min(quizSession.currentQuestion + 1, quizSession.totalQuestions);
       const quizControl = isFinalQuestion
-        ? `You are continuing an active quiz. The student is answering question ${quizSession.currentQuestion} of ${quizSession.totalQuestions}. Evaluate the student's answer, give Korean feedback, and stop after the final feedback and final performance summary. Do not ask another question.`
+        ? `You are continuing an active quiz. The student is answering question ${quizSession.currentQuestion} of ${quizSession.totalQuestions}. Evaluate the student's answer in Korean, then provide a concise wrong-answer review: list each question the student got wrong, explain the correct answer in depth using any relevant knowledge you have. Do not ask another question.`
         : `You are continuing an active quiz. The student is answering question ${quizSession.currentQuestion} of ${quizSession.totalQuestions}. Evaluate the student's answer, then ask exactly question ${nextQuestionNumber} of ${quizSession.totalQuestions}.`;
       promptToSend = `${quizControl}
 
