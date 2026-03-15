@@ -557,7 +557,7 @@ export class CopilotBridgeService {
         if (isPlanMode) {
           if (chunk.type === 'text') {
             bufferedPlanText += chunk.content;
-            continue;
+            // No continue — fall through to yield chunk for real-time streaming
           }
 
           if (chunk.type === 'done') {

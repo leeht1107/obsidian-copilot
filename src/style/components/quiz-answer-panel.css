@@ -1,0 +1,108 @@
+/**
+ * QuizAnswerPanel styles.
+ * Reuses plan-approval pattern: monospace, caret, focused color.
+ */
+
+/* ============================================
+ * Quiz Answer Panel (replaces input area)
+ * ============================================ */
+
+.ocop-quiz-answer-panel {
+  padding: 10px;
+  min-height: 60px;
+  outline: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ocop-quiz-answer-panel:focus {
+  outline: none;
+}
+
+/* Header: progress bar */
+.ocop-quiz-answer-header {
+  margin-bottom: 8px;
+}
+
+/* Options list */
+.ocop-quiz-answer-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  font-family: var(--font-monospace);
+  font-size: 13px;
+}
+
+.ocop-quiz-answer-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  cursor: pointer;
+  color: var(--text-normal);
+  line-height: 1.4;
+}
+
+.ocop-quiz-answer-option:hover {
+  color: var(--interactive-accent);
+}
+
+.ocop-quiz-answer-option.focused {
+  color: var(--interactive-accent);
+}
+
+/* Caret */
+.ocop-quiz-answer-caret {
+  width: 10px;
+  flex-shrink: 0;
+  color: var(--interactive-accent);
+  font-weight: bold;
+}
+
+/* Checkbox for multi-select */
+.ocop-quiz-answer-check {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-family: var(--font-monospace);
+}
+
+.ocop-quiz-answer-option.focused .ocop-quiz-answer-check {
+  color: var(--interactive-accent);
+}
+
+.ocop-quiz-answer-option.focused .ocop-quiz-answer-caret {
+  color: var(--interactive-accent);
+}
+
+/* Option label */
+.ocop-quiz-answer-label {
+  font-weight: 500;
+}
+
+/* Submit button (multi-select) */
+.ocop-quiz-answer-submit {
+  margin-top: 8px;
+  padding-left: 16px;
+}
+
+.ocop-quiz-answer-submit-btn {
+  font-family: var(--font-monospace);
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  cursor: pointer;
+}
+
+.ocop-quiz-answer-submit-btn:hover:not(:disabled) {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.ocop-quiz-answer-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

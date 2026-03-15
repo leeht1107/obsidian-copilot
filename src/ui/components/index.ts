@@ -36,6 +36,11 @@ export {
   showPlanApprovalPanel,
 } from './PlanApprovalPanel';
 export {
+  QuizAnswerPanel,
+  type QuizAnswerPanelOptions,
+  showQuizAnswerPanel,
+} from './QuizAnswerPanel';
+export {
   PlanBanner,
   type PlanBannerOptions,
 } from './PlanBanner';

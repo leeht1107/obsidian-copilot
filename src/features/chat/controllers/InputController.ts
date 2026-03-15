@@ -25,6 +25,7 @@ import {
   QuizSetupModal,
   showAskUserQuestionPanel,
   showPlanApprovalPanel,
+  showQuizAnswerPanel,
 } from '../../../ui';
 import { prependCurrentNote, prependCurrentNoteContent } from '../../../utils/context';
 import { type EditorSelectionContext, prependEditorContext } from '../../../utils/editor';
@@ -432,6 +433,17 @@ ${promptToSend}`;
       }
 
       await conversationController.save(true);
+
+      // Show quiz answer panel if the assistant message has a quiz question
+      if (assistantMsg.quizQuestion && !wasInterrupted) {
+        const quizContainerEl = this.deps.getMessagesEl().parentElement;
+        if (quizContainerEl) {
+          const result = await showQuizAnswerPanel(quizContainerEl, assistantMsg.quizQuestion);
+          if ('answer' in result) {
+            setTimeout(() => void this.sendMessage({ content: result.answer }), 50);
+          }
+        }
+      }
 
       await this.activatePendingPlanMode();
 
@@ -1094,40 +1106,27 @@ ${content}
       state.planModeState.planContent = planContent;
     }
 
-    // Hide the thinking indicator from the original (empty) assistant message
-    // before adding the plan message. This prevents it from appearing above
-    // the plan when revision is selected.
     streamController.hideThinkingIndicator();
 
-    // Add plan as a chat message with distinct styling
-    const planMsg: ChatMessage = {
-      id: this.deps.generateId(),
-      role: 'assistant',
-      content: planContent,
-      timestamp: Date.now(),
-      isPlanMessage: true,
-    };
-    state.addMessage(planMsg);
-    renderer.addMessage(planMsg);
-    // Render the plan content with special styling
+    // Finalize the current streaming text block (already streamed in real-time)
+    // and upgrade the existing assistant message to a plan message.
+    const assistantMsg = state.messages[state.messages.length - 1];
+    if (assistantMsg) {
+      streamController.finalizeCurrentThinkingBlock(assistantMsg);
+      await streamController.finalizeCurrentTextBlock(assistantMsg);
+      assistantMsg.isPlanMessage = true;
+    }
+
+    // Apply plan styling to the existing message element
     const lastMsgEl = messagesEl.lastElementChild;
     if (lastMsgEl) {
       lastMsgEl.classList.add('ocop-message-plan');
-      const contentEl = lastMsgEl.querySelector('.ocop-message-content') as HTMLElement;
-      if (contentEl) {
-        const textEl = contentEl.createDiv({ cls: 'ocop-text-block' });
-        await renderer.renderContent(textEl, planContent);
-        // Update currentContentEl to point to the plan message's content.
-        // This ensures that if revision is selected and the stream continues,
-        // new content (including thinking indicator) will appear below the plan.
-        state.currentContentEl = contentEl;
-        state.currentTextEl = null;
-        state.currentTextContent = '';
-        state.currentThinkingState = null;
-      }
     }
 
-    // Scroll to bottom to show the plan
+    state.currentTextEl = null;
+    state.currentTextContent = '';
+    state.currentThinkingState = null;
+
     renderer.scrollToBottom();
 
     // Save pending plan content to state and persist to conversation
