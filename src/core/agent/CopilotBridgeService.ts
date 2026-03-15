@@ -386,6 +386,13 @@ export class CopilotBridgeService {
     await this.getCliCapabilities(copilotPath);
   }
 
+  /** Returns true if CLI capabilities have been probed and cached (CLI is ready). */
+  isCliReady(): boolean {
+    const copilotPath = this.getCopilotPath();
+    if (!copilotPath) return false;
+    return this.cachedCapabilities.has(copilotPath);
+  }
+
   private getCliCapabilities(copilotPath: string): Promise<CopilotCliCapabilities> {
     const cached = this.cachedCapabilities.get(copilotPath);
     if (cached) {

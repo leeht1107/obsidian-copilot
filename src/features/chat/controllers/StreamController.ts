@@ -710,7 +710,13 @@ export class StreamController {
     }
 
     state.thinkingEl = parentEl.createDiv({ cls: 'ocop-thinking' });
-    state.thinkingEl.createSpan({ text: 'Working...' });
+    const dotsEl = state.thinkingEl.createSpan({ cls: 'ocop-thinking-dots' });
+    dotsEl.createSpan({ cls: 'ocop-thinking-dot' });
+    dotsEl.createSpan({ cls: 'ocop-thinking-dot' });
+    dotsEl.createSpan({ cls: 'ocop-thinking-dot' });
+    if (!this.deps.plugin.agentService.isCliReady()) {
+      state.thinkingEl.createSpan({ text: ' Copilot 시작 중...', cls: 'ocop-thinking-startup' });
+    }
     state.thinkingEl.createSpan({ text: ' (esc to interrupt)', cls: 'ocop-thinking-hint' });
 
     // Queue indicator line (initially hidden)

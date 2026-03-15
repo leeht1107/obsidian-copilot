@@ -1,10 +1,39 @@
 /* Thinking indicator */
 .ocop-thinking {
   color: #67d7ff;
-  font-style: italic;
   padding: 4px 0;
   text-align: left;
-  animation: thinking-pulse 1.5s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ocop-thinking-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.ocop-thinking-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: ocop-dot-bounce 1.2s ease-in-out infinite;
+}
+
+.ocop-thinking-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.ocop-thinking-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.ocop-thinking-startup {
+  font-style: italic;
+  font-size: 0.9em;
+  color: var(--text-muted);
 }
 
 .ocop-thinking-hint {

@@ -66,3 +66,16 @@
   }
 }
 
+/* Thinking dots bounce */
+@keyframes ocop-dot-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+
+  30% {
+    transform: translateY(-4px);
+  }
+}
+
