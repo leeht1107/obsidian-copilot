@@ -15,6 +15,7 @@ import type ObsidianCopilotPlugin from '../../main';
 import { McpImportModal } from '../modals';
 import { McpServerModal } from '../modals/McpServerModal';
 import { McpTestModal } from '../modals/McpTestModal';
+import { McpPresetGallery } from './McpPresetGallery';
 
 /** Component for managing MCP servers in settings tab. */
 export class McpSettingsManager {
@@ -37,6 +38,18 @@ export class McpSettingsManager {
   private render() {
     this.containerEl.empty();
     const enabledCount = this.servers.filter((server) => server.enabled).length;
+
+    // Preset gallery
+    const galleryEl = this.containerEl.createDiv({ cls: 'ocop-mcp-gallery-section' });
+    new McpPresetGallery(
+      galleryEl,
+      this.plugin,
+      this.servers,
+      async (server) => {
+        await this.saveServer(server, null);
+      },
+      () => this.render()
+    );
 
     // Header with Add dropdown
     const headerEl = this.containerEl.createDiv({ cls: 'ocop-mcp-header' });

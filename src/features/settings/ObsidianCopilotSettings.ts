@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 
 import type { App } from 'obsidian';
-import { Notice, PluginSettingTab, Setting } from 'obsidian';
+import { Notice, PluginSettingTab, Setting, setIcon } from 'obsidian';
 
 import { getCurrentPlatformKey } from '../../core/types';
 import { COPILOT_MODELS } from '../../core/types/models';
@@ -255,6 +255,40 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
           }
         });
       });
+
+    // Skill suggestion chips
+    const SKILL_SUGGESTIONS = [
+      {
+        label: 'Obsidian MCP',
+        url: 'https://github.com/MarkusPfworlds/copilot-obsidian-mcp',
+        icon: 'box',
+      },
+      {
+        label: 'Prompt 모음',
+        url: 'https://github.com/MarkusPfworlds/copilot-prompt-skills',
+        icon: 'message-square',
+      },
+      {
+        label: 'Markdown 도우미',
+        url: 'https://github.com/MarkusPfworlds/copilot-markdown-skills',
+        icon: 'file-text',
+      },
+    ];
+
+    const suggestionsEl = skillsContentEl.createDiv({ cls: 'ocop-skill-suggestions' });
+    for (const suggestion of SKILL_SUGGESTIONS) {
+      const chipEl = suggestionsEl.createDiv({ cls: 'ocop-skill-chip' });
+      const iconEl = chipEl.createSpan({ cls: 'ocop-skill-chip-icon' });
+      setIcon(iconEl, suggestion.icon);
+      chipEl.createSpan({ text: suggestion.label });
+      chipEl.addEventListener('click', () => {
+        if (textInput) {
+          textInput.value = suggestion.url;
+          textInput.dispatchEvent(new Event('input'));
+          skillUrl = suggestion.url;
+        }
+      });
+    }
 
     const installedSkills = getInstalledSkills(this.app);
     if (installedSkills.length > 0) {

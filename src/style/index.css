@@ -48,6 +48,8 @@
 @import "./settings/slash-settings.css";
 @import "./settings/mcp-settings.css";
 @import "./settings/skills-settings.css";
+@import "./settings/skill-catalog.css";
+@import "./settings/mcp-presets.css";
 
 /* Accessibility */
 @import "./accessibility.css";
