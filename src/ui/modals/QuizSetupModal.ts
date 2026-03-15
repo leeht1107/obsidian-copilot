@@ -253,8 +253,11 @@ export class QuizSetupModal extends Modal {
         'After the student answers, immediately tell them whether they are correct, explain why in Korean, and then move to the next question.',
         'All student-facing output must be in Korean.',
         'Format each question in clean markdown.',
-        'Use this EXACT structure for each question — copy it precisely: Line 1: "## {N}/{T}번 문제". Line 2: blank. Line 3: "#### {question text}" — the question sentence IS the #### heading, nothing else. NEVER write "#### 문제" or any other fixed label on line 3. Line 4: blank. Lines 5+: answer choices. Final line: "답안 형식: ...".',
-        `Exact format to copy (no deviations):
+        'CRITICAL RULE: When a question mentions any specific code, function, variable, regex, or command from the source material, you MUST embed the relevant code snippet as a fenced code block (```) INSIDE the question body, between the #### heading and the answer choices. The student cannot see the original note — if you mention code without showing it, the question is unanswerable.',
+        'Use this EXACT structure for each question — copy it precisely: Line 1: "## {N}/{T}번 문제". Line 2: blank. Line 3: "#### {question text}" — the question sentence IS the #### heading, nothing else. NEVER write "#### 문제" or any other fixed label on line 3. Line 4: blank. Lines 5+: (if referencing code) fenced code block, then blank line, then answer choices. Final line: "답안 형식: ...".',
+        `Format examples (use the one that fits):
+
+Example 1 — conceptual question (no code):
 
 ## 1/5번 문제
 
@@ -265,13 +268,33 @@ B. SELECT 문에서 FROM 절은 데이터를 가져올 테이블을 지정한다
 C. SELECT 문은 데이터를 삭제하는 데 사용된다.
 D. SELECT 문에서 컬럼명을 지정할 수 있다.
 
+답안 형식: A
+
+Example 2 — code-referencing question (MUST include snippet):
+
+## 2/5번 문제
+
+#### 다음 clean_title() 함수에서 2단계(허용 문자 외 제거)의 정규식이 하는 역할로 올바른 것은 무엇입니까?
+
+\`\`\`python
+def clean_title(text):
+    text = re.sub(r'^\\[.*?\\]\\s*', '', text)   # 1) 접두 태그 제거
+    text = re.sub(r'[^가-힣a-zA-Z0-9\\s]', '', text)  # 2) 허용 문자 외 제거
+    text = re.sub(r'\\s+', ' ', text).strip()  # 3) 공백 정규화
+    return text
+\`\`\`
+
+A. 한글, 영문, 숫자, 공백만 남긴다.
+B. 모든 특수문자를 공백으로 치환한다.
+C. 영문 대문자만 제거한다.
+D. 숫자를 모두 제거한다.
+
 답안 형식: A`,
         'Do not wrap the question in code fences or quote blocks.',
         'After each question, include a short answer-format hint line. For example: "답안 형식: A" for multiple choice, "답안 형식: A,C" for multi-select, or "답안 형식: 자유 서술" for short-answer.',
         'For multiple-choice and multi-select questions, accept answers case-insensitively (for example b or B) and also accept the selected choice text when it is unambiguous.',
         'After the student answers, respond in markdown with this exact structure: "### 정답 확인", then bullet lines for "정오", "정답", "해설", and "핵심 포인트".',
         'After the feedback block, add a horizontal rule (---) and then continue with the next question.',
-        'When a question references specific code, functions, variables, or commands from the source material, you MUST include the relevant code snippet as a fenced code block (```) inside the question itself. The student must be able to answer without looking at the original note.',
         'Never dump or quote raw source material, pasted notes, markdown headings, XML tags, or long excerpts from the source. Only show the quiz question, the student feedback, the correct answer, and the explanation.',
       ].join(' '),
     };
