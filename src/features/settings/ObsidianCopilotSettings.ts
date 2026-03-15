@@ -119,16 +119,81 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
           });
       });
 
-    new Setting(containerEl).setName('Skills & Obsidian Context').setHeading();
+    // Copilot CLI path — essential for first-time setup
+    const cliPathSetting = new Setting(containerEl)
+      .setName('Copilot CLI path')
+      .setDesc('Leave empty for auto-detection. Paste "which copilot" output (macOS/Linux) or full path on Windows.');
 
-    const skillsDesc = containerEl.createDiv({ cls: 'ocop-skills-settings-desc' });
-    skillsDesc.createEl('p', {
-      text: 'Install Obsidian-specific skills so Copilot understands wikilinks, callouts, properties, and canvas files.',
+    const cliPathValidationEl = containerEl.createDiv({ cls: 'ocop-cli-path-validation' });
+    cliPathValidationEl.style.color = 'var(--text-error)';
+    cliPathValidationEl.style.fontSize = '0.85em';
+    cliPathValidationEl.style.marginTop = '-0.5em';
+    cliPathValidationEl.style.marginBottom = '0.5em';
+    cliPathValidationEl.style.display = 'none';
+
+    const validateCliPath = (value: string): string | null => {
+      const trimmed = value.trim();
+      if (!trimmed || trimmed === 'copilot') return null;
+      const expandedPath = expandHomePath(trimmed);
+      if (!fs.existsSync(expandedPath)) return 'Path does not exist';
+      return fs.statSync(expandedPath).isFile() ? null : 'Path is a directory, not a file';
+    };
+
+    cliPathSetting.addText((text) => {
+      const placeholder = process.platform === 'win32'
+        ? 'C:\\Program Files\\GitHub Copilot\\copilot.exe'
+        : '/usr/local/bin/copilot';
+      text
+        .setPlaceholder(placeholder)
+        .setValue(this.plugin.settings.copilotCliPath || '')
+        .onChange(async (value) => {
+          const error = validateCliPath(value);
+          if (error) {
+            cliPathValidationEl.setText(error);
+            cliPathValidationEl.style.display = 'block';
+            text.inputEl.style.borderColor = 'var(--text-error)';
+          } else {
+            cliPathValidationEl.style.display = 'none';
+            text.inputEl.style.borderColor = '';
+          }
+          this.plugin.settings.copilotCliPath = value.trim();
+          await this.plugin.saveSettings();
+          this.plugin.cliResolver?.reset();
+          this.plugin.agentService?.cleanup();
+        });
+      text.inputEl.addClass('ocop-settings-cli-path-input');
+      text.inputEl.style.width = '100%';
+      const initialCliError = validateCliPath(this.plugin.settings.copilotCliPath || '');
+      if (initialCliError) {
+        cliPathValidationEl.setText(initialCliError);
+        cliPathValidationEl.style.display = 'block';
+        text.inputEl.style.borderColor = 'var(--text-error)';
+      }
+    });
+
+    // Skills & Obsidian Context — collapsible, default collapsed
+    const skillsWrapperEl = containerEl.createDiv({ cls: 'ocop-settings-advanced-wrapper' });
+    const skillsHeaderEl = skillsWrapperEl.createDiv({ cls: 'ocop-settings-advanced-header' });
+    skillsHeaderEl.setAttribute('tabindex', '0');
+    skillsHeaderEl.createSpan({ cls: 'ocop-settings-advanced-title', text: 'Skills & Obsidian Context' });
+    skillsHeaderEl.createSpan({ cls: 'ocop-settings-advanced-toggle', text: 'Show' });
+    const skillsContentEl = skillsWrapperEl.createDiv({ cls: 'ocop-settings-advanced-content' });
+    setupCollapsible(skillsWrapperEl, skillsHeaderEl, skillsContentEl, { isExpanded: false }, {
+      initiallyExpanded: false,
+      onToggle: (isExpanded) => {
+        const toggleEl = skillsHeaderEl.querySelector('.ocop-settings-advanced-toggle');
+        if (toggleEl) toggleEl.textContent = isExpanded ? 'Hide' : 'Show';
+      },
+      baseAriaLabel: 'Skills & Obsidian Context settings',
+    });
+
+    skillsContentEl.createDiv({
       cls: 'setting-item-description',
+      text: 'Install Obsidian-specific skills so Copilot understands wikilinks, callouts, properties, and canvas files.',
     });
 
     const skillsInstalled = isObsidianSkillsInstalled(this.app);
-    new Setting(containerEl)
+    new Setting(skillsContentEl)
       .setName('Obsidian context skills')
       .setDesc(
         skillsInstalled
@@ -159,7 +224,7 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
 
     let skillUrl = '';
     let textInput: HTMLInputElement | null = null;
-    new Setting(containerEl)
+    new Setting(skillsContentEl)
       .setName('Install custom skill from GitHub')
       .setDesc('Enter a GitHub repository URL or raw SKILL.md link to add another skill to Copilot.')
       .addText((text) => {
@@ -193,13 +258,13 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
 
     const installedSkills = getInstalledSkills(this.app);
     if (installedSkills.length > 0) {
-      const installedSkillsDesc = containerEl.createDiv({ cls: 'ocop-skills-installed-desc' });
+      const installedSkillsDesc = skillsContentEl.createDiv({ cls: 'ocop-skills-installed-desc' });
       installedSkillsDesc.createEl('p', {
         text: `Installed Skills (${installedSkills.length}):`,
         cls: 'setting-item-description',
       });
 
-      const skillsListEl = containerEl.createDiv({ cls: 'ocop-skills-list' });
+      const skillsListEl = skillsContentEl.createDiv({ cls: 'ocop-skills-list' });
       for (const skill of installedSkills) {
         const skillItemEl = skillsListEl.createDiv({ cls: 'ocop-skills-item' });
         const skillInfoEl = skillItemEl.createDiv({ cls: 'ocop-skills-item-info' });
@@ -226,25 +291,55 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
         }
       }
     } else {
-      containerEl.createDiv({ cls: 'ocop-skills-empty', text: 'No skills installed. Install Obsidian context skills above or add a custom skill from GitHub.' });
+      skillsContentEl.createDiv({ cls: 'ocop-skills-empty', text: 'No skills installed. Install Obsidian context skills above or add a custom skill from GitHub.' });
     }
 
-    new Setting(containerEl).setName('MCP Tools').setHeading();
-    const mcpDesc = containerEl.createDiv({ cls: 'ocop-mcp-settings-desc' });
-    mcpDesc.createEl('p', {
-      text: 'Connect external MCP tools here. Beginners can use the built-in import flow with a GitHub URL or pasted JSON.',
-      cls: 'setting-item-description',
+    // MCP Tools — collapsible, default collapsed
+    const mcpWrapperEl = containerEl.createDiv({ cls: 'ocop-settings-advanced-wrapper' });
+    const mcpHeaderEl = mcpWrapperEl.createDiv({ cls: 'ocop-settings-advanced-header' });
+    mcpHeaderEl.setAttribute('tabindex', '0');
+    mcpHeaderEl.createSpan({ cls: 'ocop-settings-advanced-title', text: 'MCP Tools' });
+    mcpHeaderEl.createSpan({ cls: 'ocop-settings-advanced-toggle', text: 'Show' });
+    const mcpContentEl = mcpWrapperEl.createDiv({ cls: 'ocop-settings-advanced-content' });
+    setupCollapsible(mcpWrapperEl, mcpHeaderEl, mcpContentEl, { isExpanded: false }, {
+      initiallyExpanded: false,
+      onToggle: (isExpanded) => {
+        const toggleEl = mcpHeaderEl.querySelector('.ocop-settings-advanced-toggle');
+        if (toggleEl) toggleEl.textContent = isExpanded ? 'Hide' : 'Show';
+      },
+      baseAriaLabel: 'MCP Tools settings',
     });
-    const mcpContainer = containerEl.createDiv({ cls: 'ocop-mcp-container' });
+
+    mcpContentEl.createDiv({
+      cls: 'setting-item-description',
+      text: 'Connect external MCP tools here. Beginners can use the built-in import flow with a GitHub URL or pasted JSON.',
+    });
+
+    const mcpContainer = mcpContentEl.createDiv({ cls: 'ocop-mcp-container' });
     new McpSettingsManager(mcpContainer, this.plugin);
 
-    new Setting(containerEl).setName('Chat Behavior').setHeading();
-    containerEl.createDiv({
+    // Chat Behavior — collapsible, default collapsed
+    const chatWrapperEl = containerEl.createDiv({ cls: 'ocop-settings-advanced-wrapper' });
+    const chatHeaderEl = chatWrapperEl.createDiv({ cls: 'ocop-settings-advanced-header' });
+    chatHeaderEl.setAttribute('tabindex', '0');
+    chatHeaderEl.createSpan({ cls: 'ocop-settings-advanced-title', text: 'Chat Behavior' });
+    chatHeaderEl.createSpan({ cls: 'ocop-settings-advanced-toggle', text: 'Show' });
+    const chatContentEl = chatWrapperEl.createDiv({ cls: 'ocop-settings-advanced-content' });
+    setupCollapsible(chatWrapperEl, chatHeaderEl, chatContentEl, { isExpanded: false }, {
+      initiallyExpanded: false,
+      onToggle: (isExpanded) => {
+        const toggleEl = chatHeaderEl.querySelector('.ocop-settings-advanced-toggle');
+        if (toggleEl) toggleEl.textContent = isExpanded ? 'Hide' : 'Show';
+      },
+      baseAriaLabel: 'Chat Behavior settings',
+    });
+
+    chatContentEl.createDiv({
       cls: 'setting-item-description',
       text: 'Control how chat behaves day to day without touching advanced system settings.',
     });
 
-    new Setting(containerEl)
+    new Setting(chatContentEl)
       .setName('Excluded tags')
       .setDesc('Notes with these tags will not auto-load as context (one per line, without #)')
       .addTextArea((text) => {
@@ -262,7 +357,7 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
         text.inputEl.cols = 30;
       });
 
-    new Setting(containerEl)
+    new Setting(chatContentEl)
       .setName('Media folder')
       .setDesc('Folder containing attachments/images. Leave empty for vault root.')
       .addText((text) => {
@@ -276,7 +371,7 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
         text.inputEl.addClass('ocop-settings-media-input');
       });
 
-    new Setting(containerEl)
+    new Setting(chatContentEl)
       .setName('Auto-generate conversation titles')
       .setDesc('Automatically generate conversation titles after the first exchange.')
       .addToggle((toggle) =>
@@ -290,7 +385,7 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
       );
 
     if (this.plugin.settings.enableAutoTitleGeneration) {
-      new Setting(containerEl)
+      new Setting(chatContentEl)
         .setName('Title generation model')
         .setDesc('Model used for auto-generating conversation titles.')
         .addDropdown((dropdown) => {
@@ -584,65 +679,5 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
         });
       });
 
-    const cliPathDescription = 'Custom path to GitHub Copilot CLI. Leave empty for auto-detection. Paste the output of "which copilot" (macOS/Linux) or the full executable path on Windows. You must install the Copilot CLI (`npm install -g @github/copilot`) and run `copilot login` once in your terminal.';
-
-    const cliPathSetting = new Setting(advancedContentEl)
-      .setName('Copilot CLI path')
-      .setDesc(cliPathDescription);
-
-    const validationEl = advancedContentEl.createDiv({ cls: 'ocop-cli-path-validation' });
-    validationEl.style.color = 'var(--text-error)';
-    validationEl.style.fontSize = '0.85em';
-    validationEl.style.marginTop = '-0.5em';
-    validationEl.style.marginBottom = '0.5em';
-    validationEl.style.display = 'none';
-
-    const validatePath = (value: string): string | null => {
-      const trimmed = value.trim();
-      if (!trimmed || trimmed === 'copilot') return null;
-      const expandedPath = expandHomePath(trimmed);
-      if (!fs.existsSync(expandedPath)) {
-        return 'Path does not exist';
-      }
-      const stat = fs.statSync(expandedPath);
-      if (!stat.isFile()) {
-        return 'Path is a directory, not a file';
-      }
-      return null;
-    };
-
-    cliPathSetting.addText((text) => {
-      const placeholder = process.platform === 'win32'
-        ? 'C:\\Program Files\\GitHub Copilot\\copilot.exe'
-        : '/usr/local/bin/copilot';
-      text
-        .setPlaceholder(placeholder)
-        .setValue(this.plugin.settings.copilotCliPath || '')
-        .onChange(async (value) => {
-          const error = validatePath(value);
-          if (error) {
-            validationEl.setText(error);
-            validationEl.style.display = 'block';
-            text.inputEl.style.borderColor = 'var(--text-error)';
-          } else {
-            validationEl.style.display = 'none';
-            text.inputEl.style.borderColor = '';
-          }
-
-          this.plugin.settings.copilotCliPath = value.trim();
-          await this.plugin.saveSettings();
-          this.plugin.cliResolver?.reset();
-          this.plugin.agentService?.cleanup();
-        });
-      text.inputEl.addClass('ocop-settings-cli-path-input');
-      text.inputEl.style.width = '100%';
-
-      const initialError = validatePath(this.plugin.settings.copilotCliPath || '');
-      if (initialError) {
-        validationEl.setText(initialError);
-        validationEl.style.display = 'block';
-        text.inputEl.style.borderColor = 'var(--text-error)';
-      }
-    });
   }
 }
