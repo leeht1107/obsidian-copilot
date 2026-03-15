@@ -300,6 +300,13 @@ export class MessageRenderer {
   }
 
   private renderQuizAnswerActions(contentEl: HTMLElement, quizQuestion: NonNullable<ChatMessage['quizQuestion']>): void {
+    // Progress bar
+    const progressWrapper = contentEl.createDiv({ cls: 'ocop-quiz-progress-wrapper' });
+    const progressEl = progressWrapper.createDiv({ cls: 'ocop-quiz-progress' });
+    const fillPct = Math.round(((quizQuestion.current - 1) / quizQuestion.total) * 100);
+    progressEl.createDiv({ cls: 'ocop-quiz-progress-fill', attr: { style: `width: ${fillPct}%` } });
+    progressWrapper.createSpan({ cls: 'ocop-quiz-progress-label', text: `${quizQuestion.current} / ${quizQuestion.total}번` });
+
     const actionsEl = contentEl.createDiv({ cls: 'ocop-quiz-actions' });
     const selected = new Set<string>();
     let submitBtn: HTMLButtonElement | null = null;
