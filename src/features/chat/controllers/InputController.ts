@@ -406,17 +406,7 @@ ${promptToSend}`;
 
     let wasInterrupted = false;
     try {
-      for await (const chunk of plugin.agentService.query(promptToSend, imagesForMessage, state.messages, queryOptions)) {
-        if (state.cancelRequested) {
-          wasInterrupted = true;
-          break;
-        }
-        await streamController.handleStreamChunk(chunk, assistantMsg);
-      }
-    } catch (error) {
-      console.error('[Copilot] Stream error:', error);
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      await streamController.appendText(`\n\n**Error:** ${errorMsg}`);
+      wasInterrupted = await this.executeStream(promptToSend, imagesForMessage, assistantMsg, queryOptions);
     } finally {
       if (wasInterrupted) {
         await streamController.appendText('\n\n<span class="ocop-interrupted">Interrupted</span> <span class="ocop-interrupted-hint">· What should Copilot do instead?</span>');
@@ -720,16 +710,7 @@ ${content}
 
     let wasInterrupted = false;
     try {
-      for await (const chunk of plugin.agentService.query(promptToSend, imagesForMessage, state.messages, queryOptions)) {
-        if (state.cancelRequested) {
-          wasInterrupted = true;
-          break;
-        }
-        await streamController.handleStreamChunk(chunk, assistantMsg);
-      }
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      await streamController.appendText(`\n\n**Error:** ${errorMsg}`);
+      wasInterrupted = await this.executeStream(promptToSend, imagesForMessage, assistantMsg, queryOptions);
     } finally {
       if (wasInterrupted) {
         await streamController.appendText('\n\n<span class="ocop-interrupted">Plan mode interrupted</span>');
@@ -900,12 +881,42 @@ ${content}
     ).catch((error) => {
       // Log unexpected errors (callback errors are already handled by safeCallback)
       console.error('[InputController] Title generation failed:', error instanceof Error ? error.message : error);
+      new Notice('제목 생성 실패');
     });
   }
 
   // ============================================
   // Streaming Control
   // ============================================
+
+  /**
+   * Runs the streaming loop for a query.
+   * Errors are caught and displayed inline.
+   * @returns true if the stream was interrupted by the user.
+   */
+  private async executeStream(
+    prompt: string,
+    images: ImageAttachment[] | undefined,
+    assistantMsg: ChatMessage,
+    queryOptions: QueryOptions | undefined,
+  ): Promise<boolean> {
+    const { plugin, state, streamController } = this.deps;
+    let wasInterrupted = false;
+    try {
+      for await (const chunk of plugin.agentService.query(prompt, images, state.messages, queryOptions)) {
+        if (state.cancelRequested) {
+          wasInterrupted = true;
+          break;
+        }
+        await streamController.handleStreamChunk(chunk, assistantMsg);
+      }
+    } catch (error) {
+      console.error('[Copilot] Stream error:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      await streamController.appendText(`\n\n**Error:** ${errorMsg}`);
+    }
+    return wasInterrupted;
+  }
 
   /** Cancels the current streaming operation. */
   cancelStreaming(): void {
