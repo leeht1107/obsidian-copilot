@@ -809,17 +809,36 @@ function normalizeQuizMarkdown(content: string): string {
   }
 
   let cursor = headerIndex + 1;
+  // Skip blank lines
   while (cursor < lines.length && lines[cursor].trim() === '') {
     cursor += 1;
   }
+  // Skip any standalone '#### 문제' or '문제' label lines
   while (cursor < lines.length && (/^####\s*문제$/i.test(lines[cursor].trim()) || lines[cursor].trim() === '문제')) {
     cursor += 1;
+  }
+  // Skip blank lines again after the label
+  while (cursor < lines.length && lines[cursor].trim() === '') {
+    cursor += 1;
+  }
+
+  // Ensure the question text line has a #### heading
+  const questionLine = lines[cursor] ?? '';
+  let questionHeading: string;
+  if (questionLine.startsWith('#')) {
+    questionHeading = questionLine; // already has heading marker
+    cursor += 1;
+  } else if (questionLine.trim()) {
+    questionHeading = `#### ${questionLine.trim()}`; // promote to #### heading
+    cursor += 1;
+  } else {
+    questionHeading = '';
   }
 
   const rebuilt = [
     ...lines.slice(0, headerIndex + 1),
     '',
-    '#### 문제',
+    questionHeading,
     ...lines.slice(cursor),
   ];
 
