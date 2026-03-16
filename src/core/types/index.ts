@@ -30,15 +30,6 @@ export {
   type ThinkingBudget,
 } from './models';
 
-// SDK types
-export {
-  type ModelUsageInfo,
-  type SDKContentBlock,
-  type SDKMessage,
-  type SDKMessageContent,
-  type SDKStreamEvent,
-} from './sdk';
-
 // Settings types
 export {
   type ObsidianCopilotSettings,

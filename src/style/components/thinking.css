@@ -36,11 +36,6 @@
   color: var(--text-muted);
 }
 
-.ocop-thinking-hint {
-  color: var(--text-muted);
-  font-style: normal;
-}
-
 /* Thinking block (extended thinking) */
 .ocop-thinking-block {
   margin: 8px 0;

@@ -146,8 +146,6 @@ export class ObsidianCopilotView extends ItemView {
     cleanupThinkingBlock(this.state.currentThinkingState);
     this.state.currentThinkingState = null;
 
-    this.plugin.agentService.setApprovalCallback(null);
-    this.plugin.agentService.setAskUserQuestionCallback(null);
 
     this.fileContextManager?.destroy();
     this.slashCommandDropdown?.destroy();
@@ -438,20 +436,8 @@ export class ObsidianCopilotView extends ItemView {
       this.inputController?.setPlanModeRequested(active);
     });
 
-    this.plugin.agentService.setApprovalCallback(
-      (toolName, input, description) => this.inputController!.handleApprovalRequest(toolName, input, description)
-    );
-
-    this.plugin.agentService.setAskUserQuestionCallback(
-      (input) => this.inputController!.handleAskUserQuestion(input)
-    );
-
     this.plugin.agentService.setExitPlanModeCallback(
       (planContent) => this.inputController!.handleExitPlanMode(planContent)
-    );
-
-    this.plugin.agentService.setEnterPlanModeCallback(
-      () => this.inputController!.handleEnterPlanMode()
     );
 
     this.navigationController = new NavigationController({

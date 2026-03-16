@@ -575,13 +575,12 @@ export class McpServerSelector {
     this.dropdownEl.empty();
     this.dropdownEl.createDiv({ cls: 'ocop-mcp-selector-header', text: 'MCP Servers' });
     const listEl = this.dropdownEl.createDiv({ cls: 'ocop-mcp-selector-list' });
-    // Only show context-saving servers (always-on servers don't need toggles)
-    const servers = (this.mcpService?.getServers() || []).filter((s) => s.enabled && s.contextSaving);
+    const servers = this.mcpService?.getServers() || [];
 
     if (servers.length === 0) {
       listEl.createDiv({
         cls: 'ocop-mcp-selector-empty',
-        text: 'No context-saving servers',
+        text: 'No MCP servers configured',
       });
       return;
     }
@@ -594,13 +593,12 @@ export class McpServerSelector {
   private renderServerItem(listEl: HTMLElement, server: CopilotMcpServer) {
     const itemEl = listEl.createDiv({ cls: 'ocop-mcp-selector-item' });
     itemEl.dataset.serverName = server.name;
-    const isEnabled = this.enabledServers.has(server.name);
-    if (isEnabled) {
+    if (server.enabled) {
       itemEl.addClass('enabled');
     }
 
     const checkEl = itemEl.createDiv({ cls: 'ocop-mcp-selector-check' });
-    if (isEnabled) {
+    if (server.enabled) {
       checkEl.innerHTML = CHECK_ICON_SVG;
     }
 
@@ -615,28 +613,21 @@ export class McpServerSelector {
     itemEl.addEventListener('mousedown', (event) => {
       event.preventDefault();
       event.stopPropagation();
-      this.toggleServer(server.name, itemEl);
+      void this.toggleServer(server.name);
     });
   }
 
-  private toggleServer(name: string, itemEl: HTMLElement) {
-    if (this.enabledServers.has(name)) {
-      this.enabledServers.delete(name);
-    } else {
+  private async toggleServer(name: string) {
+    if (!this.mcpService) return;
+    await this.mcpService.toggleServerEnabled(name);
+    const server = this.mcpService.getServers().find((s) => s.name === name);
+    if (server?.enabled) {
       this.enabledServers.add(name);
-    }
-
-    const isEnabled = this.enabledServers.has(name);
-    const checkEl = itemEl.querySelector('.ocop-mcp-selector-check') as HTMLElement | null;
-    if (isEnabled) {
-      itemEl.addClass('enabled');
-      if (checkEl) checkEl.innerHTML = CHECK_ICON_SVG;
     } else {
-      itemEl.removeClass('enabled');
-      if (checkEl) checkEl.innerHTML = '';
+      this.enabledServers.delete(name);
     }
-
     this.updateDisplay();
+    this.renderDropdown();
     this.onChangeCallback?.(this.enabledServers);
   }
 

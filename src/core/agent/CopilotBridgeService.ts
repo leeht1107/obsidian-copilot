@@ -11,9 +11,8 @@ import { normalizePathForFilesystem } from '../../utils/path';
 import { buildContextFromHistory, getLastUserMessage } from '../../utils/session';
 import type { McpServerManager } from '../mcp';
 import { buildSystemPrompt } from '../prompts/mainAgent';
-import { TOOL_EDIT, TOOL_WRITE } from '../tools/toolNames';
+import { isWriteEditTool } from '../tools/toolNames';
 import type {
-  AskUserQuestionCallback,
   ChatMessage,
   ExitPlanModeDecision,
   ImageAttachment,
@@ -276,10 +275,7 @@ export class CopilotBridgeService {
   private cachedCapabilities = new Map<string, CopilotCliCapabilities>();
   private capabilityProbePromises = new Map<string, Promise<CopilotCliCapabilities>>();
 
-  private approvalCallback: ApprovalCallback | null = null;
-  private askUserQuestionCallback: AskUserQuestionCallback | null = null;
   private exitPlanModeCallback: ExitPlanModeCallback | null = null;
-  private enterPlanModeCallback: EnterPlanModeCallback | null = null;
   private currentPlanFilePath: string | null = null;
   private approvedPlanContent: string | null = null;
   private askUserQuestionAnswers = new Map<string, Record<string, string | string[]>>();
@@ -715,9 +711,14 @@ export class CopilotBridgeService {
   }
 
   private translateCopilotEvent(event: CopilotJsonEvent): StreamChunk[] {
-    return translateCopilotJsonEvent(event, (sessionId) => {
+    const chunks = translateCopilotJsonEvent(event, (sessionId) => {
       this.sessionId = sessionId;
     });
+    if (chunks.some((c) => c.type === 'tool_use' || c.type === 'tool_result')) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      console.log('[OC] Tool event:', event.type, chunks.map((c) => `${c.type}:${(c as any).name ?? (c as any).id ?? ''}`));
+    }
+    return chunks;
   }
 
   cancel(): void {
@@ -764,28 +765,12 @@ export class CopilotBridgeService {
     }
   }
 
-  setApprovalCallback(callback: ApprovalCallback | null): void {
-    this.approvalCallback = callback;
-  }
-
-  setAskUserQuestionCallback(callback: AskUserQuestionCallback | null): void {
-    this.askUserQuestionCallback = callback;
-  }
-
   isAskUserQuestionToolSupported(): boolean {
     return this.isAskUserQuestionSupported;
   }
 
   setExitPlanModeCallback(callback: ExitPlanModeCallback | null): void {
     this.exitPlanModeCallback = callback;
-  }
-
-  setEnterPlanModeCallback(callback: EnterPlanModeCallback | null): void {
-    this.enterPlanModeCallback = callback;
-  }
-
-  private isWriteEditTool(toolName: string): boolean {
-    return toolName === TOOL_WRITE || toolName === TOOL_EDIT;
   }
 
   private resolveVaultFilePath(filePath: string): string {
@@ -798,7 +783,7 @@ export class CopilotBridgeService {
     toolName: string,
     toolInput: Record<string, unknown>
   ): void {
-    if (!this.isWriteEditTool(toolName)) {
+    if (!isWriteEditTool(toolName)) {
       return;
     }
 

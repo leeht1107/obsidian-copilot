@@ -238,7 +238,13 @@ export class QuizSetupModal extends Modal {
       displayScope = summarizeSelectedNotes(selectedPaths);
     } else {
       const selectedFolders = Array.from(this.selectedFolderPaths);
-      scopeInstruction = `Use only notes in these selected folders as ground truth source material: ${selectedFolders.join(', ')}`;
+      const folderNotes = this.app.vault.getMarkdownFiles()
+        .filter((f) => selectedFolders.some((folder) => f.path.startsWith(`${folder}/`)))
+        .map((f) => f.path)
+        .sort();
+      scopeInstruction = folderNotes.length > 0
+        ? `Use only these selected notes as ground truth source material: ${folderNotes.map((p) => `@${p}`).join(', ')}`
+        : `No markdown files found in selected folders: ${selectedFolders.join(', ')}. Please inform the user.`;
       displayScope = selectedFolders.length === 1
         ? `폴더 · ${summarizeFolder(selectedFolders[0])}`
         : `폴더 ${selectedFolders.length}개`;

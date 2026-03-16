@@ -8,14 +8,17 @@
 
 import { McpServerManager } from '../../core/mcp';
 import type { CopilotMcpServer, McpServerConfig } from '../../core/types';
+import type { McpStorage } from '../../core/storage';
 import type ObsidianCopilotPlugin from '../../main';
 import { extractMcpMentions, transformMcpMentions } from '../../utils/mcp';
 
 export class McpService {
   private manager: McpServerManager;
+  private storage: McpStorage;
 
   constructor(plugin: ObsidianCopilotPlugin) {
-    this.manager = new McpServerManager(plugin.storage.mcp);
+    this.storage = plugin.storage.mcp;
+    this.manager = new McpServerManager(this.storage);
   }
 
   // ============================================
@@ -72,6 +75,15 @@ export class McpService {
       this.manager.getServers().filter((s) => s.enabled && s.contextSaving).map((s) => s.name)
     );
     return transformMcpMentions(text, validNames);
+  }
+
+  /** Toggle a server's enabled state and persist to storage. */
+  async toggleServerEnabled(name: string): Promise<void> {
+    const servers = this.manager.getServers();
+    const server = servers.find((s) => s.name === name);
+    if (!server) return;
+    server.enabled = !server.enabled;
+    await this.storage.save(servers);
   }
 
   // ============================================
