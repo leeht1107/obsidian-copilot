@@ -32,33 +32,9 @@ export class McpService {
     return this.manager.getServers();
   }
 
-  /** Get enabled servers count. */
-  getEnabledCount(): number {
-    return this.manager.getEnabledCount();
-  }
-
   /** Get servers to include in SDK options. */
   getActiveServers(mentionedNames: Set<string>): Record<string, McpServerConfig> {
     return this.manager.getActiveServers(mentionedNames);
-  }
-
-  /** Check if any MCP servers are configured. */
-  hasServers(): boolean {
-    return this.manager.hasServers();
-  }
-
-  // ============================================
-  // Feature-specific: @-mention detection & UI
-  // ============================================
-
-  /** Get all server names for @-mention validation. */
-  getServerNames(): string[] {
-    return this.manager.getServers().map((s) => s.name);
-  }
-
-  /** Get enabled server names for @-mention validation. */
-  getEnabledServerNames(): string[] {
-    return this.manager.getServers().filter((s) => s.enabled).map((s) => s.name);
   }
 
   /** Get servers with context-saving enabled (for @-mention autocomplete). */

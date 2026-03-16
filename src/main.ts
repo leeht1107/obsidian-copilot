@@ -173,16 +173,10 @@ export default class ObsidianCopilotPlugin extends Plugin {
     try {
       if (await this.storage.mcp.exists()) return;
 
-      const { MCP_PRESETS } = await import('./core/types/mcp-presets');
-      const { DEFAULT_MCP_SERVER } = await import('./core/types');
+      const { MCP_PRESETS, createServerFromPreset } = await import('./core/types/mcp-presets');
       const recommended = MCP_PRESETS.filter((p) => p.inRecommendedBundle);
 
-      const servers = recommended.map((preset) => ({
-        name: preset.name,
-        config: { ...preset.config },
-        enabled: DEFAULT_MCP_SERVER.enabled,
-        contextSaving: DEFAULT_MCP_SERVER.contextSaving,
-      }));
+      const servers = recommended.map(createServerFromPreset);
 
       await this.storage.mcp.save(servers);
       await this.mcpService.loadServers();

@@ -7,7 +7,6 @@ export interface QuizSetupResult {
   displayContent: string;
   totalQuestions: number;
   focusText?: string;
-  difficulty?: string;
 }
 
 function getBasename(path: string): string {
@@ -259,7 +258,6 @@ export class QuizSetupModal extends Modal {
       displayContent: displayLabel,
       totalQuestions: Number(this.questionCount),
       focusText: this.focusText || undefined,
-      difficulty: this.difficulty,
       prompt: [
         `Create a ${this.questionCount}-question quiz in Korean.`,
         scopeInstruction,
@@ -267,10 +265,8 @@ export class QuizSetupModal extends Modal {
         this.focusText ? `Focus especially on this topic: ${this.focusText}.` : '',
         difficultyInstruction,
         'Use a deliberate mix of question formats: multiple-choice, short-answer, true/false, and multi-select.',
-        'It is acceptable to revisit the same concept multiple times in different question styles (for example multiple choice, short answer, true/false, or multi-select) if that improves learning.',
         'Ask exactly one question at a time.',
         'After the student answers, immediately tell them whether they are correct, explain why in Korean, and then move to the next question.',
-        'All student-facing output must be in Korean.',
         'Format each question in clean markdown.',
         'CRITICAL RULE: When a question mentions any specific code, function, variable, regex, or command from the source material, you MUST embed the relevant code snippet as a fenced code block (```) INSIDE the question body, between the #### heading and the answer choices. The student cannot see the original note — if you mention code without showing it, the question is unanswerable.',
         'Use this EXACT structure for each question — copy it precisely: Line 1: "## {N}/{T}번 문제". Line 2: blank. Line 3: "#### {question text}" — the question sentence IS the #### heading, nothing else. NEVER write "#### 문제" or any other fixed label on line 3. Line 4: blank. Lines 5+: (if referencing code) fenced code block, then blank line, then answer choices. Final line: "답안 형식: ...".',
@@ -293,20 +289,13 @@ Example 2 — code-referencing question (MUST include snippet):
 
 ## 2/5번 문제
 
-#### 다음 clean_title() 함수에서 2단계(허용 문자 외 제거)의 정규식이 하는 역할로 올바른 것은 무엇입니까?
+#### 다음 함수에서 정규식이 하는 역할로 올바른 것은?
 
 \`\`\`python
-def clean_title(text):
-    text = re.sub(r'^\\[.*?\\]\\s*', '', text)   # 1) 접두 태그 제거
-    text = re.sub(r'[^가-힣a-zA-Z0-9\\s]', '', text)  # 2) 허용 문자 외 제거
-    text = re.sub(r'\\s+', ' ', text).strip()  # 3) 공백 정규화
-    return text
+# (relevant code snippet from source material)
 \`\`\`
 
-A. 한글, 영문, 숫자, 공백만 남긴다.
-B. 모든 특수문자를 공백으로 치환한다.
-C. 영문 대문자만 제거한다.
-D. 숫자를 모두 제거한다.
+A. ... B. ... C. ... D. ...
 
 답안 형식: A`,
         'Do not wrap the question in code fences or quote blocks.',
@@ -316,28 +305,6 @@ D. 숫자를 모두 제거한다.
         'After the student answers, respond in markdown with this exact structure: "### 정답 확인", then bullet lines for "정오", "정답", "해설", and "핵심 포인트".',
         'After the feedback block, add a horizontal rule (---) and then continue with the next question.',
         'Never dump or quote raw source material, pasted notes, markdown headings, XML tags, or long excerpts from the source. Only show the quiz question, the student feedback, the correct answer, and the explanation.',
-        `After ALL questions are answered, present a final summary in this exact format:
-
----
-
-## 퀴즈 결과
-
-- **총 문제**: {T}문제
-- **정답**: {correct}문제
-- **오답**: {wrong}문제
-- **점수**: {percentage}%
-
-### 오답 노트
-
-(For each wrong answer, provide a study-oriented review:)
-
-**Q{N}. {question summary}**
-- 내 답: {student answer}
-- 정답: {correct answer}
-- 왜 틀렸는가: {explain why the student's answer is wrong and what misconception it reveals}
-- 올바른 이해: {explain the correct concept in 2-3 sentences so the student can learn from the mistake}
-
-If all answers are correct, write "모든 문제를 맞혔습니다!" instead of the 오답 노트 section.`,
       ].join(' '),
     };
   }

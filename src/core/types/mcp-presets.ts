@@ -4,11 +4,12 @@
  * Curated list of MCP server presets for the gallery UI.
  */
 
-import type { McpServerConfig } from './mcp';
+import type { CopilotMcpServer, McpServerConfig } from './mcp';
+import { DEFAULT_MCP_SERVER } from './mcp';
 
 /** MCP preset definition for the gallery. */
 export interface McpPreset {
-  /** Server name (used as key, e.g., 'fetch'). */
+  /** Server name (used as key, e.g., 'context7'). */
   name: string;
   /** Korean display name for UI. */
   displayName: string;
@@ -16,8 +17,6 @@ export interface McpPreset {
   description: string;
   /** Obsidian icon name (lucide icons). */
   icon: string;
-  /** npm package name for npx (optional for HTTP presets). */
-  npmPackage?: string;
   /** Pre-built server config. */
   config: McpServerConfig;
   /** Whether this preset is in the recommended bundle. */
@@ -42,7 +41,6 @@ export const MCP_PRESETS: McpPreset[] = [
     displayName: '단계별 사고',
     description: '복잡한 문제를 단계별로 분석합니다',
     icon: 'brain',
-    npmPackage: '@modelcontextprotocol/server-sequential-thinking',
     config: { command: 'npx', args: ['-y', '@modelcontextprotocol/server-sequential-thinking'] },
     inRecommendedBundle: true,
   },
@@ -59,7 +57,6 @@ export const MCP_PRESETS: McpPreset[] = [
     displayName: '기억 저장소',
     description: '대화 간 정보를 기억하고 불러옵니다',
     icon: 'database',
-    npmPackage: '@anthropic-ai/mcp-server-memory',
     config: { command: 'npx', args: ['-y', '@anthropic-ai/mcp-server-memory'] },
     inRecommendedBundle: false,
   },
@@ -68,7 +65,6 @@ export const MCP_PRESETS: McpPreset[] = [
     displayName: '파일 시스템',
     description: '로컬 파일 시스템에 접근합니다',
     icon: 'folder-open',
-    npmPackage: '@anthropic-ai/mcp-server-filesystem',
     config: {
       command: 'npx',
       args: ['-y', '@anthropic-ai/mcp-server-filesystem', '/path/to/directory'],
@@ -81,7 +77,12 @@ export const MCP_PRESETS: McpPreset[] = [
   },
 ];
 
-/** Names of presets included in the recommended bundle. */
-export const RECOMMENDED_PRESET_NAMES = new Set(
-  MCP_PRESETS.filter((p) => p.inRecommendedBundle).map((p) => p.name)
-);
+/** Create a CopilotMcpServer from a preset with default settings. */
+export function createServerFromPreset(preset: McpPreset): CopilotMcpServer {
+  return {
+    name: preset.name,
+    config: { ...preset.config },
+    enabled: DEFAULT_MCP_SERVER.enabled,
+    contextSaving: DEFAULT_MCP_SERVER.contextSaving,
+  };
+}

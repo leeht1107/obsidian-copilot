@@ -51,13 +51,9 @@ export interface CopilotMcpServer {
   description?: string;
 }
 
-/** MCP configuration file format (Claude Code compatible). */
-export interface McpConfigFile {
-  mcpServers: Record<string, McpServerConfig>;
-}
-
 /** Extended config file with Obsidian Code metadata. */
-export interface CopilotMcpConfigFile extends McpConfigFile {
+export interface CopilotMcpConfigFile {
+  mcpServers: Record<string, McpServerConfig>;
   _obsidianCopilot?: {
     /** Per-server Obsidian Code-specific settings. */
     servers: Record<
@@ -109,14 +105,6 @@ export function isValidMcpServerConfig(obj: unknown): obj is McpServerConfig {
   if (config.url && typeof config.url === 'string') return true;
 
   return false;
-}
-
-/** Infer the server type from a config. */
-export function inferMcpServerType(config: McpServerConfig): McpServerType {
-  if (config.type === 'sse') return 'sse';
-  if (config.type === 'http') return 'http';
-  if ('url' in config) return 'http'; // Default URL-based to http
-  return 'stdio';
 }
 
 /** Default values for a new MCP server. */

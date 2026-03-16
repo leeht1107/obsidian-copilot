@@ -62,21 +62,8 @@
   color: var(--color-orange);
 }
 
-/* MCP server badge */
-.ocop-tool-mcp-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 1px 8px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--interactive-accent);
-  color: var(--text-on-accent);
-  flex-shrink: 0;
-  letter-spacing: 0.02em;
-}
-
-/* Skill badge */
+/* MCP / Skill badges — shared base */
+.ocop-tool-mcp-badge,
 .ocop-tool-skill-badge {
   display: inline-flex;
   align-items: center;
@@ -84,10 +71,17 @@
   border-radius: 10px;
   font-size: 11px;
   font-weight: 600;
-  background: var(--color-orange);
   color: var(--text-on-accent);
   flex-shrink: 0;
   letter-spacing: 0.02em;
+}
+
+.ocop-tool-mcp-badge {
+  background: var(--interactive-accent);
+}
+
+.ocop-tool-skill-badge {
+  background: var(--color-orange);
 }
 
 /* Spinner animation */

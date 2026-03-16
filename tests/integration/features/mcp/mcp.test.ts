@@ -20,7 +20,6 @@ import type {
 import {
   DEFAULT_MCP_SERVER,
   getMcpServerType,
-  inferMcpServerType,
   isValidMcpServerConfig,
 } from '@/core/types/mcp';
 import { McpService } from '@/features/mcp/McpService';
@@ -129,28 +128,6 @@ describe('MCP Types', () => {
     it('should return http for URL without explicit type', () => {
       const config = { url: 'http://localhost:3000/mcp' } as McpServerConfig;
       expect(getMcpServerType(config)).toBe('http');
-    });
-  });
-
-  describe('inferMcpServerType', () => {
-    it('should infer stdio for command config', () => {
-      const config: McpStdioServerConfig = { command: 'python', args: ['-m', 'server'] };
-      expect(inferMcpServerType(config)).toBe('stdio');
-    });
-
-    it('should infer sse for SSE config', () => {
-      const config: McpSSEServerConfig = { type: 'sse', url: 'http://example.com/sse' };
-      expect(inferMcpServerType(config)).toBe('sse');
-    });
-
-    it('should infer http for HTTP config', () => {
-      const config: McpHttpServerConfig = { type: 'http', url: 'http://example.com/mcp' };
-      expect(inferMcpServerType(config)).toBe('http');
-    });
-
-    it('should default URL-based config to http', () => {
-      const config = { url: 'http://example.com' } as McpServerConfig;
-      expect(inferMcpServerType(config)).toBe('http');
     });
   });
 
@@ -1230,7 +1207,7 @@ describe('McpService', () => {
   });
 
   describe('helper methods', () => {
-    it('should report server lists and enabled counts', () => {
+    it('should report context-saving servers', () => {
       const servers: CopilotMcpServer[] = [
         { name: 's1', config: { command: 'c1' }, enabled: true, contextSaving: true },
         { name: 's2', config: { command: 'c2' }, enabled: true, contextSaving: false },
@@ -1238,20 +1215,12 @@ describe('McpService', () => {
       ];
       const service = createService(servers);
 
-      expect(service.getEnabledCount()).toBe(2);
-      expect(service.getServerNames()).toEqual(['s1', 's2', 's3']);
-      expect(service.getEnabledServerNames()).toEqual(['s1', 's2']);
-      expect(service.hasServers()).toBe(true);
       expect(service.hasContextSavingServers()).toBe(true);
     });
 
     it('should return false when no servers are configured', () => {
       const service = createService([]);
 
-      expect(service.getEnabledCount()).toBe(0);
-      expect(service.getServerNames()).toEqual([]);
-      expect(service.getEnabledServerNames()).toEqual([]);
-      expect(service.hasServers()).toBe(false);
       expect(service.hasContextSavingServers()).toBe(false);
     });
   });

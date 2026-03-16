@@ -7,9 +7,8 @@
 import { Notice, setIcon } from 'obsidian';
 
 import type { CopilotMcpServer } from '../../core/types';
-import { DEFAULT_MCP_SERVER } from '../../core/types';
 import type { McpPreset } from '../../core/types/mcp-presets';
-import { MCP_PRESETS } from '../../core/types/mcp-presets';
+import { createServerFromPreset, MCP_PRESETS } from '../../core/types/mcp-presets';
 import type ObsidianCopilotPlugin from '../../main';
 import { McpServerModal } from '../modals/McpServerModal';
 
@@ -145,13 +144,7 @@ export class McpPresetGallery {
     }
 
     // Direct install — no extra input needed
-    const server: CopilotMcpServer = {
-      name: preset.name,
-      config: { ...preset.config },
-      enabled: DEFAULT_MCP_SERVER.enabled,
-      contextSaving: DEFAULT_MCP_SERVER.contextSaving,
-    };
-    await this.onInstall(server);
+    await this.onInstall(createServerFromPreset(preset));
     this.onRefresh();
     new Notice(`MCP 서버 "${preset.displayName}" 설치됨`);
   }
@@ -163,13 +156,7 @@ export class McpPresetGallery {
     for (const preset of recommendedPresets) {
       if (this.isPresetInstalled(preset)) continue;
 
-      const server: CopilotMcpServer = {
-        name: preset.name,
-        config: { ...preset.config },
-        enabled: DEFAULT_MCP_SERVER.enabled,
-        contextSaving: DEFAULT_MCP_SERVER.contextSaving,
-      };
-      await this.onInstall(server);
+      await this.onInstall(createServerFromPreset(preset));
       installed++;
     }
 

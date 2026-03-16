@@ -93,27 +93,6 @@ function shortenPath(filePath: string | undefined): string {
   return '.../' + parts.slice(-2).join('/');
 }
 
-/** Format tool input for display. */
-export function formatToolInput(name: string, input: Record<string, unknown>): string {
-  switch (name) {
-    case 'Read':
-    case 'Write':
-    case 'Edit':
-      return input.file_path as string || JSON.stringify(input, null, 2);
-    case 'Bash':
-      return (input.command as string) || JSON.stringify(input, null, 2);
-    case 'Glob':
-    case 'Grep':
-      return (input.pattern as string) || JSON.stringify(input, null, 2);
-    case 'WebSearch':
-      return (input.query as string) || JSON.stringify(input, null, 2);
-    case 'WebFetch':
-      return (input.url as string) || JSON.stringify(input, null, 2);
-    default:
-      return JSON.stringify(input, null, 2);
-  }
-}
-
 interface WebSearchLink {
   title: string;
   url: string;
@@ -206,24 +185,33 @@ export function isBlockedToolResult(content: string, isError?: boolean): boolean
   return false;
 }
 
-/** Renders a tool call UI element (for streaming). Collapsed by default. */
-export function renderToolCall(
+/** Dispatch tool result rendering by tool name. */
+function renderToolResultContent(el: HTMLElement, name: string, result: string): void {
+  if (name === 'WebSearch') {
+    if (!renderWebSearchResult(el, result, 3)) {
+      renderResultLines(el, result, 3);
+    }
+  } else if (name === 'Read') {
+    renderReadResult(el, result);
+  } else {
+    renderResultLines(el, result, 3);
+  }
+}
+
+/** Create the common DOM skeleton for a tool call. */
+function createToolCallDOM(
   parentEl: HTMLElement,
-  toolCall: ToolCallInfo,
-  toolCallElements: Map<string, HTMLElement>
-): HTMLElement {
+  toolCall: ToolCallInfo
+): { toolEl: HTMLElement; header: HTMLElement; statusEl: HTMLElement; content: HTMLElement; resultText: HTMLElement } {
   const isMcp = toolCall.name.startsWith('mcp__');
   const isSkill = toolCall.name === 'Skill';
   const badgeType = isMcp ? ' is-mcp' : isSkill ? ' is-skill' : '';
   const toolEl = parentEl.createDiv({ cls: `ocop-tool-call${badgeType}` });
-  toolEl.dataset.toolId = toolCall.id;
-  toolCallElements.set(toolCall.id, toolEl);
 
   // Header (clickable to expand/collapse)
   const header = toolEl.createDiv({ cls: 'ocop-tool-header' });
   header.setAttribute('tabindex', '0');
   header.setAttribute('role', 'button');
-  // aria-label is set dynamically by setupCollapsible based on expand state
 
   // Tool icon (decorative)
   const iconEl = header.createSpan({ cls: 'ocop-tool-icon' });
@@ -252,9 +240,6 @@ export function renderToolCall(
   const statusEl = header.createSpan({ cls: 'ocop-tool-status' });
   statusEl.addClass(`status-${toolCall.status}`);
   statusEl.setAttribute('aria-label', `Status: ${toolCall.status}`);
-  if (toolCall.status === 'running') {
-    statusEl.createSpan({ cls: 'ocop-spinner' });
-  }
 
   // Collapsible content
   const content = toolEl.createDiv({ cls: 'ocop-tool-content' });
@@ -264,6 +249,35 @@ export function renderToolCall(
   const branch = resultRow.createSpan({ cls: 'ocop-tool-branch' });
   branch.setText('└─');
   const resultText = resultRow.createSpan({ cls: 'ocop-tool-result-text' });
+
+  return { toolEl, header, statusEl, content, resultText };
+}
+
+/** Set a completed/error/blocked status icon. */
+function setStatusIcon(statusEl: HTMLElement, status: string): void {
+  if (status === 'completed') {
+    setIcon(statusEl, 'check');
+  } else if (status === 'error') {
+    setIcon(statusEl, 'x');
+  } else if (status === 'blocked') {
+    setIcon(statusEl, 'shield-off');
+  }
+}
+
+/** Renders a tool call UI element (for streaming). Collapsed by default. */
+export function renderToolCall(
+  parentEl: HTMLElement,
+  toolCall: ToolCallInfo,
+  toolCallElements: Map<string, HTMLElement>
+): HTMLElement {
+  const { toolEl, header, statusEl, content, resultText } = createToolCallDOM(parentEl, toolCall);
+  toolEl.dataset.toolId = toolCall.id;
+  toolCallElements.set(toolCall.id, toolEl);
+
+  // Streaming: show spinner
+  if (toolCall.status === 'running') {
+    statusEl.createSpan({ cls: 'ocop-spinner' });
+  }
   resultText.setText('Running...');
 
   // Setup collapsible behavior and sync state to toolCall
@@ -293,28 +307,13 @@ export function updateToolCallResult(
     statusEl.className = 'ocop-tool-status';
     statusEl.addClass(`status-${toolCall.status}`);
     statusEl.empty();
-    if (toolCall.status === 'completed') {
-      setIcon(statusEl as HTMLElement, 'check');
-    } else if (toolCall.status === 'error') {
-      setIcon(statusEl as HTMLElement, 'x');
-    } else if (toolCall.status === 'blocked') {
-      setIcon(statusEl as HTMLElement, 'shield-off');
-    }
+    setStatusIcon(statusEl as HTMLElement, toolCall.status);
   }
 
-  // Update result text (max 3 lines)
+  // Update result text
   const resultText = toolEl.querySelector('.ocop-tool-result-text') as HTMLElement;
   if (resultText && toolCall.result) {
-    // Try special rendering for WebSearch/Read, otherwise use generic line renderer
-    if (toolCall.name === 'WebSearch') {
-      if (!renderWebSearchResult(resultText, toolCall.result, 3)) {
-        renderResultLines(resultText, toolCall.result, 3);
-      }
-    } else if (toolCall.name === 'Read') {
-      renderReadResult(resultText, toolCall.result);
-    } else {
-      renderResultLines(resultText, toolCall.result, 3);
-    }
+    renderToolResultContent(resultText, toolCall.name, toolCall.result);
   }
 }
 
@@ -323,76 +322,19 @@ export function renderStoredToolCall(
   parentEl: HTMLElement,
   toolCall: ToolCallInfo
 ): HTMLElement {
-  const isMcp = toolCall.name.startsWith('mcp__');
-  const isSkill = toolCall.name === 'Skill';
-  const badgeType = isMcp ? ' is-mcp' : isSkill ? ' is-skill' : '';
-  const toolEl = parentEl.createDiv({ cls: `ocop-tool-call${badgeType}` });
+  const { toolEl, header, statusEl, content, resultText } = createToolCallDOM(parentEl, toolCall);
 
-  // Header
-  const header = toolEl.createDiv({ cls: 'ocop-tool-header' });
-  header.setAttribute('tabindex', '0');
-  header.setAttribute('role', 'button');
-  // aria-label is set dynamically by setupCollapsible based on expand state
+  // Already completed — show status icon
+  setStatusIcon(statusEl, toolCall.status);
 
-  // Tool icon (decorative)
-  const iconEl = header.createSpan({ cls: 'ocop-tool-icon' });
-  iconEl.setAttribute('aria-hidden', 'true');
-  setToolIcon(iconEl, toolCall.name);
-
-  // MCP server badge
-  if (isMcp) {
-    const mcpInfo = parseMcpToolName(toolCall.name);
-    if (mcpInfo) {
-      header.createSpan({ cls: 'ocop-tool-mcp-badge', text: mcpInfo.server });
-    }
-  }
-
-  // Skill badge
-  if (isSkill) {
-    const skillName = (toolCall.input.skill as string) || 'skill';
-    header.createSpan({ cls: 'ocop-tool-skill-badge', text: skillName });
-  }
-
-  // Tool label
-  const labelEl = header.createSpan({ cls: 'ocop-tool-label' });
-  labelEl.setText(getToolLabel(toolCall.name, toolCall.input));
-
-  // Status indicator (already completed)
-  const statusEl = header.createSpan({ cls: 'ocop-tool-status' });
-  statusEl.addClass(`status-${toolCall.status}`);
-  statusEl.setAttribute('aria-label', `Status: ${toolCall.status}`);
-  if (toolCall.status === 'completed') {
-    setIcon(statusEl, 'check');
-  } else if (toolCall.status === 'error') {
-    setIcon(statusEl, 'x');
-  } else if (toolCall.status === 'blocked') {
-    setIcon(statusEl, 'shield-off');
-  }
-
-  // Collapsible content
-  const content = toolEl.createDiv({ cls: 'ocop-tool-content' });
-
-  // Tree-branch result row
-  const resultRow = content.createDiv({ cls: 'ocop-tool-result-row' });
-  const branch = resultRow.createSpan({ cls: 'ocop-tool-branch' });
-  branch.setText('└─');
-  const resultText = resultRow.createSpan({ cls: 'ocop-tool-result-text' });
+  // Render result
   if (toolCall.result) {
-    // Try special rendering for WebSearch/Read, otherwise use generic line renderer
-    if (toolCall.name === 'WebSearch') {
-      if (!renderWebSearchResult(resultText, toolCall.result, 3)) {
-        renderResultLines(resultText, toolCall.result, 3);
-      }
-    } else if (toolCall.name === 'Read') {
-      renderReadResult(resultText, toolCall.result);
-    } else {
-      renderResultLines(resultText, toolCall.result, 3);
-    }
+    renderToolResultContent(resultText, toolCall.name, toolCall.result);
   } else {
     resultText.setText('No result');
   }
 
-  // Setup collapsible behavior (handles click, keyboard, ARIA, CSS)
+  // Setup collapsible behavior
   const state = { isExpanded: false };
   setupCollapsible(toolEl, header, content, state, {
     initiallyExpanded: false,

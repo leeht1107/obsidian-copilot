@@ -47,7 +47,6 @@ export {
   type TodoItem,
 } from './TodoListRenderer';
 export {
-  formatToolInput,
   getToolLabel,
   isBlockedToolResult,
   renderStoredToolCall,
