@@ -324,6 +324,7 @@ export class CopilotBridgeService {
       hasEditorContext,
       planMode: queryOptions?.planMode,
       appendedPlan: this.approvedPlanContent ?? undefined,
+      mcpServers: this.mcpManager.getServers().filter((s) => s.enabled).map((s) => s.name),
     });
   }
 

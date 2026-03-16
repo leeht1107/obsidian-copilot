@@ -18,6 +18,8 @@ export interface SystemPromptSettings {
   planMode?: boolean;
   /** Approved plan content to append (from plan mode approval). */
   appendedPlan?: string;
+  /** Names of currently enabled MCP servers. */
+  mcpServers?: string[];
 }
 
 /** Returns the base system prompt with core instructions. */
@@ -293,6 +295,21 @@ ${formattedPaths}
 When user refers to a folder by name (e.g., "check Workspace"), use the corresponding absolute path.`;
 }
 
+/** Returns MCP server instructions when servers are available. */
+function getMcpServersInstructions(servers: string[]): string {
+  if (!servers || servers.length === 0) return '';
+  const list = servers.map((s) => `- \`@${s}\``).join('\n');
+  return `
+
+## Available MCP Servers
+
+The following MCP servers are active and can be used as tools. Mention \`@servername\` anywhere in your message to activate a server's tools:
+
+${list}
+
+Example: "Use @context7 to look up the latest React docs" or "@context7 postgresql 조사해줘"`;
+}
+
 /** Returns editor context instructions (only included when selection exists). */
 function getEditorContextInstructions(): string {
   return `
@@ -350,6 +367,7 @@ export function buildSystemPrompt(settings: SystemPromptSettings = {}): string {
   prompt += getImageInstructions(settings.mediaFolder || '');
   prompt += getExportInstructions(settings.allowedExportPaths || []);
   prompt += getExternalContextInstructions(settings.externalContextPaths || []);
+  prompt += getMcpServersInstructions(settings.mcpServers || []);
 
   if (settings.customPrompt?.trim()) {
     prompt += '\n\n## Custom Instructions\n\n' + settings.customPrompt.trim();
