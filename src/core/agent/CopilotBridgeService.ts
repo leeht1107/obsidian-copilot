@@ -20,6 +20,7 @@ import type {
   ToolDiffData,
   UsageInfo,
 } from '../types';
+import { THINKING_BUDGETS } from '../types';
 
 export interface QueryOptions {
   allowedTools?: string[];
@@ -246,6 +247,7 @@ interface CopilotCliCapabilities {
   denyTool: boolean;
   availableTools: boolean;
   allowAllTools: boolean;
+  reasoningEffort: boolean;
 }
 
 export function detectCopilotCliCapabilities(helpText: string): CopilotCliCapabilities {
@@ -261,6 +263,7 @@ export function detectCopilotCliCapabilities(helpText: string): CopilotCliCapabi
     denyTool: helpText.includes('--deny-tool'),
     availableTools: helpText.includes('--available-tools'),
     allowAllTools: helpText.includes('--allow-all-tools'),
+    reasoningEffort: helpText.includes('--reasoning-effort'),
   };
 }
 
@@ -538,6 +541,12 @@ export class CopilotBridgeService {
     const selectedModel = queryOptions?.model?.trim();
     if (capabilities.model && selectedModel && selectedModel !== 'auto') {
       args.push('--model', selectedModel);
+    }
+
+    const thinkingBudget = this.plugin.settings.thinkingBudget;
+    const budgetInfo = THINKING_BUDGETS.find((b) => b.value === thinkingBudget);
+    if (capabilities.reasoningEffort && budgetInfo?.cliValue) {
+      args.push('--reasoning-effort', budgetInfo.cliValue);
     }
 
     this.addToolArgs(args, capabilities, queryOptions);

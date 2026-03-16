@@ -181,26 +181,52 @@ export class ThinkingBudgetSelector {
     this.render();
   }
 
+  private isEnabled(): boolean {
+    const currentModel = this.callbacks.getSettings().model;
+    const defaultBudget = DEFAULT_THINKING_BUDGET[currentModel];
+    return defaultBudget !== undefined && defaultBudget !== 'off';
+  }
+
   private render() {
     this.container.empty();
     this.container.createSpan({ cls: 'ocop-thinking-label-text', text: 'Thinking:' });
     this.gearsEl = this.container.createDiv({ cls: 'ocop-thinking-gears' });
-    this.container.addClass('is-disabled');
+    this.updateDisplay();
+    this.container.addEventListener('click', () => {
+      void this.cycleThinkingBudget();
+    });
+  }
+
+  private async cycleThinkingBudget() {
+    if (!this.isEnabled()) return;
+    const levels: ThinkingBudget[] = ['off', 'low', 'medium', 'high', 'xhigh'];
+    const current = this.callbacks.getSettings().thinkingBudget;
+    const currentIndex = levels.indexOf(current);
+    const next = levels[(currentIndex + 1) % levels.length];
+    await this.callbacks.onThinkingBudgetChange(next);
     this.updateDisplay();
   }
 
   updateDisplay() {
     if (!this.gearsEl) return;
     this.gearsEl.empty();
-    const currentModel = this.callbacks.getSettings().model;
-    const currentBudget = DEFAULT_THINKING_BUDGET[currentModel] ?? this.callbacks.getSettings().thinkingBudget;
-    const currentBudgetInfo = THINKING_BUDGETS.find((budget) => budget.value === currentBudget);
+
+    if (this.isEnabled()) {
+      this.container.removeClass('is-disabled');
+    } else {
+      this.container.addClass('is-disabled');
+    }
+
+    const currentBudget = this.callbacks.getSettings().thinkingBudget;
+    const currentBudgetInfo = THINKING_BUDGETS.find((b) => b.value === currentBudget);
     const label = currentBudgetInfo?.label || 'off';
-    this.gearsEl.createDiv({
-      cls: 'ocop-thinking-current ocop-thinking-disabled',
-      text: label,
-    });
-    this.gearsEl.setAttribute('title', 'Thinking follows the selected model default.');
+    const cls = currentBudget === 'off'
+      ? 'ocop-thinking-current ocop-thinking-disabled'
+      : 'ocop-thinking-current ocop-thinking-active';
+    this.gearsEl.createDiv({ cls, text: label });
+    this.gearsEl.setAttribute('title', this.isEnabled()
+      ? 'Click to change thinking level'
+      : 'Thinking not available for this model');
   }
 }
 

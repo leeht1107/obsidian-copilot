@@ -8,36 +8,39 @@ export interface ModelOption {
   description: string;
 }
 
-export type ThinkingBudget = 'off' | 'on';
+export type ThinkingBudget = 'off' | 'low' | 'medium' | 'high' | 'xhigh';
 
 export const THINKING_BUDGETS = [
-  { value: 'off', label: 'off', tokens: 0 },
-  { value: 'on', label: 'on', tokens: 1 },
+  { value: 'off', label: 'off', cliValue: null },
+  { value: 'low', label: 'low', cliValue: 'low' },
+  { value: 'medium', label: 'med', cliValue: 'medium' },
+  { value: 'high', label: 'high', cliValue: 'high' },
+  { value: 'xhigh', label: 'max', cliValue: 'xhigh' },
 ] as const;
 
 export const DEFAULT_THINKING_BUDGET: Record<string, ThinkingBudget> = {
   auto: 'off',
   'gpt-4.1': 'off',
   'gpt-4o': 'off',
-  'gpt-5-mini': 'on',
+  'gpt-5-mini': 'high',
   'raptor-mini': 'off',
   'claude-haiku-4.5': 'off',
   'gemini-3-flash': 'off',
-  'gpt-5.1-codex-mini': 'on',
-  'claude-sonnet-4': 'on',
-  'claude-sonnet-4.5': 'on',
-  'claude-sonnet-4.6': 'on',
-  'gemini-2.5-pro': 'on',
-  'gemini-3-pro': 'on',
-  'gemini-3.1-pro': 'on',
-  'gpt-5.1': 'on',
-  'gpt-5.1-codex': 'on',
-  'gpt-5.1-codex-max': 'on',
-  'gpt-5.2': 'on',
-  'gpt-5.3-codex': 'on',
-  'gpt-5.4': 'on',
-  'claude-opus-4.5': 'on',
-  'claude-opus-4.6': 'on',
+  'gpt-5.1-codex-mini': 'high',
+  'claude-sonnet-4': 'high',
+  'claude-sonnet-4.5': 'high',
+  'claude-sonnet-4.6': 'high',
+  'gemini-2.5-pro': 'high',
+  'gemini-3-pro': 'high',
+  'gemini-3.1-pro': 'high',
+  'gpt-5.1': 'high',
+  'gpt-5.1-codex': 'high',
+  'gpt-5.1-codex-max': 'high',
+  'gpt-5.2': 'high',
+  'gpt-5.3-codex': 'high',
+  'gpt-5.4': 'high',
+  'claude-opus-4.5': 'high',
+  'claude-opus-4.6': 'high',
 };
 
 export const COPILOT_MODELS: ModelOption[] = [
