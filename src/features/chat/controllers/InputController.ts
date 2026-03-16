@@ -358,6 +358,10 @@ export class InputController {
       const quizControl = isFinalQuestion
         ? `You are continuing an active quiz. The student is answering question ${quizSession.currentQuestion} of ${quizSession.totalQuestions}. Evaluate the student's answer in Korean, then provide a wrong-answer review as a teaching assistant (조교) persona. Use this exact format:
 
+### 퀴즈 결과: N/M 정답 (N%)
+
+Show the overall score first (e.g. "### 퀴즈 결과: 6/8 정답 (75%)"). Count correct answers from the entire quiz conversation.
+
 ### 오답 복습 정리
 
 For each question the student got wrong, write a numbered section:
