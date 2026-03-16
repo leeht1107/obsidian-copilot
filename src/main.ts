@@ -61,6 +61,7 @@ export default class ObsidianCopilotPlugin extends Plugin {
 
     this.mcpService = new McpService(this);
     await this.mcpService.loadServers();
+    await this.autoInstallRecommendedMcp();
     this.agentService = new CopilotBridgeService(this, this.mcpService.getManager());
     void this.agentService.prewarmCapabilities();
 
@@ -164,6 +165,30 @@ export default class ObsidianCopilotPlugin extends Plugin {
 
     if (leaf) {
       workspace.revealLeaf(leaf);
+    }
+  }
+
+  /** Auto-install recommended MCP presets if no mcp.json exists. */
+  private async autoInstallRecommendedMcp(): Promise<void> {
+    try {
+      if (await this.storage.mcp.exists()) return;
+
+      const { MCP_PRESETS } = await import('./core/types/mcp-presets');
+      const { DEFAULT_MCP_SERVER } = await import('./core/types');
+      const recommended = MCP_PRESETS.filter((p) => p.inRecommendedBundle);
+
+      const servers = recommended.map((preset) => ({
+        name: preset.name,
+        config: { ...preset.config },
+        enabled: DEFAULT_MCP_SERVER.enabled,
+        contextSaving: DEFAULT_MCP_SERVER.contextSaving,
+      }));
+
+      await this.storage.mcp.save(servers);
+      await this.mcpService.loadServers();
+      console.log(`[ObsidianCopilot] Auto-installed ${servers.length} recommended MCP servers`);
+    } catch (error) {
+      console.warn('[ObsidianCopilot] Failed to auto-install MCP presets:', error);
     }
   }
 

@@ -4,7 +4,7 @@
  * Curated list of MCP server presets for the gallery UI.
  */
 
-import type { McpStdioServerConfig } from './mcp';
+import type { McpServerConfig } from './mcp';
 
 /** MCP preset definition for the gallery. */
 export interface McpPreset {
@@ -16,10 +16,10 @@ export interface McpPreset {
   description: string;
   /** Obsidian icon name (lucide icons). */
   icon: string;
-  /** npm package name for npx. */
-  npmPackage: string;
-  /** Pre-built stdio config. */
-  config: McpStdioServerConfig;
+  /** npm package name for npx (optional for HTTP presets). */
+  npmPackage?: string;
+  /** Pre-built server config. */
+  config: McpServerConfig;
   /** Whether this preset is in the recommended bundle. */
   inRecommendedBundle: boolean;
   /** If the preset requires an API key. */
@@ -69,8 +69,7 @@ export const MCP_PRESETS: McpPreset[] = [
     displayName: '문서 검색',
     description: '라이브러리 공식 문서를 실시간으로 검색합니다',
     icon: 'book-open',
-    npmPackage: '@upstash/context7-mcp@latest',
-    config: { command: 'npx', args: ['-y', '@upstash/context7-mcp@latest'] },
+    config: { type: 'http', url: 'https://mcp.context7.com/mcp' },
     inRecommendedBundle: true,
   },
   {
