@@ -42,8 +42,8 @@ export const MCP_PRESETS: McpPreset[] = [
     displayName: '단계별 사고',
     description: '복잡한 문제를 단계별로 분석합니다',
     icon: 'brain',
-    npmPackage: '@anthropic-ai/mcp-server-sequential-thinking',
-    config: { command: 'npx', args: ['-y', '@anthropic-ai/mcp-server-sequential-thinking'] },
+    npmPackage: '@modelcontextprotocol/server-sequential-thinking',
+    config: { command: 'npx', args: ['-y', '@modelcontextprotocol/server-sequential-thinking'] },
     inRecommendedBundle: true,
   },
   {
