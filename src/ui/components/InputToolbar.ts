@@ -500,6 +500,14 @@ export class McpServerSelector {
 
   setMcpService(service: McpService | null): void {
     this.mcpService = service;
+    // Default ON: initialize with all globally-enabled servers
+    if (service) {
+      for (const server of service.getServers()) {
+        if (server.enabled) {
+          this.enabledServers.add(server.name);
+        }
+      }
+    }
     this.pruneEnabledServers();
     this.updateDisplay();
     this.renderDropdown();
@@ -593,12 +601,13 @@ export class McpServerSelector {
   private renderServerItem(listEl: HTMLElement, server: CopilotMcpServer) {
     const itemEl = listEl.createDiv({ cls: 'ocop-mcp-selector-item' });
     itemEl.dataset.serverName = server.name;
-    if (server.enabled) {
+    const isSessionEnabled = this.enabledServers.has(server.name);
+    if (isSessionEnabled) {
       itemEl.addClass('enabled');
     }
 
     const checkEl = itemEl.createDiv({ cls: 'ocop-mcp-selector-check' });
-    if (server.enabled) {
+    if (isSessionEnabled) {
       checkEl.innerHTML = CHECK_ICON_SVG;
     }
 
@@ -613,18 +622,15 @@ export class McpServerSelector {
     itemEl.addEventListener('mousedown', (event) => {
       event.preventDefault();
       event.stopPropagation();
-      void this.toggleServer(server.name);
+      this.toggleServer(server.name);
     });
   }
 
-  private async toggleServer(name: string) {
-    if (!this.mcpService) return;
-    await this.mcpService.toggleServerEnabled(name);
-    const server = this.mcpService.getServers().find((s) => s.name === name);
-    if (server?.enabled) {
-      this.enabledServers.add(name);
-    } else {
+  private toggleServer(name: string) {
+    if (this.enabledServers.has(name)) {
       this.enabledServers.delete(name);
+    } else {
+      this.enabledServers.add(name);
     }
     this.updateDisplay();
     this.renderDropdown();
@@ -636,9 +642,8 @@ export class McpServerSelector {
     if (!this.iconEl || !this.badgeEl) return;
 
     const count = this.enabledServers.size;
-    // Only show selector when context-saving servers exist (always-on servers don't need UI)
-    const hasContextSavingServers = (this.mcpService?.getServers() || []).some((s) => s.enabled && s.contextSaving);
-    if (!hasContextSavingServers) {
+    const hasAnyServers = (this.mcpService?.getServers() || []).length > 0;
+    if (!hasAnyServers) {
       this.container.style.display = 'none';
       return;
     }
