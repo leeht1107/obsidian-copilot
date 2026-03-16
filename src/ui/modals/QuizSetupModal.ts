@@ -266,9 +266,7 @@ export class QuizSetupModal extends Modal {
         'Do not use any knowledge outside the selected ground truth notes/folder. If the selected material does not support a claim, do not invent it.',
         this.focusText ? `Focus especially on this topic: ${this.focusText}.` : '',
         difficultyInstruction,
-        this.questionCount === '5'
-          ? 'Default to four-choice multiple choice unless another format is clearly better for the selected material.'
-          : 'Use a deliberate mix of question formats. For a 10-question quiz, include at least: 4 multiple-choice questions, 2 short-answer or short-response questions, 2 true/false questions, and 2 multi-select questions.',
+        'Use a deliberate mix of question formats: multiple-choice, short-answer, true/false, and multi-select.',
         'It is acceptable to revisit the same concept multiple times in different question styles (for example multiple choice, short answer, true/false, or multi-select) if that improves learning.',
         'Ask exactly one question at a time.',
         'After the student answers, immediately tell them whether they are correct, explain why in Korean, and then move to the next question.',
