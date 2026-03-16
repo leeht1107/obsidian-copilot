@@ -21,17 +21,6 @@ export interface McpPreset {
   config: McpServerConfig;
   /** Whether this preset is in the recommended bundle. */
   inRecommendedBundle: boolean;
-  /** If the preset requires an API key. */
-  requiresApiKey?: {
-    envVar: string;
-    label: string;
-    helpUrl: string;
-  };
-  /** If the preset requires additional arguments. */
-  requiresArgs?: {
-    label: string;
-    placeholder: string;
-  };
 }
 
 /** Curated MCP server presets. */
@@ -51,29 +40,6 @@ export const MCP_PRESETS: McpPreset[] = [
     icon: 'book-open',
     config: { type: 'http', url: 'https://mcp.context7.com/mcp' },
     inRecommendedBundle: true,
-  },
-  {
-    name: 'memory',
-    displayName: '기억 저장소',
-    description: '대화 간 정보를 기억하고 불러옵니다',
-    icon: 'database',
-    config: { command: 'npx', args: ['-y', '@anthropic-ai/mcp-server-memory'] },
-    inRecommendedBundle: false,
-  },
-  {
-    name: 'filesystem',
-    displayName: '파일 시스템',
-    description: '로컬 파일 시스템에 접근합니다',
-    icon: 'folder-open',
-    config: {
-      command: 'npx',
-      args: ['-y', '@anthropic-ai/mcp-server-filesystem', '/path/to/directory'],
-    },
-    inRecommendedBundle: false,
-    requiresArgs: {
-      label: '접근할 디렉토리 경로',
-      placeholder: '/Users/username/Documents',
-    },
   },
 ];
 

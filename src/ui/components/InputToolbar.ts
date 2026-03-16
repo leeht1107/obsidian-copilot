@@ -575,13 +575,13 @@ export class McpServerSelector {
     this.dropdownEl.empty();
     this.dropdownEl.createDiv({ cls: 'ocop-mcp-selector-header', text: 'MCP Servers' });
     const listEl = this.dropdownEl.createDiv({ cls: 'ocop-mcp-selector-list' });
-    const allServers = this.mcpService?.getServers() || [];
-    const servers = allServers.filter((server) => server.enabled);
+    // Only show context-saving servers (always-on servers don't need toggles)
+    const servers = (this.mcpService?.getServers() || []).filter((s) => s.enabled && s.contextSaving);
 
     if (servers.length === 0) {
       listEl.createDiv({
         cls: 'ocop-mcp-selector-empty',
-        text: allServers.length === 0 ? 'No MCP servers configured' : 'All MCP servers disabled',
+        text: 'No context-saving servers',
       });
       return;
     }
@@ -645,8 +645,9 @@ export class McpServerSelector {
     if (!this.iconEl || !this.badgeEl) return;
 
     const count = this.enabledServers.size;
-    const hasServers = (this.mcpService?.getServers().length || 0) > 0;
-    if (!hasServers) {
+    // Only show selector when context-saving servers exist (always-on servers don't need UI)
+    const hasContextSavingServers = (this.mcpService?.getServers() || []).some((s) => s.enabled && s.contextSaving);
+    if (!hasContextSavingServers) {
       this.container.style.display = 'none';
       return;
     }

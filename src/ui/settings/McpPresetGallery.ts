@@ -9,26 +9,21 @@ import { Notice, setIcon } from 'obsidian';
 import type { CopilotMcpServer } from '../../core/types';
 import type { McpPreset } from '../../core/types/mcp-presets';
 import { createServerFromPreset, MCP_PRESETS } from '../../core/types/mcp-presets';
-import type ObsidianCopilotPlugin from '../../main';
-import { McpServerModal } from '../modals/McpServerModal';
 
 /** Gallery component for browsing and installing curated MCP server presets. */
 export class McpPresetGallery {
   private containerEl: HTMLElement;
-  private plugin: ObsidianCopilotPlugin;
   private servers: CopilotMcpServer[];
   private onInstall: (server: CopilotMcpServer) => Promise<void>;
   private onRefresh: () => void;
 
   constructor(
     containerEl: HTMLElement,
-    plugin: ObsidianCopilotPlugin,
     servers: CopilotMcpServer[],
     onInstall: (server: CopilotMcpServer) => Promise<void>,
     onRefresh: () => void
   ) {
     this.containerEl = containerEl;
-    this.plugin = plugin;
     this.servers = servers;
     this.onInstall = onInstall;
     this.onRefresh = onRefresh;
@@ -76,20 +71,19 @@ export class McpPresetGallery {
   }
 
   private renderPresetCards() {
+    const installedPresets = MCP_PRESETS.filter((p) => this.isPresetInstalled(p));
+    if (installedPresets.length === 0) return;
+
     // Section label
     this.containerEl.createDiv({
       cls: 'ocop-mcp-gallery-label',
-      text: '개별 도구',
+      text: '활성 도구',
     });
 
     const grid = this.containerEl.createDiv({ cls: 'ocop-mcp-gallery' });
 
-    for (const preset of MCP_PRESETS) {
-      const installed = this.isPresetInstalled(preset);
-      const card = grid.createDiv({ cls: 'ocop-mcp-preset-card' });
-      if (installed) {
-        card.addClass('is-installed');
-      }
+    for (const preset of installedPresets) {
+      const card = grid.createDiv({ cls: 'ocop-mcp-preset-card is-installed' });
 
       // Icon
       const iconEl = card.createDiv({ cls: 'ocop-mcp-preset-icon' });
@@ -101,52 +95,13 @@ export class McpPresetGallery {
       // Description
       card.createDiv({ cls: 'ocop-mcp-preset-desc', text: preset.description });
 
-      // Badges
-      if (preset.requiresApiKey) {
-        card.createDiv({ cls: 'ocop-mcp-preset-badge', text: 'API 키 필요' });
-      }
-
-      // Action
-      if (installed) {
-        card.createDiv({ cls: 'ocop-mcp-preset-installed-badge', text: '설치됨' });
-      } else {
-        const btn = card.createEl('button', {
-          cls: 'ocop-mcp-preset-btn',
-          text: '설치',
-        });
-        btn.addEventListener('click', () => {
-          void this.installPreset(preset);
-        });
-      }
+      // Status
+      card.createDiv({ cls: 'ocop-mcp-preset-installed-badge', text: '설치됨' });
     }
   }
 
   private isPresetInstalled(preset: McpPreset): boolean {
     return this.servers.some((s) => s.name === preset.name);
-  }
-
-  private async installPreset(preset: McpPreset): Promise<void> {
-    if (preset.requiresApiKey || preset.requiresArgs) {
-      // Open modal for user to fill in API key or args
-      const modal = new McpServerModal(
-        this.plugin.app,
-        this.plugin,
-        null,
-        async (server) => {
-          await this.onInstall(server);
-          this.onRefresh();
-        },
-        'stdio',
-        { name: preset.name, config: preset.config }
-      );
-      modal.open();
-      return;
-    }
-
-    // Direct install — no extra input needed
-    await this.onInstall(createServerFromPreset(preset));
-    this.onRefresh();
-    new Notice(`MCP 서버 "${preset.displayName}" 설치됨`);
   }
 
   private async installRecommendedBundle(): Promise<void> {

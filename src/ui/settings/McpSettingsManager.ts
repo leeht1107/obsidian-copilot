@@ -43,7 +43,6 @@ export class McpSettingsManager {
     const galleryEl = this.containerEl.createDiv({ cls: 'ocop-mcp-gallery-section' });
     new McpPresetGallery(
       galleryEl,
-      this.plugin,
       this.servers,
       async (server) => {
         await this.saveServer(server, null);
