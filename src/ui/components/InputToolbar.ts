@@ -576,10 +576,12 @@ export class McpServerSelector {
 
   private pruneEnabledServers(): void {
     if (!this.mcpService) return;
-    const activeNames = new Set(this.mcpService.getServers().filter((server) => server.enabled).map((server) => server.name));
+    // Only remove servers that are no longer configured at all.
+    // Globally-disabled servers can still be per-session enabled.
+    const configuredNames = new Set(this.mcpService.getServers().map((server) => server.name));
     let changed = false;
     for (const name of this.enabledServers) {
-      if (!activeNames.has(name)) {
+      if (!configuredNames.has(name)) {
         this.enabledServers.delete(name);
         changed = true;
       }
