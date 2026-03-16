@@ -24,8 +24,23 @@ export function setToolIcon(el: HTMLElement, name: string) {
   }
 }
 
+/** Parse MCP tool name into server and tool parts. */
+export function parseMcpToolName(name: string): { server: string; tool: string } | null {
+  if (!name.startsWith('mcp__')) return null;
+  const parts = name.split('__');
+  const server = parts[1] || 'MCP';
+  const tool = parts.slice(2).join('__') || 'tool';
+  return { server, tool };
+}
+
 /** Generate a human-readable label for a tool call. */
 export function getToolLabel(name: string, input: Record<string, unknown>): string {
+  // MCP tools: show clean tool name (server badge rendered separately)
+  const mcp = parseMcpToolName(name);
+  if (mcp) {
+    return mcp.tool.replace(/[-_]/g, ' ');
+  }
+
   switch (name) {
     case 'Read':
       return `Read: ${shortenPath(input.file_path as string) || 'file'}`;
@@ -60,8 +75,8 @@ export function getToolLabel(name: string, input: Record<string, unknown>): stri
       return 'Tasks';
     }
     case 'Skill': {
-      const skillName = (input.skill as string) || 'skill';
-      return `Skill: ${skillName}`;
+      const args = (input.args as string) || '';
+      return args.length > 40 ? args.substring(0, 40) + '...' : args || 'running';
     }
     default:
       return name;
@@ -197,7 +212,10 @@ export function renderToolCall(
   toolCall: ToolCallInfo,
   toolCallElements: Map<string, HTMLElement>
 ): HTMLElement {
-  const toolEl = parentEl.createDiv({ cls: 'ocop-tool-call' });
+  const isMcp = toolCall.name.startsWith('mcp__');
+  const isSkill = toolCall.name === 'Skill';
+  const badgeType = isMcp ? ' is-mcp' : isSkill ? ' is-skill' : '';
+  const toolEl = parentEl.createDiv({ cls: `ocop-tool-call${badgeType}` });
   toolEl.dataset.toolId = toolCall.id;
   toolCallElements.set(toolCall.id, toolEl);
 
@@ -211,6 +229,20 @@ export function renderToolCall(
   const iconEl = header.createSpan({ cls: 'ocop-tool-icon' });
   iconEl.setAttribute('aria-hidden', 'true');
   setToolIcon(iconEl, toolCall.name);
+
+  // MCP server badge
+  if (isMcp) {
+    const mcpInfo = parseMcpToolName(toolCall.name);
+    if (mcpInfo) {
+      header.createSpan({ cls: 'ocop-tool-mcp-badge', text: mcpInfo.server });
+    }
+  }
+
+  // Skill badge
+  if (isSkill) {
+    const skillName = (toolCall.input.skill as string) || 'skill';
+    header.createSpan({ cls: 'ocop-tool-skill-badge', text: skillName });
+  }
 
   // Tool label
   const labelEl = header.createSpan({ cls: 'ocop-tool-label' });
@@ -291,7 +323,10 @@ export function renderStoredToolCall(
   parentEl: HTMLElement,
   toolCall: ToolCallInfo
 ): HTMLElement {
-  const toolEl = parentEl.createDiv({ cls: 'ocop-tool-call' });
+  const isMcp = toolCall.name.startsWith('mcp__');
+  const isSkill = toolCall.name === 'Skill';
+  const badgeType = isMcp ? ' is-mcp' : isSkill ? ' is-skill' : '';
+  const toolEl = parentEl.createDiv({ cls: `ocop-tool-call${badgeType}` });
 
   // Header
   const header = toolEl.createDiv({ cls: 'ocop-tool-header' });
@@ -303,6 +338,20 @@ export function renderStoredToolCall(
   const iconEl = header.createSpan({ cls: 'ocop-tool-icon' });
   iconEl.setAttribute('aria-hidden', 'true');
   setToolIcon(iconEl, toolCall.name);
+
+  // MCP server badge
+  if (isMcp) {
+    const mcpInfo = parseMcpToolName(toolCall.name);
+    if (mcpInfo) {
+      header.createSpan({ cls: 'ocop-tool-mcp-badge', text: mcpInfo.server });
+    }
+  }
+
+  // Skill badge
+  if (isSkill) {
+    const skillName = (toolCall.input.skill as string) || 'skill';
+    header.createSpan({ cls: 'ocop-tool-skill-badge', text: skillName });
+  }
 
   // Tool label
   const labelEl = header.createSpan({ cls: 'ocop-tool-label' });

@@ -122,5 +122,5 @@ export function inferMcpServerType(config: McpServerConfig): McpServerType {
 /** Default values for a new MCP server. */
 export const DEFAULT_MCP_SERVER: Omit<CopilotMcpServer, 'name' | 'config'> = {
   enabled: true,
-  contextSaving: true,
+  contextSaving: false,
 };

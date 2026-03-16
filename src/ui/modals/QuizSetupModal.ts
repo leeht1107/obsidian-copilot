@@ -316,6 +316,28 @@ D. 숫자를 모두 제거한다.
         'After the student answers, respond in markdown with this exact structure: "### 정답 확인", then bullet lines for "정오", "정답", "해설", and "핵심 포인트".',
         'After the feedback block, add a horizontal rule (---) and then continue with the next question.',
         'Never dump or quote raw source material, pasted notes, markdown headings, XML tags, or long excerpts from the source. Only show the quiz question, the student feedback, the correct answer, and the explanation.',
+        `After ALL questions are answered, present a final summary in this exact format:
+
+---
+
+## 퀴즈 결과
+
+- **총 문제**: {T}문제
+- **정답**: {correct}문제
+- **오답**: {wrong}문제
+- **점수**: {percentage}%
+
+### 오답 노트
+
+(For each wrong answer, provide a study-oriented review:)
+
+**Q{N}. {question summary}**
+- 내 답: {student answer}
+- 정답: {correct answer}
+- 왜 틀렸는가: {explain why the student's answer is wrong and what misconception it reveals}
+- 올바른 이해: {explain the correct concept in 2-3 sentences so the student can learn from the mistake}
+
+If all answers are correct, write "모든 문제를 맞혔습니다!" instead of the 오답 노트 section.`,
       ].join(' '),
     };
   }

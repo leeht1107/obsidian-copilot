@@ -59,7 +59,7 @@ export class McpPresetGallery {
 
     // Description
     const desc = callout.createDiv({ cls: 'ocop-mcp-recommended-desc' });
-    desc.setText('fetch, 단계별 사고, 기억, 문서검색 — 4개의 핵심 도구를 한 번에 설치합니다.');
+    desc.setText('단계별 사고, 문서검색 — 핵심 도구를 한 번에 설치합니다.');
 
     // Action
     if (allInstalled) {

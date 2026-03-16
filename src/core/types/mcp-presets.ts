@@ -38,15 +38,6 @@ export interface McpPreset {
 /** Curated MCP server presets. */
 export const MCP_PRESETS: McpPreset[] = [
   {
-    name: 'fetch',
-    displayName: '웹 페이지 가져오기',
-    description: '웹 페이지를 가져와 마크다운으로 변환합니다',
-    icon: 'globe',
-    npmPackage: '@anthropic-ai/mcp-server-fetch',
-    config: { command: 'npx', args: ['-y', '@anthropic-ai/mcp-server-fetch'] },
-    inRecommendedBundle: true,
-  },
-  {
     name: 'sequential-thinking',
     displayName: '단계별 사고',
     description: '복잡한 문제를 단계별로 분석합니다',
@@ -56,21 +47,21 @@ export const MCP_PRESETS: McpPreset[] = [
     inRecommendedBundle: true,
   },
   {
-    name: 'memory',
-    displayName: '기억 저장소',
-    description: '대화 간 정보를 기억하고 불러옵니다',
-    icon: 'database',
-    npmPackage: '@anthropic-ai/mcp-server-memory',
-    config: { command: 'npx', args: ['-y', '@anthropic-ai/mcp-server-memory'] },
-    inRecommendedBundle: true,
-  },
-  {
     name: 'context7',
     displayName: '문서 검색',
     description: '라이브러리 공식 문서를 실시간으로 검색합니다',
     icon: 'book-open',
     config: { type: 'http', url: 'https://mcp.context7.com/mcp' },
     inRecommendedBundle: true,
+  },
+  {
+    name: 'memory',
+    displayName: '기억 저장소',
+    description: '대화 간 정보를 기억하고 불러옵니다',
+    icon: 'database',
+    npmPackage: '@anthropic-ai/mcp-server-memory',
+    config: { command: 'npx', args: ['-y', '@anthropic-ai/mcp-server-memory'] },
+    inRecommendedBundle: false,
   },
   {
     name: 'filesystem',
