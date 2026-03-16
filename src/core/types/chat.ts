@@ -40,6 +40,7 @@ export interface QuizQuestionMeta {
   current: number;
   total: number;
   multiSelect: boolean;
+  freeText: boolean;
   options: QuizQuestionOption[];
 }
 

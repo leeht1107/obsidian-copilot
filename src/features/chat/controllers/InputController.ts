@@ -356,27 +356,28 @@ export class InputController {
       const isFinalQuestion = quizSession.currentQuestion >= quizSession.totalQuestions;
       const nextQuestionNumber = Math.min(quizSession.currentQuestion + 1, quizSession.totalQuestions);
       const quizControl = isFinalQuestion
-        ? `You are continuing an active quiz. The student is answering question ${quizSession.currentQuestion} of ${quizSession.totalQuestions}. Evaluate the student's answer in Korean, then provide a wrong-answer review as a teaching assistant (조교) persona. Use this exact format:
+        ? `[SYSTEM INSTRUCTION — MANDATORY]
+This is the FINAL question (${quizSession.currentQuestion}/${quizSession.totalQuestions}). You MUST complete ALL three steps below in order. Do NOT stop after step 1.
 
-### 퀴즈 결과: N/M 정답 (N%)
+Step 1: Evaluate the student's answer (### 정답 확인 format, same as before).
 
-Show the overall score first (e.g. "### 퀴즈 결과: 6/8 정답 (75%)"). Count correct answers from the entire quiz conversation.
+Step 2: Show overall score:
+### 퀴즈 결과: N/${quizSession.totalQuestions} 정답 (N%)
+Count ALL correct answers from questions 1-${quizSession.totalQuestions} in this conversation.
 
+Step 3: Provide wrong-answer review as 조교 (teaching assistant):
 ### 오답 복습 정리
-
-For each question the student got wrong, write a numbered section:
-
+For EACH wrong answer, write:
 **N번 문제 — (topic keyword)**
-- **학생 답:** (what the student chose)
+- **학생 답:** (student's choice)
 - **정답:** (correct answer)
-- **왜 틀렸나:** 1-2 sentence explanation of the misconception
-- **핵심 정리:** concise summary of the correct concept, including a code snippet if relevant
+- **왜 틀렸나:** 1-2 sentence misconception explanation
+- **핵심 정리:** correct concept summary with code snippet if relevant
 
-End with a "💡 조교 한마디" section: 1-2 sentences of encouragement and a study tip based on the error patterns observed.
+End with: 💡 조교 한마디: encouragement + study tip based on error patterns.
+If ALL correct: congratulate and highlight the most important concept.
 
-If the student got all questions correct, congratulate them and highlight the most important concept from the quiz.
-
-All output must be in Korean. Do not ask another question.`
+All output in Korean. Do NOT ask another question. Do NOT skip steps 2 and 3.`
         : `You are continuing an active quiz. The student is answering question ${quizSession.currentQuestion} of ${quizSession.totalQuestions}. Evaluate the student's answer, then ask exactly question ${nextQuestionNumber} of ${quizSession.totalQuestions}.`;
       promptToSend = `${quizControl}
 

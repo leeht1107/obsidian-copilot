@@ -106,3 +106,30 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* Free-text answer input */
+.ocop-quiz-answer-freetext {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ocop-quiz-answer-freetext-input {
+  flex: 1;
+  font-family: var(--font-monospace);
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  outline: none;
+}
+
+.ocop-quiz-answer-freetext-input:focus {
+  border-color: var(--interactive-accent);
+}
+
+.ocop-quiz-answer-freetext-input::placeholder {
+  color: var(--text-faint);
+}

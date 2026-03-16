@@ -316,6 +316,38 @@ export class MessageRenderer {
     progressWrapper.createSpan({ cls: 'ocop-quiz-progress-label', text: `${quizQuestion.current} / ${quizQuestion.total}번` });
 
     const actionsEl = contentEl.createDiv({ cls: 'ocop-quiz-actions' });
+
+    // Free-text questions: show input field in stored messages
+    if (quizQuestion.freeText) {
+      const input = actionsEl.createEl('input', {
+        cls: 'ocop-quiz-answer-freetext-input',
+        attr: { type: 'text', placeholder: '답변을 입력하세요', 'data-freetext-input': 'true' },
+      });
+      const submitBtn = actionsEl.createEl('button', {
+        cls: 'ocop-quiz-submit-btn',
+        text: '제출',
+        attr: { 'data-answer-submit': 'true' },
+      });
+      submitBtn.type = 'button';
+      submitBtn.addEventListener('click', () => {
+        const value = input.value.trim();
+        if (value) {
+          submitBtn.setAttribute('data-answer-value', value);
+        }
+      });
+      input.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const value = input.value.trim();
+          if (value) {
+            submitBtn.setAttribute('data-answer-value', value);
+            submitBtn.click();
+          }
+        }
+      });
+      return;
+    }
+
     const selected = new Set<string>();
     let submitBtn: HTMLButtonElement | null = null;
 

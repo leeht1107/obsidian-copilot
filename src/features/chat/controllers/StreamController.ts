@@ -792,7 +792,10 @@ function parseQuizQuestionMeta(content: string): QuizQuestionMeta | undefined {
     label: match[1],
     text: match[2].trim(),
   }));
-  if (options.length === 0) {
+
+  const freeText = options.length === 0 && /답안 형식:\s*(?:자유 서술|단답|서술|직접 입력)/i.test(content);
+
+  if (options.length === 0 && !freeText) {
     return undefined;
   }
 
@@ -801,6 +804,7 @@ function parseQuizQuestionMeta(content: string): QuizQuestionMeta | undefined {
     current: Number(headerMatch[1]),
     total: Number(headerMatch[2]),
     multiSelect,
+    freeText,
     options,
   };
 }

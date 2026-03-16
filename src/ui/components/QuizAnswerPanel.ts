@@ -98,13 +98,58 @@ export class QuizAnswerPanel {
     headerEl.appendChild(progressWrapper);
     panel.appendChild(headerEl);
 
-    // Options
-    this.optionsEl = document.createElement('div');
-    this.optionsEl.className = 'ocop-quiz-answer-options';
-    this.renderOptions();
-    panel.appendChild(this.optionsEl);
+    if (this.quizQuestion.freeText) {
+      this.renderFreeTextInput(panel);
+    } else {
+      // Options
+      this.optionsEl = document.createElement('div');
+      this.optionsEl.className = 'ocop-quiz-answer-options';
+      this.renderOptions();
+      panel.appendChild(this.optionsEl);
+    }
 
     return panel;
+  }
+
+  private renderFreeTextInput(panel: HTMLElement): void {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'ocop-quiz-answer-freetext';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'ocop-quiz-answer-freetext-input';
+    input.placeholder = '답변을 입력하세요';
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        const value = input.value.trim();
+        if (value) {
+          this.submitAnswer(value);
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        this.handleCancel();
+      }
+    });
+    wrapper.appendChild(input);
+
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'ocop-quiz-answer-submit-btn';
+    submitBtn.textContent = '제출 (Enter)';
+    submitBtn.addEventListener('click', () => {
+      const value = input.value.trim();
+      if (value) {
+        this.submitAnswer(value);
+      }
+    });
+    wrapper.appendChild(submitBtn);
+
+    panel.appendChild(wrapper);
+
+    // Focus the input instead of the panel
+    setTimeout(() => input.focus(), 50);
   }
 
   private renderOptions(): void {
