@@ -74,24 +74,6 @@ export const MCP_PRESETS: McpPreset[] = [
     inRecommendedBundle: true,
   },
   {
-    name: 'brave-search',
-    displayName: '웹 검색',
-    description: 'Brave Search API로 웹을 검색합니다',
-    icon: 'search',
-    npmPackage: '@anthropic-ai/mcp-server-brave-search',
-    config: {
-      command: 'npx',
-      args: ['-y', '@anthropic-ai/mcp-server-brave-search'],
-      env: { BRAVE_API_KEY: '' },
-    },
-    inRecommendedBundle: false,
-    requiresApiKey: {
-      envVar: 'BRAVE_API_KEY',
-      label: 'Brave API 키',
-      helpUrl: 'https://brave.com/search/api/',
-    },
-  },
-  {
     name: 'filesystem',
     displayName: '파일 시스템',
     description: '로컬 파일 시스템에 접근합니다',

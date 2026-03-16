@@ -406,6 +406,18 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
       });
 
     new Setting(chatContentEl)
+      .setName('Web search')
+      .setDesc('Allow the agent to use web search and web fetch tools. Turn off to prevent ground-truth leakage during quizzes.')
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.enableWebSearch)
+          .onChange(async (value) => {
+            this.plugin.settings.enableWebSearch = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(chatContentEl)
       .setName('Auto-generate conversation titles')
       .setDesc('Automatically generate conversation titles after the first exchange.')
       .addToggle((toggle) =>

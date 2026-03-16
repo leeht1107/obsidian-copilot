@@ -7,6 +7,7 @@ export interface QuizSetupResult {
   displayContent: string;
   totalQuestions: number;
   focusText?: string;
+  difficulty?: string;
 }
 
 function getBasename(path: string): string {
@@ -35,6 +36,7 @@ export class QuizSetupModal extends Modal {
   private selectedNotePaths = new Set<string>();
   private selectedFolderPaths = new Set<string>();
   private questionCount = '5';
+  private difficulty: '하' | '중' | '상' = '중';
   private focusText = '';
   private useFullVault = false;
 
@@ -180,6 +182,17 @@ export class QuizSetupModal extends Modal {
       });
 
     new Setting(this.contentEl)
+      .setName('Difficulty')
+      .addDropdown((dropdown) => {
+        dropdown.addOption('하', '하 — 기본 암기/이해 확인');
+        dropdown.addOption('중', '중 — 종합 이해 (기본값)');
+        dropdown.addOption('상', '상 — 심화 (외부 자료 기반 응용)');
+        dropdown.setValue(this.difficulty).onChange((value: '하' | '중' | '상') => {
+          this.difficulty = value;
+        });
+      });
+
+    new Setting(this.contentEl)
       .setName('Focus topic (optional)')
       .setDesc('Example: PK, 정규화, 트랜잭션')
       .addText((text) => {
@@ -232,19 +245,27 @@ export class QuizSetupModal extends Modal {
         : `폴더 ${selectedFolders.length}개`;
     }
 
-    const displayLabel = [`/quiz`, displayScope, `${this.questionCount}문제`, this.focusText || '전체 범위']
+    const displayLabel = [`/quiz`, displayScope, `${this.questionCount}문제`, this.difficulty, this.focusText || '전체 범위']
       .filter(Boolean)
       .join(' · ');
+
+    const difficultyInstruction = this.difficulty === '하'
+      ? 'Ask simple recall/definition questions. Keep choices straightforward.'
+      : this.difficulty === '상'
+        ? '@context7 Use @context7 to research official documentation related to the quiz topic. Create application-level questions that require deeper understanding beyond the given notes. Stay within the topic scope.'
+        : '';
 
     return {
       displayContent: displayLabel,
       totalQuestions: Number(this.questionCount),
       focusText: this.focusText || undefined,
+      difficulty: this.difficulty,
       prompt: [
         `Create a ${this.questionCount}-question quiz in Korean.`,
         scopeInstruction,
         'Do not use any knowledge outside the selected ground truth notes/folder. If the selected material does not support a claim, do not invent it.',
         this.focusText ? `Focus especially on this topic: ${this.focusText}.` : '',
+        difficultyInstruction,
         this.questionCount === '5'
           ? 'Default to four-choice multiple choice unless another format is clearly better for the selected material.'
           : 'Use a deliberate mix of question formats. For a 10-question quiz, include at least: 4 multiple-choice questions, 2 short-answer or short-response questions, 2 true/false questions, and 2 multi-select questions.',

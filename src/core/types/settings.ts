@@ -145,6 +145,7 @@ export interface ObsidianCopilotSettings {
   allowedExportPaths: string[];
   slashCommands: SlashCommand[];
   keyboardNavigation: KeyboardNavigationSettings;
+  enableWebSearch: boolean;
   copilotCliPath: string;  // Custom Copilot CLI path (empty = auto-detect from PATH)
   githubToken: string;  // GitHub token for Copilot authentication (optional, uses stored auth by default)
 }
@@ -174,6 +175,7 @@ export const DEFAULT_SETTINGS: ObsidianCopilotSettings = {
     scrollDownKey: 's',
     focusInputKey: 'i',
   },
+  enableWebSearch: false,
   copilotCliPath: '',  // Empty = auto-detect from PATH
   githubToken: '',  // Empty = use stored auth
 };

@@ -64,7 +64,8 @@ interface DiffContentEntry {
 export function resolveCopilotAllowedTools(
   permissionMode: string,
   requestedTools?: string[],
-  planMode?: boolean
+  planMode?: boolean,
+  enableWebSearch = true
 ): string[] {
   const requested = requestedTools?.map((tool) => tool.trim()).filter(Boolean) ?? [];
   const guardrailTools = planMode
@@ -73,11 +74,16 @@ export function resolveCopilotAllowedTools(
       ? null
       : [...ALLOWED_TOOLS];
   const guardrailSet = guardrailTools ? new Set<string>(guardrailTools) : null;
-  const effectiveTools = requested.length > 0
+  let effectiveTools = requested.length > 0
     ? guardrailSet
       ? requested.filter((tool) => guardrailSet.has(tool))
       : requested
     : guardrailTools ?? [];
+
+  if (!enableWebSearch) {
+    const webTools = new Set(['websearch', 'webfetch']);
+    effectiveTools = effectiveTools.filter((tool) => !webTools.has(tool));
+  }
 
   return guardrailSet && effectiveTools.length === 0
     ? guardrailTools ?? []
@@ -482,7 +488,8 @@ export class CopilotBridgeService {
     const finalTools = resolveCopilotAllowedTools(
       this.plugin.settings.permissionMode,
       queryOptions?.allowedTools,
-      queryOptions?.planMode
+      queryOptions?.planMode,
+      this.plugin.settings.enableWebSearch
     );
     if (capabilities.availableTools && finalTools.length > 0) {
       args.push('--available-tools', ...finalTools);
