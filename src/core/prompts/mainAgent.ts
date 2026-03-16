@@ -298,16 +298,16 @@ When user refers to a folder by name (e.g., "check Workspace"), use the correspo
 /** Returns MCP server instructions when servers are available. */
 function getMcpServersInstructions(servers: string[]): string {
   if (!servers || servers.length === 0) return '';
-  const list = servers.map((s) => `- \`@${s}\``).join('\n');
+  const list = servers.map((s) => `- ${s}`).join('\n');
   return `
 
 ## Available MCP Servers
 
-The following MCP servers are active and can be used as tools. Mention \`@servername\` anywhere in your message to activate a server's tools:
+The following MCP servers are active and their tools are available to you:
 
 ${list}
 
-Example: "Use @context7 to look up the latest React docs" or "@context7 postgresql 조사해줘"`;
+Use these tools proactively when relevant. If the user mentions a server name (e.g. "context7로 조사해줘", "use context7", "context7 이용해서"), immediately invoke its tools — no special syntax required.`;
 }
 
 /** Returns editor context instructions (only included when selection exists). */
