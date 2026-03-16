@@ -538,7 +538,7 @@ export class CopilotBridgeService {
       args.push('--stream', 'on');
     }
 
-    const selectedModel = queryOptions?.model?.trim();
+    const selectedModel = queryOptions?.model?.trim() || this.plugin.settings.model;
     if (capabilities.model && selectedModel && selectedModel !== 'auto') {
       args.push('--model', selectedModel);
     }
