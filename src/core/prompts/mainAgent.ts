@@ -303,11 +303,15 @@ function getMcpServersInstructions(servers: string[]): string {
 
 ## Available MCP Servers
 
-The following MCP servers are active and their tools are available to you:
+The following MCP servers are active and their tools are directly callable by YOU in this turn:
 
 ${list}
 
-Use these tools proactively when relevant. If the user mentions a server name (e.g. "context7로 조사해줘", "use context7", "context7 이용해서"), immediately invoke its tools — no special syntax required.`;
+**CRITICAL rules for MCP tools:**
+1. Call MCP tools **directly** in your current turn — do NOT delegate them to a task/subagent.
+2. If the user mentions an MCP server by name (e.g. "context7로 조사해줘", "use context7", "context7 이용해서"), you MUST invoke that server's tools yourself immediately.
+3. Do NOT say "I cannot use context7" or "I am limited to local search" — these servers are available to you right now.
+4. Do NOT spawn a task/subagent just to call an MCP server tool. Call it directly.`;
 }
 
 /** Returns editor context instructions (only included when selection exists). */
