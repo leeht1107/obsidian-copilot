@@ -21,6 +21,7 @@ import {
   type McpServerSelector,
   type ModelSelector,
   type PermissionToggle,
+  type WebSearchToggle,
   PlanBanner,
   SlashCommandDropdown,
   type ThinkingBudgetSelector,
@@ -70,6 +71,7 @@ export class ObsidianCopilotView extends ItemView {
   private modelSelector: ModelSelector | null = null;
   private thinkingBudgetSelector: ThinkingBudgetSelector | null = null;
   private externalContextSelector: ExternalContextSelector | null = null;
+  private webSearchToggle: WebSearchToggle | null = null;
   private mcpServerSelector: McpServerSelector | null = null;
   private permissionToggle: PermissionToggle | null = null;
   private slashCommandManager: SlashCommandManager | null = null;
@@ -337,6 +339,7 @@ export class ObsidianCopilotView extends ItemView {
     this.thinkingBudgetSelector = toolbarComponents.thinkingBudgetSelector;
     this.contextUsageMeter = toolbarComponents.contextUsageMeter;
     this.externalContextSelector = toolbarComponents.externalContextSelector;
+    this.webSearchToggle = toolbarComponents.webSearchToggle;
     this.mcpServerSelector = toolbarComponents.mcpServerSelector;
     this.permissionToggle = toolbarComponents.permissionToggle;
 
@@ -420,6 +423,7 @@ export class ObsidianCopilotView extends ItemView {
       getSlashCommandManager: () => this.slashCommandManager,
       getMcpServerSelector: () => this.mcpServerSelector,
       getExternalContextSelector: () => this.externalContextSelector,
+      getWebSearchToggle: () => this.webSearchToggle,
       getInstructionModeManager: () => this.instructionModeManager,
       getInstructionRefineService: () => this.instructionRefineService,
       getTitleGenerationService: () => this.titleGenerationService,

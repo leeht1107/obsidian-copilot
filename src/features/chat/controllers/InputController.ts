@@ -67,6 +67,7 @@ export interface InputControllerDeps {
   getImageContextManager: () => ImageContextManager | null;
   getSlashCommandManager: () => SlashCommandManager | null;
   getMcpServerSelector: () => McpServerSelector | null;
+  getWebSearchToggle: () => { isEnabled: () => boolean } | null;
   getExternalContextSelector: () => { getExternalContexts: () => string[] } | null;
   getInstructionModeManager: () => InstructionModeManager | null;
   getInstructionRefineService: () => InstructionRefineService | null;
@@ -425,6 +426,10 @@ ${promptToSend}`;
         externalContextPaths,
       };
     }
+
+    // Add web search toggle state
+    const webSearchEnabled = this.deps.getWebSearchToggle()?.isEnabled() ?? false;
+    queryOptions = { ...queryOptions, enableWebSearch: webSearchEnabled };
 
     let wasInterrupted = false;
     try {

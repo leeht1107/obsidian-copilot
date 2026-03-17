@@ -24,6 +24,7 @@ export {
   ThinkingBudgetSelector,
   type ToolbarCallbacks,
   type ToolbarSettings,
+  WebSearchToggle,
 } from './InputToolbar';
 export {
   type InstructionModeCallbacks,

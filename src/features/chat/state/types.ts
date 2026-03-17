@@ -129,6 +129,8 @@ export interface QueryOptions {
   planMode?: boolean;
   /** Session-specific external context paths (directories with full access). */
   externalContextPaths?: string[];
+  /** Override global web search setting for this query. */
+  enableWebSearch?: boolean;
 }
 
 // Re-export types that are used across the chat feature

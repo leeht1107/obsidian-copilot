@@ -29,6 +29,7 @@ export interface QueryOptions {
   enabledMcpServers?: Set<string>;
   planMode?: boolean;
   externalContextPaths?: string[];
+  enableWebSearch?: boolean;
 }
 
 export type ApprovalCallback = (
@@ -485,11 +486,12 @@ export class CopilotBridgeService {
   }
 
   private addToolArgs(args: string[], capabilities: CopilotCliCapabilities, queryOptions?: QueryOptions): void {
+    const enableWebSearch = queryOptions?.enableWebSearch ?? this.plugin.settings.enableWebSearch;
     const finalTools = resolveCopilotAllowedTools(
       this.plugin.settings.permissionMode,
       queryOptions?.allowedTools,
       queryOptions?.planMode,
-      this.plugin.settings.enableWebSearch
+      enableWebSearch
     );
     if (capabilities.availableTools && finalTools.length > 0) {
       args.push('--available-tools', ...finalTools);

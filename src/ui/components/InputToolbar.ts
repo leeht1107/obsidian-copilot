@@ -795,6 +795,41 @@ export class ContextUsageMeter {
   }
 }
 
+export class WebSearchToggle {
+  private container: HTMLElement;
+  private enabled = false;
+
+  constructor(parentEl: HTMLElement) {
+    this.container = parentEl.createDiv({ cls: 'ocop-websearch-toggle' });
+    this.render();
+  }
+
+  private render() {
+    this.container.empty();
+    setIcon(this.container.createDiv({ cls: 'ocop-websearch-icon' }), 'globe');
+    this.container.createSpan({ cls: 'ocop-websearch-label', text: 'Web' });
+    this.updateDisplay();
+    this.container.addEventListener('click', () => {
+      this.enabled = !this.enabled;
+      this.updateDisplay();
+    });
+  }
+
+  isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  updateDisplay() {
+    if (this.enabled) {
+      this.container.addClass('active');
+      this.container.setAttribute('title', 'Web search on (click to disable)');
+    } else {
+      this.container.removeClass('active');
+      this.container.setAttribute('title', 'Web search off (click to enable)');
+    }
+  }
+}
+
 export function createInputToolbar(
   parentEl: HTMLElement,
   callbacks: ToolbarCallbacks
@@ -803,6 +838,7 @@ export function createInputToolbar(
   thinkingBudgetSelector: ThinkingBudgetSelector;
   contextUsageMeter: ContextUsageMeter;
   externalContextSelector: ExternalContextSelector;
+  webSearchToggle: WebSearchToggle;
   mcpServerSelector: McpServerSelector;
   permissionToggle: PermissionToggle;
   quizLauncherButton: QuizLauncherButton;
@@ -811,6 +847,7 @@ export function createInputToolbar(
   const thinkingBudgetSelector = new ThinkingBudgetSelector(parentEl, callbacks);
   const contextUsageMeter = new ContextUsageMeter(parentEl);
   const externalContextSelector = new ExternalContextSelector(parentEl);
+  const webSearchToggle = new WebSearchToggle(parentEl);
   const mcpServerSelector = new McpServerSelector(parentEl);
   const permissionToggle = new PermissionToggle(parentEl, callbacks);
   const quizLauncherButton = new QuizLauncherButton(parentEl, callbacks);
@@ -820,6 +857,7 @@ export function createInputToolbar(
     thinkingBudgetSelector,
     contextUsageMeter,
     externalContextSelector,
+    webSearchToggle,
     mcpServerSelector,
     permissionToggle,
     quizLauncherButton,
