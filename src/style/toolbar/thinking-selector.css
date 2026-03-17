@@ -1,9 +1,11 @@
 /* Thinking budget selector */
-.ocop-thinking-selector {
+.ocop-thinking-selector,
+.ocop-websearch-toggle {
   display: flex;
   align-items: center;
   gap: 6px;
   margin-left: 12px;
+  cursor: pointer;
 }
 
 .ocop-thinking-selector.is-disabled {

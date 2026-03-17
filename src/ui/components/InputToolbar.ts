@@ -804,10 +804,12 @@ export class WebSearchToggle {
     this.render();
   }
 
+  private valueEl: HTMLElement | null = null;
+
   private render() {
     this.container.empty();
-    setIcon(this.container.createDiv({ cls: 'ocop-websearch-icon' }), 'globe');
-    this.container.createSpan({ cls: 'ocop-websearch-label', text: 'Web' });
+    this.container.createSpan({ cls: 'ocop-thinking-label-text', text: 'Web:' });
+    this.valueEl = this.container.createDiv({ cls: 'ocop-thinking-gears' });
     this.updateDisplay();
     this.container.addEventListener('click', () => {
       this.enabled = !this.enabled;
@@ -820,13 +822,15 @@ export class WebSearchToggle {
   }
 
   updateDisplay() {
-    if (this.enabled) {
-      this.container.addClass('active');
-      this.container.setAttribute('title', 'Web search on (click to disable)');
-    } else {
-      this.container.removeClass('active');
-      this.container.setAttribute('title', 'Web search off (click to enable)');
-    }
+    if (!this.valueEl) return;
+    this.valueEl.empty();
+    const cls = this.enabled
+      ? 'ocop-thinking-current ocop-thinking-active'
+      : 'ocop-thinking-current ocop-thinking-disabled';
+    this.valueEl.createDiv({ cls, text: this.enabled ? 'on' : 'off' });
+    this.container.setAttribute('title', this.enabled
+      ? 'Web search on (click to disable)'
+      : 'Web search off (click to enable)');
   }
 }
 
