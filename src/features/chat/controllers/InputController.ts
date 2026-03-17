@@ -445,6 +445,11 @@ ${promptToSend}`;
 
       streamController.finalizeCurrentThinkingBlock(assistantMsg);
       await streamController.finalizeCurrentTextBlock(assistantMsg);
+      if (!wasInterrupted && contentEl) {
+        streamController.injectChoiceButtonsIfNeeded(contentEl, assistantMsg, (choice) => {
+          void this.sendMessage({ content: choice });
+        });
+      }
       state.activeSubagents.clear();
 
       if (state.quizSession && !options?.quizSessionInit && !wasInterrupted) {
@@ -761,6 +766,11 @@ ${content}
 
       streamController.finalizeCurrentThinkingBlock(assistantMsg);
       await streamController.finalizeCurrentTextBlock(assistantMsg);
+      if (!wasInterrupted && contentEl) {
+        streamController.injectChoiceButtonsIfNeeded(contentEl, assistantMsg, (choice) => {
+          void this.sendMessage({ content: choice });
+        });
+      }
       state.activeSubagents.clear();
 
       await conversationController.save(true);

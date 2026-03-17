@@ -148,6 +148,7 @@ export class StreamController {
         break;
 
       case 'done':
+        // Choice button injection is deferred to post-finalize (called from InputController)
         break;
 
       case 'usage': {
@@ -767,6 +768,54 @@ export class StreamController {
       }
       this.pendingScrollFrameId = null;
     }
+  }
+
+  /**
+   * After stream finalization, scans the last text contentBlock for A)/B) choice patterns.
+   * If ≥2 sequential options found, injects clickable choice buttons below the message content.
+   */
+  injectChoiceButtonsIfNeeded(
+    contentEl: HTMLElement,
+    msg: ChatMessage,
+    onSelect: (choice: string) => void
+  ): void {
+    const lastTextBlock = [...(msg.contentBlocks ?? [])]
+      .reverse()
+      .find(b => b.type === 'text' && b.content);
+    if (!lastTextBlock || lastTextBlock.type !== 'text' || !lastTextBlock.content) return;
+
+    const options = this.parseChoiceOptions(lastTextBlock.content);
+    if (!options) return;
+
+    const panel = contentEl.createDiv({ cls: 'ocop-choice-buttons' });
+    for (const opt of options) {
+      const btn = panel.createEl('button', { cls: 'ocop-choice-btn' });
+      btn.createSpan({ cls: 'ocop-choice-btn-label', text: opt.label + ')' });
+      btn.createSpan({ cls: 'ocop-choice-btn-text', text: ' ' + opt.text });
+      btn.addEventListener('click', () => {
+        panel.remove();
+        onSelect(opt.label);
+      });
+    }
+  }
+
+  /** Parses A)/B) option lines from text. Returns ≥2 sequential options or null. */
+  private parseChoiceOptions(text: string): Array<{ label: string; text: string }> | null {
+    const options: Array<{ label: string; text: string }> = [];
+    for (const line of text.split('\n')) {
+      const m = line.match(/^([A-Z])\)\s+(.+)$/);
+      if (m) {
+        options.push({ label: m[1], text: m[2].trim() });
+      }
+    }
+    if (options.length < 2) return null;
+    // Require sequential letters starting from A
+    const expectedStart = 'A'.charCodeAt(0);
+    if (options[0].label.charCodeAt(0) !== expectedStart) return null;
+    for (let i = 1; i < options.length; i++) {
+      if (options[i].label.charCodeAt(0) !== expectedStart + i) return null;
+    }
+    return options;
   }
 
   /** Resets streaming state after completion. */

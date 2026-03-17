@@ -279,3 +279,45 @@
   opacity: 1;
   color: #38bdf8;
 }
+
+/* ============================================
+ * A)/B) Choice Buttons (inline in assistant messages)
+ * ============================================ */
+.ocop-choice-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.ocop-choice-btn {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--background-modifier-border);
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  font-size: 13px;
+  cursor: pointer;
+  line-height: 1.4;
+  text-align: left;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.ocop-choice-btn:hover {
+  background: var(--interactive-hover);
+  border-color: var(--interactive-accent);
+  color: var(--text-normal);
+}
+
+.ocop-choice-btn-label {
+  font-weight: 600;
+  color: var(--interactive-accent);
+  flex-shrink: 0;
+}
+
+.ocop-choice-btn-text {
+  color: var(--text-muted);
+}
