@@ -290,7 +290,7 @@ export class StreamController {
 
   /** Handles tool_result chunks. */
   private handleToolResult(
-    chunk: { type: 'tool_result'; id: string; content: string; isError?: boolean },
+    chunk: { type: 'tool_result'; id: string; content: string; isError?: boolean; toolName?: string | null },
     msg: ChatMessage
   ): void {
     const { plugin, state } = this.deps;
@@ -362,6 +362,25 @@ export class StreamController {
 
     // Regular tool result
     const isBlocked = isBlockedToolResult(chunk.content, chunk.isError);
+
+    // Retroactive card: tool_result arrived without a prior tool_use (e.g. MCP direct calls).
+    // Create the tool call card now so the result is at least visible.
+    if (!existingToolCall && chunk.toolName && state.currentContentEl) {
+      const toolCall: ToolCallInfo = {
+        id: chunk.id,
+        name: chunk.toolName,
+        input: {},
+        status: isBlocked ? 'blocked' : (chunk.isError ? 'error' : 'completed'),
+        result: chunk.content,
+        isExpanded: false,
+      };
+      msg.toolCalls = msg.toolCalls || [];
+      msg.toolCalls.push(toolCall);
+      msg.contentBlocks = msg.contentBlocks || [];
+      msg.contentBlocks.push({ type: 'tool_use', toolId: chunk.id });
+      renderToolCall(state.currentContentEl, toolCall, state.toolCallElements);
+      updateToolCallResult(chunk.id, toolCall, state.toolCallElements);
+    }
 
     if (existingToolCall) {
       existingToolCall.status = isBlocked ? 'blocked' : (chunk.isError ? 'error' : 'completed');

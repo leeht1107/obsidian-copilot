@@ -136,6 +136,30 @@ export function translateCopilotJsonEvent(
     return chunks;
   }
 
+  if (event.type === 'tool.execution_start') {
+    const toolCallId = typeof event.data?.toolCallId === 'string' ? event.data.toolCallId : null;
+    const toolName = typeof event.data?.toolName === 'string' ? event.data.toolName
+      : typeof event.data?.name === 'string' ? event.data.name
+      : null;
+    const input = event.data?.input;
+    const parentToolUseId = typeof event.data?.parentToolCallId === 'string'
+      ? event.data.parentToolCallId
+      : null;
+
+    if (toolCallId && toolName) {
+      return [{
+        type: 'tool_use',
+        id: toolCallId,
+        name: toolName,
+        input: (input && typeof input === 'object' && !Array.isArray(input))
+          ? input as Record<string, unknown>
+          : {},
+        parentToolUseId,
+      }];
+    }
+    return [];
+  }
+
   if (event.type === 'tool.execution_complete') {
     const toolCallId = typeof event.data?.toolCallId === 'string' ? event.data.toolCallId : null;
     if (!toolCallId) {
@@ -155,6 +179,9 @@ export function translateCopilotJsonEvent(
     const parentToolUseId = typeof event.data?.parentToolCallId === 'string'
       ? event.data.parentToolCallId
       : null;
+    const toolName = typeof event.data?.toolName === 'string' ? event.data.toolName
+      : typeof event.data?.name === 'string' ? event.data.name
+      : null;
 
     return [{
       type: 'tool_result',
@@ -162,6 +189,7 @@ export function translateCopilotJsonEvent(
       content,
       isError,
       parentToolUseId,
+      toolName,
     }];
   }
 
