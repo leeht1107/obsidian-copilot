@@ -130,7 +130,7 @@ export class ConversationController {
     fileCtx?.autoAttachActiveFile();
 
     this.deps.getImageContextManager()?.clearImages();
-    this.deps.getMcpServerSelector()?.clearEnabled();
+    this.deps.getMcpServerSelector()?.resetToDefaults();
     this.deps.getExternalContextSelector()?.clearExternalContexts();
     this.deps.clearQueuedMessage();
 
@@ -186,12 +186,12 @@ export class ConversationController {
       externalContextSelector?.clearExternalContexts();
     }
 
-    // Restore enabled MCP servers (or clear for new conversation)
+    // Restore enabled MCP servers (or reset to defaults for new conversation)
     const mcpServerSelector = this.deps.getMcpServerSelector();
     if (conversation.enabledMcpServers && conversation.enabledMcpServers.length > 0) {
       mcpServerSelector?.setEnabledServers(conversation.enabledMcpServers);
     } else {
-      mcpServerSelector?.clearEnabled();
+      mcpServerSelector?.resetToDefaults();
     }
 
     const welcomeEl = renderer.renderMessages(
@@ -263,12 +263,12 @@ export class ConversationController {
       externalContextSelector?.clearExternalContexts();
     }
 
-    // Restore enabled MCP servers (or clear if none)
+    // Restore enabled MCP servers (or reset to defaults if none saved)
     const mcpServerSelector = this.deps.getMcpServerSelector();
     if (conversation.enabledMcpServers && conversation.enabledMcpServers.length > 0) {
       mcpServerSelector?.setEnabledServers(conversation.enabledMcpServers);
     } else {
-      mcpServerSelector?.clearEnabled();
+      mcpServerSelector?.resetToDefaults();
     }
 
     const welcomeEl = renderer.renderMessages(

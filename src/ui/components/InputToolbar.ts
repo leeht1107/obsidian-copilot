@@ -567,6 +567,20 @@ export class McpServerSelector {
     this.renderDropdown();
   }
 
+  /** Reset to globally-enabled servers (default ON state). */
+  resetToDefaults(): void {
+    this.enabledServers.clear();
+    if (this.mcpService) {
+      for (const server of this.mcpService.getServers()) {
+        if (server.enabled) {
+          this.enabledServers.add(server.name);
+        }
+      }
+    }
+    this.updateDisplay();
+    this.renderDropdown();
+  }
+
   setEnabledServers(names: string[]): void {
     this.enabledServers = new Set(names);
     this.pruneEnabledServers();
