@@ -527,13 +527,9 @@ export class CopilotBridgeService {
       enableWebSearch
     );
 
-    // Add active MCP server names so model can call them directly (not via task subagent).
-    // This ensures tool.execution_start events fire in the parent stream → UI tool cards appear.
-    if (activeMcpServerNames && activeMcpServerNames.size > 0 && finalTools.length > 0 && !queryOptions?.planMode) {
-      for (const serverName of activeMcpServerNames) {
-        finalTools.push(serverName);
-      }
-    }
+    // activeMcpServerNames is undefined when --allow-all-tools is already being used.
+    // In that case, skip --available-tools entirely to avoid conflicts.
+    if (!activeMcpServerNames) return;
 
     if (capabilities.availableTools && finalTools.length > 0) {
       args.push('--available-tools', ...finalTools);
@@ -563,10 +559,20 @@ export class CopilotBridgeService {
     const sessionId = this.ensureSessionId();
     const args = ['--no-color'];
 
+    // Compute active MCP server names early — needed to decide tool access flags
+    const mentionedMcp = queryOptions?.mcpMentions ?? new Set<string>();
+    const enabledMcp = queryOptions?.enabledMcpServers ?? new Set<string>();
+    const activeMcpNames = new Set<string>(
+      Object.keys(this.mcpManager.getActiveServers(new Set([...mentionedMcp, ...enabledMcp])))
+    );
+    // MCP active and not plan mode → grant full tool access so model calls MCP directly
+    // (without this, ask-mode's --available-tools blocks MCP tools → model routes via task subagent)
+    const hasMcp = activeMcpNames.size > 0 && !queryOptions?.planMode;
+
     if (capabilities.noAskUser) {
       args.push('--no-ask-user');
     }
-    if (capabilities.allowAllTools && this.plugin.settings.permissionMode === 'agent') {
+    if (capabilities.allowAllTools && (this.plugin.settings.permissionMode === 'agent' || hasMcp)) {
       args.push('--allow-all-tools');
     }
     if (capabilities.noCustomInstructions) {
@@ -594,14 +600,9 @@ export class CopilotBridgeService {
       args.push('--reasoning-effort', budgetInfo.cliValue);
     }
 
-    // Compute active MCP server names to allow direct tool calls (avoids task subagent routing)
-    const mentionedMcp = queryOptions?.mcpMentions ?? new Set<string>();
-    const enabledMcp = queryOptions?.enabledMcpServers ?? new Set<string>();
-    const activeMcpNames = new Set<string>(
-      Object.keys(this.mcpManager.getActiveServers(new Set([...mentionedMcp, ...enabledMcp])))
-    );
-
-    this.addToolArgs(args, capabilities, queryOptions, activeMcpNames);
+    // When --allow-all-tools is used (MCP active or agent mode), skip --available-tools restriction
+    // to avoid conflicts — tool access is already unrestricted
+    this.addToolArgs(args, capabilities, queryOptions, hasMcp ? undefined : activeMcpNames);
     this.addMcpArgs(args, cwd, capabilities, queryOptions);
 
     this.abortController = new AbortController();
