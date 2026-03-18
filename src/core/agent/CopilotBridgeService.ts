@@ -772,10 +772,37 @@ export class CopilotBridgeService {
     }
   }
 
+  /**
+   * Normalize a CLI tool name to mcp__server__tool format if it belongs to an MCP server.
+   * CLI emits names like "context7-resolve-library-id"; we need "mcp__context7__resolve-library-id"
+   * for the UI icon/badge detection (isMcp check, parseMcpToolName, MCP_ICON_MARKER).
+   */
+  private normalizeMcpToolName(toolName: string): string {
+    const servers = this.mcpManager.getServers().filter((s) => s.enabled);
+    for (const server of servers) {
+      const prefix = `${server.name}-`;
+      if (toolName.startsWith(prefix) && toolName.length > prefix.length) {
+        return `mcp__${server.name}__${toolName.slice(prefix.length)}`;
+      }
+    }
+    return toolName;
+  }
+
   private translateCopilotEvent(event: CopilotJsonEvent): StreamChunk[] {
     const chunks = translateCopilotJsonEvent(event, (sessionId) => {
       this.sessionId = sessionId;
     });
+
+    // Normalize MCP tool names: "context7-resolve-library-id" → "mcp__context7__resolve-library-id"
+    // This enables icon/badge detection and visual differentiation from Skill tools.
+    for (const chunk of chunks) {
+      if (chunk.type === 'tool_use' && !chunk.name.startsWith('mcp__')) {
+        chunk.name = this.normalizeMcpToolName(chunk.name);
+      } else if (chunk.type === 'tool_result' && chunk.toolName && !chunk.toolName.startsWith('mcp__')) {
+        chunk.toolName = this.normalizeMcpToolName(chunk.toolName);
+      }
+    }
+
     if (chunks.some((c) => c.type === 'tool_use' || c.type === 'tool_result')) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       console.log('[OC] Tool event:', event.type, chunks.map((c) => `${c.type}:${(c as any).name ?? (c as any).id ?? ''}`));
