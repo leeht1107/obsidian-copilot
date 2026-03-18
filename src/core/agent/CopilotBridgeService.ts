@@ -513,7 +513,12 @@ export class CopilotBridgeService {
     }
   }
 
-  private addToolArgs(args: string[], capabilities: CopilotCliCapabilities, queryOptions?: QueryOptions): void {
+  private addToolArgs(
+    args: string[],
+    capabilities: CopilotCliCapabilities,
+    queryOptions?: QueryOptions,
+    activeMcpServerNames?: Set<string>
+  ): void {
     const enableWebSearch = queryOptions?.enableWebSearch ?? this.plugin.settings.enableWebSearch;
     const finalTools = resolveCopilotAllowedTools(
       this.plugin.settings.permissionMode,
@@ -521,6 +526,15 @@ export class CopilotBridgeService {
       queryOptions?.planMode,
       enableWebSearch
     );
+
+    // Add active MCP server names so model can call them directly (not via task subagent).
+    // This ensures tool.execution_start events fire in the parent stream → UI tool cards appear.
+    if (activeMcpServerNames && activeMcpServerNames.size > 0 && finalTools.length > 0 && !queryOptions?.planMode) {
+      for (const serverName of activeMcpServerNames) {
+        finalTools.push(serverName);
+      }
+    }
+
     if (capabilities.availableTools && finalTools.length > 0) {
       args.push('--available-tools', ...finalTools);
     }
@@ -580,7 +594,14 @@ export class CopilotBridgeService {
       args.push('--reasoning-effort', budgetInfo.cliValue);
     }
 
-    this.addToolArgs(args, capabilities, queryOptions);
+    // Compute active MCP server names to allow direct tool calls (avoids task subagent routing)
+    const mentionedMcp = queryOptions?.mcpMentions ?? new Set<string>();
+    const enabledMcp = queryOptions?.enabledMcpServers ?? new Set<string>();
+    const activeMcpNames = new Set<string>(
+      Object.keys(this.mcpManager.getActiveServers(new Set([...mentionedMcp, ...enabledMcp])))
+    );
+
+    this.addToolArgs(args, capabilities, queryOptions, activeMcpNames);
     this.addMcpArgs(args, cwd, capabilities, queryOptions);
 
     this.abortController = new AbortController();
