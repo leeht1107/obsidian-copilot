@@ -21,7 +21,6 @@ export const THINKING_BUDGETS = [
 export const DEFAULT_THINKING_BUDGET: Record<string, ThinkingBudget> = {
   auto: 'off',
   'gpt-4.1': 'off',
-  'gpt-4o': 'off',
   'gpt-5-mini': 'high',
   'raptor-mini': 'off',
   'claude-haiku-4.5': 'off',
@@ -47,7 +46,6 @@ export const COPILOT_MODELS: ModelOption[] = [
   { value: 'auto', label: 'auto', costLabel: 'best', requiresEnablement: false, description: 'Let Copilot choose the best model for the task.' },
 
   { value: 'gpt-4.1', label: 'gpt-4.1', costLabel: '0x', requiresEnablement: false, description: 'Stable general-purpose model.' },
-  { value: 'gpt-4o', label: 'gpt-4o', costLabel: '0x', requiresEnablement: false, description: 'Fast multimodal general-purpose model.' },
   { value: 'gpt-5-mini', label: 'gpt-5 mini', costLabel: '0x', requiresEnablement: false, description: 'Fast default for coding and writing.' },
   { value: 'raptor-mini', label: 'raptor mini (preview)', costLabel: '0x', requiresEnablement: false, description: 'Fast preview model for lightweight coding tasks.' },
 

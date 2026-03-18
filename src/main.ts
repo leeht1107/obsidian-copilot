@@ -208,6 +208,9 @@ export default class ObsidianCopilotPlugin extends Plugin {
     if ((this.settings.lastNonPlanPermissionMode as string) === 'yolo') this.settings.lastNonPlanPermissionMode = 'agent';
     if ((this.settings.lastNonPlanPermissionMode as string) === 'normal') this.settings.lastNonPlanPermissionMode = 'ask';
 
+    // Migrate deprecated model names
+    if ((this.settings.model as string) === 'gpt-4o') this.settings.model = 'gpt-4.1';
+
     // Load all conversations from session files
     this.conversations = await this.storage.sessions.loadAllConversations();
     this.activeConversationId = state.activeConversationId;
