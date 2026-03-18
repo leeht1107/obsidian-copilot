@@ -71,17 +71,46 @@
   border-radius: 10px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--text-on-accent);
   flex-shrink: 0;
   letter-spacing: 0.02em;
 }
 
 .ocop-tool-mcp-badge {
   background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  text-transform: uppercase;
+  font-size: 10px;
 }
 
 .ocop-tool-skill-badge {
-  background: var(--color-orange);
+  background: transparent;
+  color: var(--color-orange);
+  border: 1px solid var(--color-orange);
+}
+
+/* Container structural styling to differentiate MCP and Skill */
+.ocop-tool-call.is-mcp {
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin: 10px 0;
+}
+
+.ocop-tool-call.is-mcp .ocop-tool-header {
+  padding: 0;
+}
+
+.ocop-tool-call.is-skill {
+  border-left: 3px solid var(--color-orange);
+  padding-left: 10px;
+  background: linear-gradient(90deg, var(--background-secondary) 0%, transparent 100%);
+  margin: 10px 0;
+  border-radius: 0 6px 6px 0;
+}
+
+.ocop-tool-call.is-skill .ocop-tool-header {
+  padding: 0;
 }
 
 /* Spinner animation */
