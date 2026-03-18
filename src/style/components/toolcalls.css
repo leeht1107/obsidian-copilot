@@ -19,6 +19,14 @@
   flex-shrink: 0;
 }
 
+.ocop-tool-call.is-mcp .ocop-tool-icon {
+  color: var(--interactive-accent);
+}
+
+.ocop-tool-call.is-skill .ocop-tool-icon {
+  color: var(--color-orange);
+}
+
 .ocop-tool-icon svg {
   width: 16px;
   height: 16px;

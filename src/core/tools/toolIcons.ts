@@ -47,7 +47,7 @@ const TOOL_ICONS: Record<string, string> = {
   [TOOL_WEB_SEARCH]: 'globe',
   [TOOL_WEB_FETCH]: 'download',
   [TOOL_AGENT_OUTPUT]: 'bot',
-  [TOOL_SKILL]: 'zap',
+  [TOOL_SKILL]: 'blocks',
 };
 
 /** Special marker for MCP tools - signals to use custom SVG. */
