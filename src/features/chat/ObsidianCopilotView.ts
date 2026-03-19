@@ -171,16 +171,7 @@ export class ObsidianCopilotView extends ItemView {
   private buildHeader(header: HTMLElement) {
     const titleContainer = header.createDiv({ cls: 'ocop-title' });
     const logoEl = titleContainer.createSpan({ cls: 'ocop-logo' });
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', LOGO_SVG.viewBox);
-    svg.setAttribute('width', LOGO_SVG.width);
-    svg.setAttribute('height', LOGO_SVG.height);
-    svg.setAttribute('fill', 'none');
-    const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    pathEl.setAttribute('d', LOGO_SVG.path);
-    pathEl.setAttribute('fill', LOGO_SVG.fill);
-    svg.appendChild(pathEl);
-    logoEl.appendChild(svg);
+    logoEl.innerHTML = LOGO_SVG;
     titleContainer.createEl('h4', { text: 'Obsidian Copilot' });
 
     const headerActions = header.createDiv({ cls: 'ocop-header-actions' });
