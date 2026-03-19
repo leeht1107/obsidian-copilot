@@ -159,8 +159,8 @@ describe('MCP Types', () => {
       expect(DEFAULT_MCP_SERVER.enabled).toBe(true);
     });
 
-    it('should have contextSaving true by default', () => {
-      expect(DEFAULT_MCP_SERVER.contextSaving).toBe(true);
+    it('should have contextSaving false by default', () => {
+      expect(DEFAULT_MCP_SERVER.contextSaving).toBe(false);
     });
   });
 });
@@ -357,7 +357,6 @@ describe('McpStorage', () => {
         servers: {
           'new-server': {
             enabled: false,
-            contextSaving: false,
             description: 'New server',
           },
         },
@@ -416,7 +415,7 @@ describe('McpStorage', () => {
       expect(stdio.description).toBe('Local tools');
 
       expect(remote.enabled).toBe(true);
-      expect(remote.contextSaving).toBe(true);
+      expect(remote.contextSaving).toBe(false);
     });
 
     it('should skip invalid server configs on load', async () => {
@@ -447,7 +446,7 @@ describe('McpStorage', () => {
       expect(servers).toHaveLength(1);
       expect(servers[0].name).toBe('valid');
       expect(servers[0].enabled).toBe(true);
-      expect(servers[0].contextSaving).toBe(true);
+      expect(servers[0].contextSaving).toBe(false);
     });
 
   it('should remove _obsidianCopilot when only servers metadata exists', async () => {

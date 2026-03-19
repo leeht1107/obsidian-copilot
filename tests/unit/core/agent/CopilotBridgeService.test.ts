@@ -34,6 +34,7 @@ describe('CopilotBridgeService helpers', () => {
         denyTool: true,
         availableTools: true,
         allowAllTools: true,
+        reasoningEffort: false,
       });
     });
 
@@ -50,6 +51,7 @@ describe('CopilotBridgeService helpers', () => {
         denyTool: false,
         availableTools: false,
         allowAllTools: false,
+        reasoningEffort: false,
       });
     });
   });
@@ -123,7 +125,7 @@ describe('CopilotBridgeService helpers', () => {
           result: { detailedContent: 'done' },
         },
       })).toEqual([
-        { type: 'tool_result', id: 'call-1', content: 'done', isError: false, parentToolUseId: 'parent-1' },
+        { type: 'tool_result', id: 'call-1', content: 'done', isError: false, parentToolUseId: 'parent-1', toolName: null },
       ]);
     });
 

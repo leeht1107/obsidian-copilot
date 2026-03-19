@@ -120,6 +120,7 @@ function createMockDeps(overrides: Partial<ConversationControllerDeps> = {}): Co
       clearEnabled: jest.fn(),
       getEnabledServers: jest.fn().mockReturnValue(new Set()),
       setEnabledServers: jest.fn(),
+      resetToDefaults: jest.fn(),
     }) as any,
     getExternalContextSelector: () => ({
       getExternalContexts: jest.fn().mockReturnValue([]),
@@ -677,6 +678,7 @@ describe('ConversationController - MCP Server Persistence', () => {
       clearEnabled: jest.fn(),
       getEnabledServers: jest.fn().mockReturnValue(new Set(['mcp-server-1', 'mcp-server-2'])),
       setEnabledServers: jest.fn(),
+      resetToDefaults: jest.fn(),
     };
     deps = createMockDeps({
       getMcpServerSelector: () => mockMcpServerSelector,
@@ -740,7 +742,7 @@ describe('ConversationController - MCP Server Persistence', () => {
 
       await controller.loadActive();
 
-      expect(mockMcpServerSelector.clearEnabled).toHaveBeenCalled();
+      expect(mockMcpServerSelector.resetToDefaults).toHaveBeenCalled();
     });
   });
 
@@ -770,7 +772,7 @@ describe('ConversationController - MCP Server Persistence', () => {
 
       await controller.switchTo('new-conv');
 
-      expect(mockMcpServerSelector.clearEnabled).toHaveBeenCalled();
+      expect(mockMcpServerSelector.resetToDefaults).toHaveBeenCalled();
     });
   });
 
@@ -778,7 +780,7 @@ describe('ConversationController - MCP Server Persistence', () => {
     it('should clear enabled MCP servers for new conversation', async () => {
       await controller.createNew();
 
-      expect(mockMcpServerSelector.clearEnabled).toHaveBeenCalled();
+      expect(mockMcpServerSelector.resetToDefaults).toHaveBeenCalled();
     });
   });
 });

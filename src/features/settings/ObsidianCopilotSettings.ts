@@ -510,6 +510,18 @@ export class ObsidianCopilotSettingTab extends PluginSettingTab {
           })
       );
 
+    new Setting(advancedContentEl)
+      .setName('Enable inline bash in slash commands')
+      .setDesc('Allow !`command` syntax in workflow presets to execute shell commands. Disabled by default for security — enable only if you trust your slash command sources.')
+      .addToggle((toggle) =>
+        toggle
+          .setValue(this.plugin.settings.enableInlineBash)
+          .onChange(async (value) => {
+            this.plugin.settings.enableInlineBash = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
     const platformKey = getCurrentPlatformKey();
     const isWindows = platformKey === 'windows';
     const platformLabel = isWindows ? 'Windows' : 'Unix';

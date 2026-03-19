@@ -174,7 +174,7 @@ describe('McpStorage', () => {
           name: 'alpha',
           config: { command: 'alpha-cmd' },
           enabled: true,  // default
-          contextSaving: true,  // default
+          contextSaving: false,  // default
           disabledTools: [],
         },
       ]);

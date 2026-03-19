@@ -5,7 +5,7 @@
   padding: 0;
   overflow: hidden;
   background:
-    radial-gradient(circle at top right, color-mix(in srgb, #3b82f6 16%, transparent) 0%, transparent 34%),
-    radial-gradient(circle at top left, color-mix(in srgb, #06b6d4 10%, transparent) 0%, transparent 28%),
-    linear-gradient(180deg, color-mix(in srgb, var(--background-primary) 88%, #0b1220) 0%, var(--background-primary) 52%);
+    radial-gradient(circle at top right, color-mix(in srgb, var(--interactive-accent) 8%, transparent) 0%, transparent 34%),
+    radial-gradient(circle at top left, color-mix(in srgb, var(--interactive-accent) 5%, transparent) 0%, transparent 28%),
+    var(--background-primary);
 }

@@ -157,12 +157,12 @@
 
 /* Text selection in user messages - visible highlight */
 .ocop-message-user ::selection {
-  background: rgba(255, 255, 255, 0.35);
+  background: var(--text-selection);
   color: inherit;
 }
 
 .ocop-message-user ::-moz-selection {
-  background: rgba(255, 255, 255, 0.35);
+  background: var(--text-selection);
   color: inherit;
 }
 

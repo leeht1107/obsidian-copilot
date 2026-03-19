@@ -6,6 +6,18 @@
  */
 
 /**
+ * Normalize a command string for blocklist matching.
+ * Collapses whitespace and strips backslash escapes to defeat trivial bypasses.
+ */
+function normalizeCommand(command: string): string {
+  // Strip backslash escapes: remove standalone backslashes that escape next char
+  let result = command.replace(/\\(.)/g, '$1');
+  // Collapse consecutive whitespace to single space
+  result = result.replace(/\s+/g, ' ').trim();
+  return result;
+}
+
+/**
  * Check if a bash command should be blocked by user-defined patterns.
  *
  * @param command - The bash command to check
@@ -22,12 +34,17 @@ export function isCommandBlocked(
     return false;
   }
 
+  const normalized = normalizeCommand(command);
+
   return patterns.some((pattern) => {
     try {
-      return new RegExp(pattern, 'i').test(command);
+      const re = new RegExp(pattern, 'i');
+      return re.test(command) || re.test(normalized);
     } catch {
       // Invalid regex - fall back to substring match
-      return command.toLowerCase().includes(pattern.toLowerCase());
+      const lowerPattern = pattern.toLowerCase();
+      return command.toLowerCase().includes(lowerPattern) ||
+        normalized.toLowerCase().includes(lowerPattern);
     }
   });
 }

@@ -33,15 +33,15 @@ describe('types.ts', () => {
     });
 
     it('should block rm -rf by default on Unix', () => {
-      expect(DEFAULT_SETTINGS.blockedCommands.unix).toContain('rm -rf');
+      expect(DEFAULT_SETTINGS.blockedCommands.unix).toContain('\\brm\\s+-rf\\b');
     });
 
     it('should block chmod 777 by default on Unix', () => {
-      expect(DEFAULT_SETTINGS.blockedCommands.unix).toContain('chmod 777');
+      expect(DEFAULT_SETTINGS.blockedCommands.unix).toContain('\\bchmod\\s+777\\b');
     });
 
     it('should block chmod -R 777 by default on Unix', () => {
-      expect(DEFAULT_SETTINGS.blockedCommands.unix).toContain('chmod -R 777');
+      expect(DEFAULT_SETTINGS.blockedCommands.unix).toContain('\\bchmod\\s+-R\\s+777\\b');
     });
 
     it('should block dangerous commands on Windows', () => {
@@ -76,7 +76,7 @@ describe('types.ts', () => {
         enableAutoTitleGeneration: true,
         titleGenerationModel: '',
         thinkingBudget: 'off',
-        permissionMode: 'yolo',
+        permissionMode: 'agent',
         permissions: [],
         excludedTags: [],
         mediaFolder: '',
@@ -86,6 +86,8 @@ describe('types.ts', () => {
         allowedExportPaths: [],
         slashCommands: [],
         keyboardNavigation: { scrollUpKey: 'w', scrollDownKey: 's', focusInputKey: 'i' },
+        enableWebSearch: false,
+        enableInlineBash: false,
         copilotCliPath: '',
         githubToken: '',
       };
@@ -104,7 +106,7 @@ describe('types.ts', () => {
         enableAutoTitleGeneration: true,
         titleGenerationModel: '',
         thinkingBudget: 'off',
-        permissionMode: 'normal',
+        permissionMode: 'ask',
         permissions: [],
         excludedTags: ['private'],
         mediaFolder: 'attachments',
@@ -114,6 +116,8 @@ describe('types.ts', () => {
         allowedExportPaths: [],
         slashCommands: [],
         keyboardNavigation: { scrollUpKey: 'w', scrollDownKey: 's', focusInputKey: 'i' },
+        enableWebSearch: false,
+        enableInlineBash: false,
         copilotCliPath: '',
         githubToken: '',
       };

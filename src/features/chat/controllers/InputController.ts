@@ -279,7 +279,7 @@ export class InputController {
         if (cmd) {
           const result = await slashCommandManager.expandCommand(cmd, detected.args, {
             bash: {
-              enabled: true,
+              enabled: plugin.settings.enableInlineBash,
               shouldBlockCommand: (bashCommand) =>
                 isCommandBlocked(
                   bashCommand,

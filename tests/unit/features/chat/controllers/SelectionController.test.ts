@@ -14,6 +14,8 @@ function createMockIndicator() {
   return {
     textContent: '',
     style: { display: 'none' },
+    removeAttribute: jest.fn(),
+    setAttribute: jest.fn(),
   } as any;
 }
 

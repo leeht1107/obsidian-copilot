@@ -6,9 +6,14 @@ import { DEFAULT_MODEL, type CopilotModel, type ThinkingBudget } from './models'
 
 /** Platform-specific blocked commands (Unix). */
 const UNIX_BLOCKED_COMMANDS = [
-  'rm -rf',
-  'chmod 777',
-  'chmod -R 777',
+  '\\brm\\s+-rf\\b',
+  '\\brm\\s+-fr\\b',
+  '\\bchmod\\s+777\\b',
+  '\\bchmod\\s+-R\\s+777\\b',
+  '\\bmkfs\\b',
+  '\\bdd\\s+if=',
+  '\\bcurl\\b.*\\|.*\\bsh\\b',
+  '\\bwget\\b.*\\|.*\\bsh\\b',
 ];
 
 /** Platform-specific blocked commands (Windows - both CMD and PowerShell). */
@@ -146,6 +151,7 @@ export interface ObsidianCopilotSettings {
   slashCommands: SlashCommand[];
   keyboardNavigation: KeyboardNavigationSettings;
   enableWebSearch: boolean;
+  enableInlineBash: boolean;  // Allow !`bash` execution in slash commands (security risk if enabled)
   copilotCliPath: string;  // Custom Copilot CLI path (empty = auto-detect from PATH)
   githubToken: string;  // GitHub token for Copilot authentication (optional, uses stored auth by default)
 }
@@ -176,6 +182,7 @@ export const DEFAULT_SETTINGS: ObsidianCopilotSettings = {
     focusInputKey: 'i',
   },
   enableWebSearch: false,
+  enableInlineBash: false,
   copilotCliPath: '',  // Empty = auto-detect from PATH
   githubToken: '',  // Empty = use stored auth
 };

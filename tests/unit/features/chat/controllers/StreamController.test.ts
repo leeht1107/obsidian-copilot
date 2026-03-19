@@ -115,6 +115,7 @@ function createMockDeps(): StreamControllerDeps {
     getDiffData: jest.fn().mockReturnValue(undefined),
     getSessionId: jest.fn().mockReturnValue('session-1'),
     isAskUserQuestionToolSupported: jest.fn().mockReturnValue(true),
+    isCliReady: jest.fn().mockReturnValue(true),
   };
   const fileContextManager = {
     markFileBeingEdited: jest.fn(),
@@ -273,8 +274,7 @@ describe('StreamController - Text Content', () => {
         content: [
           '## 1/3번 문제',
           '',
-          '#### 문제',
-          '다음 중 테이블의 "행(row)"에 대한 설명으로 옳은 것은 무엇입니까?',
+          '#### 다음 중 테이블의 "행(row)"에 대한 설명으로 옳은 것은 무엇입니까?',
           '',
           'A. 테이블의 행은 데이터의 항목(속성)을 의미한다.',
           'B. 테이블의 행은 데이터 한 건을 나타낸다.',

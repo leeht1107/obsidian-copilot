@@ -91,6 +91,7 @@ function createMockDeps(overrides: Partial<InputControllerDeps> = {}): InputCont
       finalizeCurrentTextBlock: jest.fn(),
       finalizeCurrentThinkingBlock: jest.fn(),
       appendText: jest.fn(),
+      injectChoiceButtonsIfNeeded: jest.fn(),
     } as any,
     selectionController: {
       getContext: jest.fn().mockReturnValue(null),
@@ -113,6 +114,7 @@ function createMockDeps(overrides: Partial<InputControllerDeps> = {}): InputCont
     getImageContextManager: () => imageContextManager as any,
     getSlashCommandManager: () => null,
     getMcpServerSelector: () => null,
+    getWebSearchToggle: () => ({ isEnabled: jest.fn().mockReturnValue(false) }),
     getExternalContextSelector: () => null,
     getInstructionModeManager: () => null,
     getInstructionRefineService: () => null,
@@ -231,7 +233,7 @@ describe('InputController - Message Queue', () => {
     it('should forward prompt prefix when sending queued message in non-plan mode', async () => {
       jest.useFakeTimers();
       try {
-        deps.plugin.settings.permissionMode = 'normal';
+        deps.plugin.settings.permissionMode = 'ask';
         deps.state.queuedMessage = {
           content: 'queued plan',
           images: undefined,
@@ -452,12 +454,12 @@ describe('InputController - Message Queue', () => {
         expect(prompt).toContain('User requested plan mode. Call EnterPlanMode before responding.');
         return createMockStream([{ type: 'done' }]);
       });
-      deps.plugin.settings.permissionMode = 'normal';
+      deps.plugin.settings.permissionMode = 'ask';
       inputEl.value = 'Plan this';
 
       await controller.sendPlanModeMessage();
 
-      expect(deps.plugin.settings.permissionMode).toBe('normal');
+      expect(deps.plugin.settings.permissionMode).toBe('ask');
       expect(deps.state.planModeState).toBeNull();
       expect(deps.state.messages[0].content).toBe('Plan this');
     });
@@ -488,7 +490,7 @@ describe('InputController - Message Queue', () => {
 
     it('activates plan permission mode after EnterPlanMode is pending', async () => {
       deps.plugin.agentService.query = jest.fn().mockImplementation(() => createMockStream([{ type: 'done' }]));
-      deps.plugin.settings.permissionMode = 'normal';
+      deps.plugin.settings.permissionMode = 'ask';
       inputEl.value = 'Original request';
 
       await controller.handleEnterPlanMode();
