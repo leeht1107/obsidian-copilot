@@ -254,11 +254,12 @@ export class QuizSetupModal extends Modal {
       .filter(Boolean)
       .join(' · ');
 
-    const difficultyInstruction = this.difficulty === '하'
-      ? 'Ask simple recall/definition questions. Keep choices straightforward.'
-      : this.difficulty === '상'
-        ? '@context7 Use @context7 to research official documentation related to the quiz topic. Create application-level questions that require deeper understanding beyond the given notes. Stay within the topic scope.'
-        : '';
+    const difficultyInstructions: Record<string, string> = {
+      '하': 'Ask simple recall/definition questions. Keep choices straightforward. Do not use any knowledge outside the selected ground truth notes/folder. If the selected material does not support a claim, do not invent it.',
+      '중': 'Do not use any knowledge outside the selected ground truth notes/folder. If the selected material does not support a claim, do not invent it.',
+      '상': 'Create application-level questions that apply the core concepts to novel real-world scenarios (e.g., applying "data science project" concepts to "AI development project"). You may use @context7 or web search to find related official documentation and supplement the questions. Do not be strictly bounded by the notes.'
+    };
+    const difficultyInstruction = difficultyInstructions[this.difficulty];
 
     return {
       displayContent: displayLabel,
@@ -267,9 +268,8 @@ export class QuizSetupModal extends Modal {
       prompt: [
         `Create a ${this.questionCount}-question quiz in Korean.`,
         scopeInstruction,
-        'Do not use any knowledge outside the selected ground truth notes/folder. If the selected material does not support a claim, do not invent it.',
-        this.focusText ? `Focus especially on this topic: ${this.focusText}.` : '',
         difficultyInstruction,
+        this.focusText ? `Focus especially on this topic: ${this.focusText}.` : '',
         'Use a deliberate mix of question formats: multiple-choice, short-answer, true/false, and multi-select.',
         'Ask exactly one question at a time.',
         'After the student answers, immediately tell them whether they are correct, explain why in Korean, and then move to the next question.',
