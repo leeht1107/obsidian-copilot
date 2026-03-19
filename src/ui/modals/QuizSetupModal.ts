@@ -275,7 +275,7 @@ export class QuizSetupModal extends Modal {
         'After the student answers, immediately tell them whether they are correct, explain why in Korean, and then move to the next question.',
         'Format each question in clean markdown.',
         'CRITICAL RULE: When a question mentions any specific code, function, variable, regex, or command from the source material, you MUST embed the relevant code snippet as a fenced code block (```) INSIDE the question body, between the #### heading and the answer choices. The student cannot see the original note — if you mention code without showing it, the question is unanswerable.',
-        'Use this EXACT structure for each question — copy it precisely: Line 1: "## {N}/{T}번 문제". Line 2: blank. Line 3: "#### {question text}" — the question sentence IS the #### heading, nothing else. NEVER write "#### 문제" or any other fixed label on line 3. Line 4: blank. Lines 5+: (if referencing code) fenced code block, then blank line, then answer choices. Final line: "답안 형식: ...".',
+        'Use this EXACT structure for each question — copy it precisely: Line 1: "## {N}/{T}번 문제". Line 2: blank. Line 3: "#### {question text}" — the question sentence IS the #### heading, nothing else. NEVER write "#### 문제" or any other fixed label on line 3. Line 4: blank. Lines 5+: (if referencing code) fenced code block, then blank line, then answer choices. Do NOT include an "답안 형식" hint line — the UI renders answer buttons automatically. For free-text questions with no choices, add "(자유 서술)" on its own line after the question.',
         `Format examples (use the one that fits):
 
 Example 1 — conceptual question (no code):
@@ -289,8 +289,6 @@ B. SELECT 문에서 FROM 절은 데이터를 가져올 테이블을 지정한다
 C. SELECT 문은 데이터를 삭제하는 데 사용된다.
 D. SELECT 문에서 컬럼명을 지정할 수 있다.
 
-답안 형식: A
-
 Example 2 — code-referencing question (MUST include snippet):
 
 ## 2/5번 문제
@@ -301,12 +299,10 @@ Example 2 — code-referencing question (MUST include snippet):
 # (relevant code snippet from source material)
 \`\`\`
 
-A. ... B. ... C. ... D. ...
-
-답안 형식: A`,
+A. ... B. ... C. ... D. ...`,
         'Do not wrap the question in code fences or quote blocks.',
         'IMPORTANT: When answer choices differ only by whitespace, escaping, or subtle string differences, render each choice as an inline code span (backticks) or use explicit markers like "·" for spaces so the student can visually distinguish them. Markdown collapses consecutive spaces — never rely on multiple spaces to differentiate choices.',
-        'After each question, include a short answer-format hint line. For example: "답안 형식: A" for multiple choice, "답안 형식: A,C" for multi-select, or "답안 형식: 자유 서술" for short-answer.',
+        'Do NOT include "답안 형식: ..." lines. For free-text/short-answer questions, write "(자유 서술)" on its own line. For multi-select questions, write "(복수 선택 가능)" on its own line.',
         'For multiple-choice and multi-select questions, accept answers case-insensitively (for example b or B) and also accept the selected choice text when it is unambiguous.',
         'After the student answers, respond in markdown with this exact structure: "### 정답 확인", then bullet lines for "정오", "정답", "해설", and "핵심 포인트".',
         'After the feedback block, add a horizontal rule (---) and then continue with the next question.',

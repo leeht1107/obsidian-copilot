@@ -861,13 +861,13 @@ function parseQuizQuestionMeta(content: string): QuizQuestionMeta | undefined {
     text: match[2].trim(),
   }));
 
-  const freeText = options.length === 0 && /답안 형식:\s*(?:자유 서술|단답|서술|직접 입력)/i.test(content);
+  const freeText = options.length === 0 && /\(자유 서술\)|답안 형식:\s*(?:자유 서술|단답|서술|직접 입력)/i.test(content);
 
   if (options.length === 0 && !freeText) {
     return undefined;
   }
 
-  const multiSelect = /복수 선택 가능|답안 형식:\s*[A-Z](?:\s*,\s*[A-Z])+/i.test(content);
+  const multiSelect = /\(복수 선택 가능\)|복수 선택 가능|답안 형식:\s*[A-Z](?:\s*,\s*[A-Z])+/i.test(content);
   return {
     current: Number(headerMatch[1]),
     total: Number(headerMatch[2]),
