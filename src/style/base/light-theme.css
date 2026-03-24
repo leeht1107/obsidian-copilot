@@ -1,0 +1,192 @@
+/* ============================================
+ * Light theme overrides
+ * Obsidian adds .theme-light to <body> in light mode.
+ * Dark theme uses color-mix with navy (#0f172a, #0b1220, #111827).
+ * Light theme replaces those with clean Obsidian variables.
+ * ============================================ */
+
+/* --- Header --- */
+.theme-light .ocop-header {
+  background: var(--background-primary);
+}
+
+.theme-light .ocop-header-btn {
+  background: var(--background-secondary);
+}
+
+.theme-light .ocop-header-btn:hover {
+  background: var(--background-modifier-hover);
+}
+
+.theme-light .ocop-logo {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* --- Messages --- */
+.theme-light .ocop-message-user {
+  background: var(--background-secondary);
+  border-left-color: #0284c7;
+}
+
+.theme-light .ocop-welcome-suggestion {
+  background: var(--background-secondary);
+}
+
+.theme-light .ocop-welcome-suggestion:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.theme-light .ocop-quiz-answer-btn,
+.theme-light .ocop-quiz-submit-btn {
+  background: var(--background-secondary);
+}
+
+.theme-light .ocop-quiz-answer-btn:hover,
+.theme-light .ocop-quiz-submit-btn:hover:not(:disabled) {
+  background: var(--background-modifier-hover);
+}
+
+.theme-light .ocop-quiz-answer-btn.is-selected {
+  background: color-mix(in srgb, #0284c7 10%, transparent);
+  color: var(--text-normal);
+  border-color: #0284c7;
+}
+
+/* --- Input area --- */
+.theme-light .ocop-input-wrapper {
+  background: var(--background-secondary);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.theme-light .ocop-selection-indicator {
+  color: #0c4a6e;
+  background: linear-gradient(135deg, color-mix(in srgb, #38bdf8 14%, #f0f9ff) 0%, color-mix(in srgb, #06b6d4 10%, #f0f9ff) 100%);
+  border-color: color-mix(in srgb, #0284c7 28%, transparent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.theme-light .ocop-quiz-launcher-btn {
+  color: #0c4a6e;
+  border-color: color-mix(in srgb, #0284c7 28%, var(--background-modifier-border));
+  background: color-mix(in srgb, #0284c7 8%, var(--background-secondary));
+}
+
+.theme-light .ocop-quiz-launcher-btn:hover {
+  background: color-mix(in srgb, #0284c7 14%, var(--background-secondary));
+  border-color: #0284c7;
+}
+
+.theme-light .ocop-file-chip {
+  background: var(--background-secondary);
+}
+
+.theme-light .ocop-file-chip-badge {
+  color: #0369a1;
+  background: color-mix(in srgb, #0284c7 10%, transparent);
+}
+
+.theme-light .ocop-file-chip.ocop-file-chip-current {
+  border-color: #0284c7;
+  background: color-mix(in srgb, #0284c7 8%, transparent);
+}
+
+.theme-light .ocop-file-chip.ocop-file-chip-current .ocop-file-chip-badge {
+  background: color-mix(in srgb, #0284c7 14%, transparent);
+}
+
+.theme-light .ocop-file-chip.ocop-file-chip-pinned {
+  border-color: #0284c7;
+  background: color-mix(in srgb, #0284c7 8%, transparent);
+}
+
+.theme-light .ocop-file-chip.ocop-file-chip-pinned .ocop-file-chip-badge {
+  background: color-mix(in srgb, #0891b2 14%, transparent);
+  color: #0e7490;
+}
+
+.theme-light .ocop-file-chip.ocop-file-chip-pinned .ocop-file-chip-icon {
+  color: #0284c7;
+}
+
+/* --- Instruction mode border --- */
+.theme-light .ocop-input-instruction-mode {
+  border-color: #0284c7 !important;
+  box-shadow: 0 0 0 1px #0284c7;
+}
+
+/* --- Toolbar: Model selector --- */
+.theme-light .ocop-model-btn {
+  background: var(--background-secondary);
+}
+
+.theme-light .ocop-model-dropdown {
+  background: var(--background-secondary);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+}
+
+.theme-light .ocop-model-option.selected {
+  background: color-mix(in srgb, #0284c7 10%, transparent);
+}
+
+/* --- Toolbar: Permission toggle --- */
+.theme-light .ocop-toggle-switch {
+  background: var(--background-modifier-border);
+}
+
+.theme-light .ocop-toggle-switch.active {
+  background: color-mix(in srgb, #2563eb 30%, #e2e8f0 70%);
+}
+
+.theme-light .ocop-permission-toggle.plan-mode .ocop-toggle-switch {
+  background: color-mix(in srgb, #06b6d4 25%, #e2e8f0 75%);
+}
+
+/* --- Toolbar: Dropdowns (external context, MCP) --- */
+.theme-light .ocop-external-context-dropdown,
+.theme-light .ocop-mcp-selector-dropdown {
+  background: var(--background-secondary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Feature: File context (@ mention) --- */
+.theme-light .ocop-mention-dropdown {
+  background: var(--background-secondary);
+  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.theme-light .ocop-mention-item:hover,
+.theme-light .ocop-mention-item.selected {
+  background: var(--background-modifier-hover);
+}
+
+.theme-light .ocop-mention-name {
+  color: #0284c7;
+}
+
+.theme-light .ocop-mention-item.context-file .ocop-mention-icon,
+.theme-light .ocop-mention-item.context-folder .ocop-mention-icon {
+  color: #0284c7;
+}
+
+.theme-light .ocop-mention-name-folder {
+  color: #0284c7;
+}
+
+/* --- Thinking indicator --- */
+.theme-light .ocop-thinking {
+  color: #0284c7;
+}
+
+.theme-light .ocop-thinking-label {
+  color: #0284c7;
+}
+
+.theme-light .ocop-thinking-current {
+  color: #0284c7;
+}
+
+/* --- Plan message --- */
+.theme-light .ocop-message-plan {
+  background: rgba(0, 0, 0, 0.04);
+}

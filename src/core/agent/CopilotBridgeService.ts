@@ -666,7 +666,7 @@ export class CopilotBridgeService {
       cwd,
       env,
       stdio: ['pipe', 'pipe', 'pipe'],
-      shell: false,
+      shell: process.platform === 'win32',
     });
 
     this.currentProcess = child;

@@ -86,43 +86,51 @@ function getNpmGlobalPrefix(): string | null {
 export function findCopilotCLIPath(): string | null {
   const home = os.homedir();
   const isWindows = process.platform === 'win32';
-  const binaryName = isWindows ? 'copilot.exe' : 'copilot';
+  // npm creates .cmd wrappers on Windows; .exe only from volta/scoop shims
+  const binaryNames = isWindows ? ['copilot.cmd', 'copilot.exe'] : ['copilot'];
 
   // 1. 하드코딩 후보 경로
-  const candidates: string[] = isWindows
+  const candidateDirs: string[] = isWindows
     ? [
-        path.join(home, 'AppData', 'Roaming', 'npm', binaryName),
-        path.join(getEnvValue('ProgramFiles') ?? 'C:\\Program Files', 'nodejs', binaryName),
-        path.join(home, '.volta', 'bin', binaryName),
-        path.join(home, '.local', 'bin', binaryName),
+        path.join(home, 'AppData', 'Roaming', 'npm'),
+        path.join(getEnvValue('ProgramFiles') ?? 'C:\\Program Files', 'nodejs'),
+        path.join(home, '.volta', 'bin'),
+        path.join(home, '.local', 'bin'),
       ]
     : [
-        '/usr/local/bin/copilot',
-        '/opt/homebrew/bin/copilot',
-        path.join(home, '.local', 'bin', 'copilot'),
-        path.join(home, '.volta', 'bin', 'copilot'),
-        path.join(home, '.asdf', 'shims', 'copilot'),
-        path.join(home, '.asdf', 'bin', 'copilot'),
-        path.join(home, '.npm-global', 'bin', 'copilot'),
-        path.join(home, 'bin', 'copilot'),
+        '/usr/local/bin',
+        '/opt/homebrew/bin',
+        path.join(home, '.local', 'bin'),
+        path.join(home, '.volta', 'bin'),
+        path.join(home, '.asdf', 'shims'),
+        path.join(home, '.asdf', 'bin'),
+        path.join(home, '.npm-global', 'bin'),
+        path.join(home, 'bin'),
       ];
 
-  for (const p of candidates) {
-    if (isExistingFile(p)) return p;
+  for (const dir of candidateDirs) {
+    for (const name of binaryNames) {
+      const p = path.join(dir, name);
+      if (isExistingFile(p)) return p;
+    }
   }
 
   // 2. npm global prefix (env var 기반, execSync 없음)
   const npmPrefix = getNpmGlobalPrefix();
   if (npmPrefix) {
     const binDir = isWindows ? npmPrefix : path.join(npmPrefix, 'bin');
-    const p = path.join(binDir, binaryName);
-    if (isExistingFile(p)) return p;
+    for (const name of binaryNames) {
+      const p = path.join(binDir, name);
+      if (isExistingFile(p)) return p;
+    }
   }
 
   // 3. PATH 탐색 (따옴표 제거 + ~ 확장 + 플레이스홀더 필터 + 중복 제거)
   for (const dir of dedupePaths(parsePathEntries(getEnvValue('PATH')))) {
-    const p = path.join(dir, binaryName);
-    if (isExistingFile(p)) return p;
+    for (const name of binaryNames) {
+      const p = path.join(dir, name);
+      if (isExistingFile(p)) return p;
+    }
   }
 
   return null;

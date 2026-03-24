@@ -4,6 +4,7 @@
 /* Base */
 @import "./base/container.css";
 @import "./base/animations.css";
+@import "./base/light-theme.css";
 
 /* Components */
 @import "./components/header.css";
