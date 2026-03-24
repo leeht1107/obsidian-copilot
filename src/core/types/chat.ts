@@ -60,8 +60,6 @@ export interface SocraticSessionState {
 }
 
 export interface SocraticTurnMeta {
-  current: number;
-  total: number;
   isSummary: boolean;
 }
 

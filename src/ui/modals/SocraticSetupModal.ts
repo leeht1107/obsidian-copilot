@@ -5,7 +5,6 @@ type SocraticScope = 'current-note' | 'note' | 'folder';
 export interface SocraticSetupResult {
   prompt: string;
   displayContent: string;
-  maxDepth: number;
   focusText?: string;
 }
 
@@ -34,7 +33,6 @@ export class SocraticSetupModal extends Modal {
   private socraticScope: SocraticScope = 'current-note';
   private selectedNotePaths = new Set<string>();
   private selectedFolderPaths = new Set<string>();
-  private maxDepth = '5';
   private focusText = '';
   private useFullVault = false;
 
@@ -168,18 +166,6 @@ export class SocraticSetupModal extends Modal {
     renderDetails();
 
     new Setting(this.contentEl)
-      .setName('Rounds')
-      .setDesc('Number of dialogue exchanges before the summary.')
-      .addDropdown((dropdown) => {
-        for (const count of ['3', '4', '5', '6', '7', '8', '10']) {
-          dropdown.addOption(count, `${count} rounds`);
-        }
-        dropdown.setValue(this.maxDepth).onChange((value) => {
-          this.maxDepth = value;
-        });
-      });
-
-    new Setting(this.contentEl)
       .setName('Focus topic (optional)')
       .setDesc('Example: 정규화, 트랜잭션, 재귀함수')
       .addText((text) => {
@@ -238,15 +224,12 @@ export class SocraticSetupModal extends Modal {
         : `폴더 ${selectedFolders.length}개`;
     }
 
-    const displayLabel = ['/socratic', displayScope, `${this.maxDepth} rounds`, this.focusText || '전체 범위']
+    const displayLabel = ['/socratic', displayScope, this.focusText || '전체 범위']
       .filter(Boolean)
       .join(' · ');
 
-    const maxDepthNum = Number(this.maxDepth);
-
     return {
       displayContent: displayLabel,
-      maxDepth: maxDepthNum,
       focusText: this.focusText || undefined,
       prompt: [
         'You are a Socratic dialogue facilitator. Your ONLY job is to guide the student to discover understanding through their own reasoning.',
@@ -255,17 +238,14 @@ export class SocraticSetupModal extends Modal {
         '2. NEVER say "correct" or "wrong". Ask the student to reason further.',
         '3. If the student says "I don\'t know", respond with a simpler probing question, not an answer.',
         '4. Each of your responses must contain exactly one probing question.',
-        `5. Track exchange depth using this marker on its own line at the very start of your response: ##SOCRATIC_DEPTH: {current}/${maxDepthNum}## where {current} is the exchange number you are responding to (starting at 1).`,
         `SOURCE MATERIAL: ${scopeInstruction}`,
         this.focusText ? `Focus the dialogue on this topic: ${this.focusText}.` : '',
-        `DIALOGUE STRUCTURE: There will be exactly ${maxDepthNum} exchange rounds. After the student responds to round ${maxDepthNum}, you MUST do the following:`,
-        `  Step 1: Ask one final synthesizing question (e.g. "지금까지의 대화를 바탕으로, 핵심 개념을 한 문장으로 정리한다면?").`,
-        `  Step 2: After the student replies to that final question, output the session summary:`,
-        `    ##SOCRATIC_SUMMARY##`,
-        `    ### 발견의 여정 요약`,
-        `    In Korean: summarize the key insights the student arrived at THEMSELVES — quote their own words where possible. Acknowledge what they still need to explore. End with one open question for further reflection.`,
+        'DIALOGUE STRUCTURE: Continue the dialogue until the student has arrived at a clear insight through their own reasoning. When that moment comes, ask one final synthesizing question (e.g. "지금까지의 대화를 바탕으로, 핵심 개념을 한 문장으로 정리한다면?"). After the student replies to that final question, output the session summary:',
+        '  ##SOCRATIC_SUMMARY##',
+        '  ### 발견의 여정 요약',
+        '  In Korean: summarize the key insights the student arrived at THEMSELVES — quote their own words where possible. Acknowledge what they still need to explore. End with one open question for further reflection.',
         'All output must be in Korean.',
-        `START: Begin now by asking one open-ended question in Korean that surfaces what the student already believes about the topic. Do NOT introduce concepts — surface their existing assumptions. Your first response MUST start with ##SOCRATIC_DEPTH: 1/${maxDepthNum}##.`,
+        'START: Begin now by asking one open-ended question in Korean that surfaces what the student already believes about the topic. Do NOT introduce concepts — surface their existing assumptions.',
       ].filter(Boolean).join('\n'),
     };
   }

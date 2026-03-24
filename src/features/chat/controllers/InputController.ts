@@ -101,7 +101,6 @@ interface QuizSessionInit {
 }
 
 interface SocraticSessionInit {
-  maxDepth: number;
   scopeLabel: string;
   focusText?: string;
 }
@@ -189,7 +188,6 @@ export class InputController {
         hidden: options?.hidden,
         editorContextOverride: options?.editorContextOverride,
         socraticSessionInit: {
-          maxDepth: socraticResult.maxDepth,
           scopeLabel: socraticResult.displayContent,
           focusText: socraticResult.focusText,
         },
@@ -248,7 +246,7 @@ export class InputController {
 
     if (options?.socraticSessionInit) {
       state.socraticSession = {
-        maxDepth: options.socraticSessionInit.maxDepth,
+        maxDepth: 20,
         currentDepth: 1,
         scopeLabel: options.socraticSessionInit.scopeLabel,
         focusText: options.socraticSessionInit.focusText,
@@ -438,8 +436,7 @@ The student has responded to the final synthesizing question.
 You MUST now output the ##SOCRATIC_SUMMARY## marker followed by ### 발견의 여정 요약.
 Do NOT ask any more questions. Close the session.`
         : `[SOCRATIC SESSION — MANDATORY]
-Exchange ${s.currentDepth} of ${s.maxDepth}. NEVER give a direct answer. Respond ONLY with a probing question.
-Your response MUST start with ##SOCRATIC_DEPTH: ${s.currentDepth}/${s.maxDepth}## on its own line.${s.currentDepth >= s.maxDepth ? `\nThis is the FINAL exchange. Ask one synthesizing question. After the student responds, output ##SOCRATIC_SUMMARY## + ### 발견의 여정 요약.` : ''}`;
+NEVER give a direct answer. Respond ONLY with a probing question.${s.currentDepth >= s.maxDepth ? `\nThis is the final exchange. Ask one synthesizing question. After the student responds, output ##SOCRATIC_SUMMARY## + ### 발견의 여정 요약.` : ''}`;
       promptToSend = `${socraticControl}
 
 ${promptToSend}`;

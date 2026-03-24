@@ -852,13 +852,8 @@ export class StreamController {
 }
 
 function parseSocraticMeta(content: string): SocraticTurnMeta | undefined {
-  const depthMatch = content.match(/^##SOCRATIC_DEPTH:\s*(\d+)\s*\/\s*(\d+)##/m);
-  if (!depthMatch) return undefined;
-  return {
-    current: Number(depthMatch[1]),
-    total: Number(depthMatch[2]),
-    isSummary: /^##SOCRATIC_SUMMARY##/m.test(content),
-  };
+  if (!/^##SOCRATIC_SUMMARY##/m.test(content)) return undefined;
+  return { isSummary: true };
 }
 
 function parseQuizQuestionMeta(content: string): QuizQuestionMeta | undefined {
