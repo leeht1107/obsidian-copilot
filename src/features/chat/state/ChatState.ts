@@ -5,7 +5,7 @@
  * pattern established by AsyncSubagentManager.
  */
 
-import type { QuizSessionState, UsageInfo } from '../../../core/types';
+import type { QuizSessionState, SocraticSessionState, UsageInfo } from '../../../core/types';
 import type {
   AskUserQuestionState,
   AsyncSubagentState,
@@ -48,6 +48,7 @@ function createInitialState(): ChatStateData {
     pendingPlanContent: null,
     currentTodos: null,
     quizSession: null,
+    socraticSession: null,
   };
 }
 
@@ -308,6 +309,14 @@ export class ChatState {
     this.state.quizSession = value;
   }
 
+  get socraticSession(): SocraticSessionState | null {
+    return this.state.socraticSession;
+  }
+
+  set socraticSession(value: SocraticSessionState | null) {
+    this.state.socraticSession = value;
+  }
+
   // ============================================
   // Reset Methods
   // ============================================
@@ -342,6 +351,7 @@ export class ChatState {
     this.usage = null;
     this.currentTodos = null;
     this.quizSession = null;
+    this.socraticSession = null;
   }
 
   /** Gets persisted messages (strips image data). */

@@ -15,6 +15,8 @@ export {
   type QuizQuestionMeta,
   type QuizQuestionOption,
   type QuizSessionState,
+  type SocraticSessionState,
+  type SocraticTurnMeta,
   type StreamChunk,
   type UsageInfo,
   VIEW_TYPE_OBSIDIAN_COPILOT,

@@ -8,6 +8,7 @@ import type {
   ChatMessage,
   ImageAttachment,
   QuizSessionState,
+  SocraticSessionState,
   SubagentInfo,
   ToolCallInfo,
   UsageInfo,
@@ -108,6 +109,9 @@ export interface ChatStateData {
 
   // Active quiz session state
   quizSession: QuizSessionState | null;
+
+  // Active Socratic dialogue session state
+  socraticSession: SocraticSessionState | null;
 }
 
 /** Callbacks for ChatState changes. */

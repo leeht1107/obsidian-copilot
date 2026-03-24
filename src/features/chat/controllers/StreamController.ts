@@ -6,7 +6,7 @@
  */
 
 import { isPlanModeTool, isWriteEditTool, TOOL_AGENT_OUTPUT, TOOL_ASK_USER_QUESTION, TOOL_TASK, TOOL_TODO_WRITE } from '../../../core/tools/toolNames';
-import type { AskUserQuestionQuestion, ChatMessage, QuizQuestionMeta, QuizQuestionOption, StreamChunk, SubagentInfo, ToolCallInfo } from '../../../core/types';
+import type { AskUserQuestionQuestion, ChatMessage, QuizQuestionMeta, QuizQuestionOption, SocraticTurnMeta, StreamChunk, SubagentInfo, ToolCallInfo } from '../../../core/types';
 import type ObsidianCopilotPlugin from '../../../main';
 import {
   addSubagentToolCall,
@@ -436,6 +436,7 @@ export class StreamController {
       msg.contentBlocks.push({ type: 'text', content: finalizedText });
       if (msg.role === 'assistant') {
         msg.quizQuestion = parseQuizQuestionMeta(finalizedText);
+        msg.socraticTurn = parseSocraticMeta(finalizedText);
       }
     }
 
@@ -848,6 +849,16 @@ export class StreamController {
     state.currentThinkingState = null;
     state.activeSubagents.clear();
   }
+}
+
+function parseSocraticMeta(content: string): SocraticTurnMeta | undefined {
+  const depthMatch = content.match(/^##SOCRATIC_DEPTH:\s*(\d+)\s*\/\s*(\d+)##/m);
+  if (!depthMatch) return undefined;
+  return {
+    current: Number(depthMatch[1]),
+    total: Number(depthMatch[2]),
+    isSummary: /^##SOCRATIC_SUMMARY##/m.test(content),
+  };
 }
 
 function parseQuizQuestionMeta(content: string): QuizQuestionMeta | undefined {

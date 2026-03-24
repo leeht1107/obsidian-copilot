@@ -23,6 +23,7 @@ import {
   type McpServerSelector,
   type PlanBanner,
   QuizSetupModal,
+  SocraticSetupModal,
   showAskUserQuestionPanel,
   showPlanApprovalPanel,
   showQuizAnswerPanel,
@@ -99,6 +100,12 @@ interface QuizSessionInit {
   focusText?: string;
 }
 
+interface SocraticSessionInit {
+  maxDepth: number;
+  scopeLabel: string;
+  focusText?: string;
+}
+
 /**
  * InputController handles user input and message sending.
  */
@@ -121,6 +128,7 @@ export class InputController {
     promptPrefix?: string;
     displayContentOverride?: string;
     quizSessionInit?: QuizSessionInit;
+    socraticSessionInit?: SocraticSessionInit;
   }): Promise<void> {
     const { plugin, state, renderer, streamController, selectionController, conversationController } = this.deps;
     const inputEl = this.deps.getInputEl();
@@ -157,6 +165,33 @@ export class InputController {
           totalQuestions: quizResult.totalQuestions,
           scopeLabel: quizResult.displayContent,
           focusText: quizResult.focusText,
+        },
+      });
+      return;
+    }
+
+    if (content === '/socratic' || content.startsWith('/socratic ')) {
+      const socraticFocusText = content === '/socratic' ? '' : content.slice('/socratic'.length).trim();
+      const socraticModal = new SocraticSetupModal(plugin.app, fileContextManager?.getCurrentNotePath() || null, socraticFocusText);
+      const socraticResult = await socraticModal.openAndWait();
+      if (!socraticResult) {
+        return;
+      }
+
+      if (shouldUseInput) {
+        inputEl.value = '';
+      }
+
+      await this.sendMessage({
+        content: socraticResult.prompt,
+        displayContentOverride: socraticResult.displayContent,
+        promptPrefix: options?.promptPrefix,
+        hidden: options?.hidden,
+        editorContextOverride: options?.editorContextOverride,
+        socraticSessionInit: {
+          maxDepth: socraticResult.maxDepth,
+          scopeLabel: socraticResult.displayContent,
+          focusText: socraticResult.focusText,
         },
       });
       return;
@@ -208,6 +243,16 @@ export class InputController {
         currentQuestion: 1,
         scopeLabel: options.quizSessionInit.scopeLabel,
         focusText: options.quizSessionInit.focusText,
+      };
+    }
+
+    if (options?.socraticSessionInit) {
+      state.socraticSession = {
+        maxDepth: options.socraticSessionInit.maxDepth,
+        currentDepth: 1,
+        scopeLabel: options.socraticSessionInit.scopeLabel,
+        focusText: options.socraticSessionInit.focusText,
+        isSummaryPhase: false,
       };
     }
 
@@ -385,6 +430,21 @@ All output in Korean. Do NOT ask another question. Do NOT skip steps 2 and 3.`
 ${promptToSend}`;
     }
 
+    if (!options?.socraticSessionInit && state.socraticSession) {
+      const s = state.socraticSession;
+      const socraticControl = s.isSummaryPhase
+        ? `[SOCRATIC SESSION — SUMMARY REQUIRED]
+The student has responded to the final synthesizing question.
+You MUST now output the ##SOCRATIC_SUMMARY## marker followed by ### 발견의 여정 요약.
+Do NOT ask any more questions. Close the session.`
+        : `[SOCRATIC SESSION — MANDATORY]
+Exchange ${s.currentDepth} of ${s.maxDepth}. NEVER give a direct answer. Respond ONLY with a probing question.
+Your response MUST start with ##SOCRATIC_DEPTH: ${s.currentDepth}/${s.maxDepth}## on its own line.${s.currentDepth >= s.maxDepth ? `\nThis is the FINAL exchange. Ask one synthesizing question. After the student responds, output ##SOCRATIC_SUMMARY## + ### 발견의 여정 요약.` : ''}`;
+      promptToSend = `${socraticControl}
+
+${promptToSend}`;
+    }
+
     const containsMentions = promptToSend.includes('@');
 
     // Transform context file mentions (e.g., @folder/file.ts) to absolute paths
@@ -460,6 +520,19 @@ ${promptToSend}`;
           };
         } else {
           state.quizSession = null;
+        }
+      }
+
+      if (state.socraticSession && !options?.socraticSessionInit && !wasInterrupted) {
+        const s = state.socraticSession;
+        if (assistantMsg.socraticTurn?.isSummary) {
+          state.socraticSession = null;
+        } else if (s.isSummaryPhase) {
+          // Waiting for student's final answer — keep state unchanged
+        } else if (s.currentDepth >= s.maxDepth) {
+          state.socraticSession = { ...s, isSummaryPhase: true };
+        } else {
+          state.socraticSession = { ...s, currentDepth: s.currentDepth + 1 };
         }
       }
 

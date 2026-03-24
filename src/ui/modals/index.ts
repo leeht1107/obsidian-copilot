@@ -15,3 +15,4 @@ export { McpImportModal, toRawGitHubUrl } from './McpImportModal';
 export { McpServerModal } from './McpServerModal';
 export { McpTestModal } from './McpTestModal';
 export { QuizSetupModal, type QuizSetupResult } from './QuizSetupModal';
+export { SocraticSetupModal, type SocraticSetupResult } from './SocraticSetupModal';

@@ -51,6 +51,20 @@ export interface QuizSessionState {
   focusText?: string;
 }
 
+export interface SocraticSessionState {
+  maxDepth: number;
+  currentDepth: number;
+  scopeLabel: string;
+  focusText?: string;
+  isSummaryPhase: boolean;
+}
+
+export interface SocraticTurnMeta {
+  current: number;
+  total: number;
+  isSummary: boolean;
+}
+
 /** Chat message with content, tool calls, and attachments. */
 export interface ChatMessage {
   id: string;
@@ -74,6 +88,7 @@ export interface ChatMessage {
     feedback?: string; // For revise
   };
   quizQuestion?: QuizQuestionMeta;
+  socraticTurn?: SocraticTurnMeta;
 }
 
 /** Persisted conversation with messages and session state. */
@@ -102,6 +117,7 @@ export interface Conversation {
   /** UI-enabled MCP servers for this session (context-saving servers activated via selector). */
   enabledMcpServers?: string[];
   quizSession?: QuizSessionState;
+  socraticSession?: SocraticSessionState;
 }
 
 /** Lightweight conversation metadata for the history dropdown. */
