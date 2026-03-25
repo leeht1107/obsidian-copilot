@@ -494,7 +494,7 @@ class InlineEditController {
         if (cmd) {
           const expansion = await this.slashCommandManager.expandCommand(cmd, detected.args, {
             bash: {
-              enabled: true,
+              enabled: this.plugin.settings.enableInlineBash,
               shouldBlockCommand: (bashCommand) =>
                 isCommandBlocked(
                   bashCommand,

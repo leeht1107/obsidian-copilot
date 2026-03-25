@@ -157,22 +157,34 @@ export class SlashCommandManager {
    * Handles $ARGUMENTS (all args) and $1, $2, etc. (positional).
    */
   private replaceArgumentPlaceholders(content: string, args: string): string {
-    // Split args respecting quotes
     const argParts = this.parseArguments(args);
 
-    // Replace $ARGUMENTS with full args string
-    let result = content.replace(/\$ARGUMENTS/g, args);
+    // Collect bash inline blocks (!`...`) and replace with unique placeholders.
+    // Args inside bash blocks are shell-escaped to prevent injection.
+    const bashBlocks: string[] = [];
+    const withoutBash = content.replace(/!`[^`]+`/g, (match) => {
+      let block = match;
+      block = block.replace(/\$ARGUMENTS/g, shellEscapeArgIfNeeded(args));
+      for (let i = 0; i < argParts.length; i++) {
+        const pattern = new RegExp(`\\$${i + 1}(?![0-9])`, 'g');
+        block = block.replace(pattern, shellEscapeArgIfNeeded(argParts[i]));
+      }
+      block = block.replace(/\$\d+/g, '');
+      const idx = bashBlocks.length;
+      bashBlocks.push(block);
+      return `\x00BASH${idx}\x00`;
+    });
 
-    // Replace $1, $2, etc. with positional arguments
+    // Replace $ARGUMENTS and $N in non-bash content (plain, no escaping)
+    let result = withoutBash.replace(/\$ARGUMENTS/g, args);
     for (let i = 0; i < argParts.length; i++) {
       const pattern = new RegExp(`\\$${i + 1}(?![0-9])`, 'g');
       result = result.replace(pattern, argParts[i]);
     }
-
-    // Remove unreplaced positional placeholders
     result = result.replace(/\$\d+/g, '');
 
-    return result;
+    // Restore bash blocks
+    return result.replace(/\x00BASH(\d+)\x00/g, (_, idx) => bashBlocks[Number(idx)]);
   }
 
   /**
@@ -339,6 +351,18 @@ export class SlashCommandManager {
 
     return { content: result, errors };
   }
+}
+
+/**
+ * Shell-escapes an argument if it contains characters that could be
+ * interpreted by the shell (semicolons, pipes, redirects, etc.).
+ * Safe arguments (alphanumeric, dash, dot, slash) are returned as-is
+ * to avoid breaking templates that already quote their placeholders.
+ */
+function shellEscapeArgIfNeeded(arg: string): string {
+  if (/^[\w./:-]+$/.test(arg)) return arg;
+  // Wrap in single quotes; escape any literal single quotes inside
+  return `'${arg.replace(/'/g, "'\\''")}'`;
 }
 
 function defaultBashRunner(command: string, cwd: string): Promise<string> {

@@ -662,6 +662,9 @@ export class CopilotBridgeService {
     env: NodeJS.ProcessEnv
   ): AsyncGenerator<StreamChunk> {
     const cwd = this.getWorkingDirectory();
+    // shell:true is required on Windows to execute .cmd/.bat shim files
+    // (e.g. npm-installed CLIs). Ensure `command` is validated before
+    // reaching this point to mitigate shell metacharacter risks on Windows.
     const child = spawn(command, args, {
       cwd,
       env,
