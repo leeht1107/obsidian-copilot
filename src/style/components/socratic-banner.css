@@ -1,0 +1,65 @@
+/**
+ * SocraticBanner styles.
+ * Collapsible banner shown during an active Socratic dialogue session.
+ */
+
+.ocop-socratic-banner {
+  margin: 0 12px 8px 12px;
+  border-radius: 6px;
+  background: rgba(124, 58, 237, 0.08);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  overflow: hidden;
+}
+
+.ocop-socratic-banner.expanded {
+  background: rgba(124, 58, 237, 0.05);
+}
+
+/* Header - clickable disclosure */
+.ocop-socratic-banner-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+.ocop-socratic-banner-header:hover {
+  background: rgba(124, 58, 237, 0.1);
+}
+
+.ocop-socratic-banner-chevron {
+  font-size: 10px;
+  color: #7C3AED;
+  transition: transform 0.15s ease;
+}
+
+.ocop-socratic-banner-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #7C3AED;
+}
+
+.ocop-socratic-banner-topic {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* Content area */
+.ocop-socratic-banner-content {
+  padding: 0 12px 12px 12px;
+  border-top: 1px solid rgba(124, 58, 237, 0.15);
+}
+
+.ocop-socratic-banner-content ul {
+  margin: 8px 0 0 0;
+  padding-left: 1.4em;
+}
+
+.ocop-socratic-banner-content li {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}

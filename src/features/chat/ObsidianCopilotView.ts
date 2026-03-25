@@ -23,11 +23,12 @@ import {
   type PermissionToggle,
   type WebSearchToggle,
   PlanBanner,
+  SocraticBanner,
   SlashCommandDropdown,
   type ThinkingBudgetSelector,
   TodoPanel,
 } from '../../ui';
-import { QuizSetupModal } from '../../ui';
+import { QuizSetupModal, SocraticSetupModal } from '../../ui';
 import { getVaultPath } from '../../utils/path';
 import { LOGO_SVG } from './constants';
 import {
@@ -79,6 +80,7 @@ export class ObsidianCopilotView extends ItemView {
   private instructionModeManager: InstructionModeManager | null = null;
   private contextUsageMeter: ContextUsageMeter | null = null;
   private planBanner: PlanBanner | null = null;
+  private socraticBanner: SocraticBanner | null = null;
   private todoPanel: TodoPanel | null = null;
 
   constructor(leaf: WorkspaceLeaf, plugin: ObsidianCopilotPlugin) {
@@ -120,6 +122,9 @@ export class ObsidianCopilotView extends ItemView {
       component: this,
     });
     this.planBanner.mount(container);
+
+    this.socraticBanner = new SocraticBanner();
+    this.socraticBanner.mount(container);
 
     this.messagesEl = container.createDiv({ cls: 'ocop-messages' });
     this.welcomeEl = this.messagesEl.createDiv({ cls: 'ocop-welcome' });
@@ -324,6 +329,26 @@ export class ObsidianCopilotView extends ItemView {
           displayContentOverride: quizResult.displayContent,
         });
       },
+      onOpenSocratic: async () => {
+        const socraticModal = new SocraticSetupModal(
+          this.plugin.app,
+          this.fileContextManager?.getCurrentNotePath() || null,
+          ''
+        );
+        const socraticResult = await socraticModal.openAndWait();
+        if (!socraticResult) {
+          return;
+        }
+
+        await this.inputController?.sendMessage({
+          content: socraticResult.prompt,
+          displayContentOverride: socraticResult.displayContent,
+          socraticSessionInit: {
+            scopeLabel: socraticResult.displayContent,
+            focusText: socraticResult.focusText,
+          },
+        });
+      },
     });
 
     this.modelSelector = toolbarComponents.modelSelector;
@@ -423,6 +448,12 @@ export class ObsidianCopilotView extends ItemView {
         this.updatePlanModeUiState();
       },
       getPlanBanner: () => this.planBanner,
+      showSocraticBanner: (scopeLabel, focusText) => {
+        this.socraticBanner?.show(scopeLabel, focusText);
+      },
+      hideSocraticBanner: () => {
+        this.socraticBanner?.hide();
+      },
       generateId: () => this.generateId(),
       resetContextMeter: () => this.contextUsageMeter?.update(null),
     });

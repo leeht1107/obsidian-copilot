@@ -76,6 +76,8 @@ export interface InputControllerDeps {
   getComponent: () => Component;
   setPlanModeActive: (active: boolean) => void;
   getPlanBanner: () => PlanBanner | null;
+  showSocraticBanner?: (scopeLabel: string, focusText?: string) => void;
+  hideSocraticBanner?: () => void;
   generateId: () => string;
   resetContextMeter: () => void;
 }
@@ -252,6 +254,10 @@ export class InputController {
         focusText: options.socraticSessionInit.focusText,
         isSummaryPhase: false,
       };
+      this.deps.showSocraticBanner?.(
+        options.socraticSessionInit.scopeLabel,
+        options.socraticSessionInit.focusText
+      );
     }
 
     state.isStreaming = true;
@@ -524,6 +530,7 @@ ${promptToSend}`;
         const s = state.socraticSession;
         if (assistantMsg.socraticTurn?.isSummary) {
           state.socraticSession = null;
+          this.deps.hideSocraticBanner?.();
         } else if (s.isSummaryPhase) {
           // Waiting for student's final answer — keep state unchanged
         } else if (s.currentDepth >= s.maxDepth) {

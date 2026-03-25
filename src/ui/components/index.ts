@@ -45,6 +45,7 @@ export {
   PlanBanner,
   type PlanBannerOptions,
 } from './PlanBanner';
+export { SocraticBanner } from './SocraticBanner';
 export { hideSelectionHighlight, showSelectionHighlight } from './SelectionHighlight';
 export {
   SlashCommandDropdown,

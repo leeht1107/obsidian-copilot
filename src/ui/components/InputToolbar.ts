@@ -30,6 +30,7 @@ export interface ToolbarCallbacks {
   onThinkingBudgetChange: (budget: ThinkingBudget) => Promise<void>;
   onPermissionModeChange: (mode: PermissionMode) => Promise<void>;
   onOpenQuiz?: () => Promise<void>;
+  onOpenSocratic?: () => Promise<void>;
   getSettings: () => ToolbarSettings;
   getEnvironmentVariables?: () => string;
   isAgentInitiatedPlanMode?: () => boolean;
@@ -344,6 +345,30 @@ export class QuizLauncherButton {
     button.type = 'button';
     button.addEventListener('click', async () => {
       await this.callbacks.onOpenQuiz?.();
+    });
+  }
+}
+
+export class SocraticLauncherButton {
+  private container: HTMLElement;
+  private callbacks: ToolbarCallbacks;
+
+  constructor(parentEl: HTMLElement, callbacks: ToolbarCallbacks) {
+    this.callbacks = callbacks;
+    this.container = parentEl.createDiv({ cls: 'ocop-socratic-launcher' });
+    this.render();
+  }
+
+  private render() {
+    this.container.empty();
+    const button = this.container.createEl('button', {
+      cls: 'ocop-socratic-launcher-btn',
+      text: '학습 모드',
+      attr: { 'aria-label': '소크라테스 대화 시작' },
+    });
+    button.type = 'button';
+    button.addEventListener('click', async () => {
+      await this.callbacks.onOpenSocratic?.();
     });
   }
 }
@@ -846,6 +871,7 @@ export function createInputToolbar(
   mcpServerSelector: McpServerSelector;
   permissionToggle: PermissionToggle;
   quizLauncherButton: QuizLauncherButton;
+  socraticLauncherButton: SocraticLauncherButton;
 } {
   const modelSelector = new ModelSelector(parentEl, callbacks);
   const thinkingBudgetSelector = new ThinkingBudgetSelector(parentEl, callbacks);
@@ -855,6 +881,7 @@ export function createInputToolbar(
   const mcpServerSelector = new McpServerSelector(parentEl);
   const permissionToggle = new PermissionToggle(parentEl, callbacks);
   const quizLauncherButton = new QuizLauncherButton(parentEl, callbacks);
+  const socraticLauncherButton = new SocraticLauncherButton(parentEl, callbacks);
 
   return {
     modelSelector,
@@ -865,5 +892,6 @@ export function createInputToolbar(
     mcpServerSelector,
     permissionToggle,
     quizLauncherButton,
+    socraticLauncherButton,
   };
 }
