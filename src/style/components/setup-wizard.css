@@ -1,0 +1,148 @@
+/**
+ * SetupWizardModal styles.
+ */
+
+.ocop-setup-modal {
+  --setup-accent: #7C3AED;
+}
+
+.ocop-setup-modal .modal-content {
+  padding: 20px 24px 24px;
+}
+
+.ocop-setup-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Status / phase labels */
+.ocop-setup-status {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-normal);
+  margin: 0;
+}
+
+.ocop-setup-success {
+  font-size: 15px;
+  font-weight: 600;
+  color: #16A34A;
+  margin: 0;
+}
+
+.ocop-setup-warn {
+  font-size: 14px;
+  font-weight: 600;
+  color: #D97706;
+  margin: 0;
+}
+
+.ocop-setup-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.ocop-setup-hint {
+  font-size: 12px;
+  color: var(--text-faint);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Live install log */
+.ocop-setup-log {
+  background: var(--background-secondary);
+  border-radius: 6px;
+  padding: 8px 10px;
+  max-height: 120px;
+  overflow-y: auto;
+  font-family: var(--font-monospace);
+}
+
+.ocop-setup-log-line {
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.ocop-setup-log-line.ocop-setup-muted {
+  opacity: 0.6;
+}
+
+/* Steps list */
+.ocop-setup-steps {
+  margin: 0;
+  padding-left: 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ocop-setup-steps li {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-normal);
+}
+
+/* Command copy row */
+.ocop-setup-cmd-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.ocop-setup-cmd {
+  flex: 1;
+  font-family: var(--font-monospace);
+  font-size: 12px;
+  padding: 5px 10px;
+  background: var(--background-secondary);
+  border-radius: 4px;
+  color: var(--text-normal);
+  user-select: all;
+}
+
+.ocop-setup-copy-btn {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: var(--background-modifier-border);
+  color: var(--text-muted);
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ocop-setup-copy-btn:hover {
+  background: var(--interactive-hover);
+  color: var(--text-normal);
+}
+
+/* Primary action button */
+.ocop-setup-action-btn {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+/* Skip / later link */
+.ocop-setup-skip-btn {
+  align-self: flex-start;
+  font-size: 12px;
+  color: var(--text-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.ocop-setup-skip-btn:hover {
+  color: var(--text-muted);
+}

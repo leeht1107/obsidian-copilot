@@ -65,6 +65,9 @@ export default class ObsidianCopilotPlugin extends Plugin {
     this.agentService = new CopilotBridgeService(this, this.mcpService.getManager());
     void this.agentService.prewarmCapabilities();
 
+    // Show setup wizard on first launch if CLI is missing (fires after layout is ready)
+    this.app.workspace.onLayoutReady(() => void this.checkAndShowSetupWizard());
+
     addIcon('obsidian-copilot-icon', COPILOT_ICON_SVG);
 
     this.registerView(
@@ -165,6 +168,26 @@ export default class ObsidianCopilotPlugin extends Plugin {
 
     if (leaf) {
       workspace.revealLeaf(leaf);
+    }
+  }
+
+  /**
+   * Show the first-run setup wizard if the Copilot CLI is not found.
+   * Only fires once per Obsidian session to avoid pestering users.
+   */
+  private async checkAndShowSetupWizard(): Promise<void> {
+    try {
+      const { checkSetupStatus, hasShownThisSession } = await import('./core/setup/AutoSetupService');
+      if (hasShownThisSession()) return;
+      if (this.settings.copilotCliPath) return; // Manual path configured
+
+      const { cliFound } = checkSetupStatus();
+      if (cliFound) return; // Already found via auto-detect
+
+      const { SetupWizardModal } = await import('./ui/modals/SetupWizardModal');
+      new SetupWizardModal(this.app, this).open();
+    } catch (err) {
+      console.warn('[ObsidianCopilot] Setup wizard failed to open:', err);
     }
   }
 
