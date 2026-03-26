@@ -5,6 +5,13 @@
  * Collapsed by default; expands to show session guide and rules.
  */
 
+const RULE_CARDS = [
+  { icon: '💬', text: '정답 대신 질문으로 생각을 이끕니다.' },
+  { icon: '🧠', text: '답을 추론하며 스스로 설명해보세요.' },
+  { icon: '🌱', text: "막히면 '모르겠어요'를 입력하세요." },
+  { icon: '↺', text: '종료: 대화 초기화 또는 새 대화 시작' },
+];
+
 /**
  * SocraticBanner - collapsible info banner for active Socratic sessions.
  */
@@ -35,6 +42,7 @@ export class SocraticBanner {
     }
 
     this.isExpanded = false;
+    this.containerEl.classList.add('ocop-socratic-active');
 
     this.bannerEl = document.createElement('div');
     this.bannerEl.className = 'ocop-socratic-banner';
@@ -44,14 +52,14 @@ export class SocraticBanner {
     headerEl.className = 'ocop-socratic-banner-header';
     headerEl.addEventListener('click', () => this.toggle());
 
-    const chevronEl = document.createElement('span');
-    chevronEl.className = 'ocop-socratic-banner-chevron';
-    chevronEl.textContent = '▶';
-    headerEl.appendChild(chevronEl);
+    const iconEl = document.createElement('span');
+    iconEl.className = 'ocop-socratic-banner-icon';
+    iconEl.textContent = '🦉';
+    headerEl.appendChild(iconEl);
 
     const titleEl = document.createElement('span');
     titleEl.className = 'ocop-socratic-banner-title';
-    titleEl.textContent = '소크라테스 대화 진행 중';
+    titleEl.textContent = '소크라테스 학습 모드 진행 중';
     if (focusText) {
       const topicEl = document.createElement('span');
       topicEl.className = 'ocop-socratic-banner-topic';
@@ -60,6 +68,16 @@ export class SocraticBanner {
     }
     headerEl.appendChild(titleEl);
 
+    const badgeEl = document.createElement('span');
+    badgeEl.className = 'ocop-socratic-banner-badge';
+    badgeEl.textContent = '진행 중';
+    headerEl.appendChild(badgeEl);
+
+    const chevronEl = document.createElement('span');
+    chevronEl.className = 'ocop-socratic-banner-chevron';
+    chevronEl.textContent = '▶';
+    headerEl.appendChild(chevronEl);
+
     this.bannerEl.appendChild(headerEl);
 
     // Content area (hidden by default)
@@ -67,21 +85,32 @@ export class SocraticBanner {
     this.contentEl.className = 'ocop-socratic-banner-content';
     this.contentEl.style.display = 'none';
 
-    const rules = [
-      'AI는 질문만 합니다 — 직접 답을 주지 않습니다.',
-      '스스로 생각하고 추론하여 답하세요.',
-      '막히면 "모르겠어요"라고 해도 됩니다 — 더 쉬운 질문으로 안내합니다.',
-      `범위: ${scopeLabel}`,
-      '종료: 대화를 초기화하거나 새 대화를 시작하세요.',
-    ];
+    // Rule cards grid
+    const gridEl = document.createElement('div');
+    gridEl.className = 'ocop-socratic-banner-grid';
 
-    const listEl = document.createElement('ul');
-    for (const rule of rules) {
-      const li = document.createElement('li');
-      li.textContent = rule;
-      listEl.appendChild(li);
+    for (const rule of RULE_CARDS) {
+      const card = document.createElement('div');
+      card.className = 'ocop-socratic-rule-card';
+
+      const ruleIcon = document.createElement('span');
+      ruleIcon.className = 'ocop-socratic-rule-icon';
+      ruleIcon.textContent = rule.icon;
+      card.appendChild(ruleIcon);
+
+      const ruleText = document.createElement('p');
+      ruleText.textContent = rule.text;
+      card.appendChild(ruleText);
+
+      gridEl.appendChild(card);
     }
-    this.contentEl.appendChild(listEl);
+    this.contentEl.appendChild(gridEl);
+
+    // Scope label
+    const scopeEl = document.createElement('div');
+    scopeEl.className = 'ocop-socratic-banner-scope';
+    scopeEl.textContent = `범위: ${scopeLabel}`;
+    this.contentEl.appendChild(scopeEl);
 
     this.bannerEl.appendChild(this.contentEl);
 
@@ -102,6 +131,7 @@ export class SocraticBanner {
       this.bannerEl = null;
       this.contentEl = null;
     }
+    this.containerEl?.classList.remove('ocop-socratic-active');
     this.isExpanded = false;
   }
 

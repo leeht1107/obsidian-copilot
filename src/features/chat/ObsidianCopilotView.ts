@@ -14,6 +14,7 @@ import {
   type ContextUsageMeter,
   createInputToolbar,
   type ExternalContextSelector,
+  type SocraticLauncherButton,
   FileContextManager,
   ImageContextManager,
   type InstructionModeManager,
@@ -81,6 +82,7 @@ export class ObsidianCopilotView extends ItemView {
   private contextUsageMeter: ContextUsageMeter | null = null;
   private planBanner: PlanBanner | null = null;
   private socraticBanner: SocraticBanner | null = null;
+  private socraticLauncherButton: SocraticLauncherButton | null = null;
   private todoPanel: TodoPanel | null = null;
 
   constructor(leaf: WorkspaceLeaf, plugin: ObsidianCopilotPlugin) {
@@ -358,6 +360,7 @@ export class ObsidianCopilotView extends ItemView {
     this.webSearchToggle = toolbarComponents.webSearchToggle;
     this.mcpServerSelector = toolbarComponents.mcpServerSelector;
     this.permissionToggle = toolbarComponents.permissionToggle;
+    this.socraticLauncherButton = toolbarComponents.socraticLauncherButton;
 
     this.mcpServerSelector.setMcpService(this.plugin.mcpService);
 
@@ -450,9 +453,11 @@ export class ObsidianCopilotView extends ItemView {
       getPlanBanner: () => this.planBanner,
       showSocraticBanner: (scopeLabel, focusText) => {
         this.socraticBanner?.show(scopeLabel, focusText);
+        this.socraticLauncherButton?.setActive(true);
       },
       hideSocraticBanner: () => {
         this.socraticBanner?.hide();
+        this.socraticLauncherButton?.setActive(false);
       },
       generateId: () => this.generateId(),
       resetContextMeter: () => this.contextUsageMeter?.update(null),

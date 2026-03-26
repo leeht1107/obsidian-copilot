@@ -5,14 +5,16 @@
 
 .ocop-socratic-banner {
   margin: 0 12px 8px 12px;
-  border-radius: 6px;
-  background: rgba(124, 58, 237, 0.08);
-  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 10px;
+  background: rgba(35, 40, 66, 0.92);
+  border: 1px solid rgba(124, 155, 255, 0.22);
+  border-left: 3px solid #7c9bff;
   overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(124, 155, 255, 0.06);
 }
 
 .ocop-socratic-banner.expanded {
-  background: rgba(124, 58, 237, 0.05);
+  background: rgba(30, 35, 60, 0.95);
 }
 
 /* Header - clickable disclosure */
@@ -20,46 +22,93 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 9px 12px;
   cursor: pointer;
   user-select: none;
   transition: background 0.15s ease;
 }
 
 .ocop-socratic-banner-header:hover {
-  background: rgba(124, 58, 237, 0.1);
+  background: rgba(124, 155, 255, 0.08);
 }
 
-.ocop-socratic-banner-chevron {
-  font-size: 10px;
-  color: #7C3AED;
-  transition: transform 0.15s ease;
+.ocop-socratic-banner-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 .ocop-socratic-banner-title {
   font-size: 12px;
-  font-weight: 500;
-  color: #7C3AED;
+  font-weight: 600;
+  color: #a5b4fc;
+  flex: 1;
 }
 
 .ocop-socratic-banner-topic {
   font-weight: 400;
-  opacity: 0.8;
+  color: #6b7ea8;
+}
+
+.ocop-socratic-banner-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(124, 155, 255, 0.16);
+  color: #8fb4ff;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.ocop-socratic-banner-chevron {
+  font-size: 10px;
+  color: #7c9bff;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
 }
 
 /* Content area */
 .ocop-socratic-banner-content {
   padding: 0 12px 12px 12px;
-  border-top: 1px solid rgba(124, 58, 237, 0.15);
+  border-top: 1px solid rgba(124, 155, 255, 0.1);
 }
 
-.ocop-socratic-banner-content ul {
-  margin: 8px 0 0 0;
-  padding-left: 1.4em;
+/* 2-column rule card grid */
+.ocop-socratic-banner-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 10px;
 }
 
-.ocop-socratic-banner-content li {
-  font-size: 12px;
+.ocop-socratic-rule-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.ocop-socratic-rule-icon {
+  font-size: 13px;
+  flex-shrink: 0;
   line-height: 1.6;
+}
+
+.ocop-socratic-rule-card p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.55;
   color: var(--text-muted);
+}
+
+/* Scope line */
+.ocop-socratic-banner-scope {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #4a5270;
+  padding-left: 2px;
 }

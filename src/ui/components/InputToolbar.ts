@@ -339,7 +339,7 @@ export class QuizLauncherButton {
     this.container.empty();
     const button = this.container.createEl('button', {
       cls: 'ocop-quiz-launcher-btn',
-      text: 'Quiz',
+      text: '📝 퀴즈',
       attr: { 'aria-label': 'Open guided quiz setup' },
     });
     button.type = 'button';
@@ -352,6 +352,7 @@ export class QuizLauncherButton {
 export class SocraticLauncherButton {
   private container: HTMLElement;
   private callbacks: ToolbarCallbacks;
+  private buttonEl: HTMLButtonElement | null = null;
 
   constructor(parentEl: HTMLElement, callbacks: ToolbarCallbacks) {
     this.callbacks = callbacks;
@@ -363,13 +364,20 @@ export class SocraticLauncherButton {
     this.container.empty();
     const button = this.container.createEl('button', {
       cls: 'ocop-socratic-launcher-btn',
-      text: '학습 모드',
-      attr: { 'aria-label': '소크라테스 대화 시작' },
-    });
+      text: '🧠 학습 모드',
+      attr: { 'aria-label': '소크라테스 대화 시작', title: '질문 중심 학습 대화로 전환' },
+    }) as HTMLButtonElement;
     button.type = 'button';
     button.addEventListener('click', async () => {
       await this.callbacks.onOpenSocratic?.();
     });
+    this.buttonEl = button;
+  }
+
+  setActive(active: boolean): void {
+    if (!this.buttonEl) return;
+    this.buttonEl.classList.toggle('is-active', active);
+    this.buttonEl.textContent = active ? '🧠 학습 중' : '🧠 학습 모드';
   }
 }
 
@@ -880,8 +888,9 @@ export function createInputToolbar(
   const webSearchToggle = new WebSearchToggle(parentEl);
   const mcpServerSelector = new McpServerSelector(parentEl);
   const permissionToggle = new PermissionToggle(parentEl, callbacks);
-  const quizLauncherButton = new QuizLauncherButton(parentEl, callbacks);
-  const socraticLauncherButton = new SocraticLauncherButton(parentEl, callbacks);
+  const learningGroup = parentEl.createDiv({ cls: 'ocop-learning-group' });
+  const quizLauncherButton = new QuizLauncherButton(learningGroup, callbacks);
+  const socraticLauncherButton = new SocraticLauncherButton(learningGroup, callbacks);
 
   return {
     modelSelector,
