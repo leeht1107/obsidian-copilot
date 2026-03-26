@@ -202,6 +202,10 @@ export class ObsidianCopilotView extends ItemView {
   }
 
   private buildInputArea(inputContainerEl: HTMLElement) {
+    // Chips row: file chips (left) + quiz/learning buttons (right) — above the textarea border
+    const chipsRowEl = inputContainerEl.createDiv({ cls: 'ocop-chips-row' });
+    const learningGroupEl = chipsRowEl.createDiv({ cls: 'ocop-learning-group' });
+
     this.inputWrapper = inputContainerEl.createDiv({ cls: 'ocop-input-wrapper' });
 
     this.selectionIndicatorEl = this.inputWrapper.createDiv({ cls: 'ocop-selection-indicator' });
@@ -217,7 +221,7 @@ export class ObsidianCopilotView extends ItemView {
 
     this.fileContextManager = new FileContextManager(
       this.plugin.app,
-      inputContainerEl,
+      chipsRowEl,
       this.inputEl,
       {
         getExcludedTags: () => this.plugin.settings.excludedTags,
@@ -265,7 +269,7 @@ export class ObsidianCopilotView extends ItemView {
     );
 
     const inputToolbar = this.inputWrapper.createDiv({ cls: 'ocop-input-toolbar' });
-    const toolbarComponents = createInputToolbar(inputToolbar, {
+    const toolbarComponents = createInputToolbar(inputToolbar, learningGroupEl, {
       getSettings: () => ({
         model: this.plugin.settings.model,
         thinkingBudget: this.plugin.settings.thinkingBudget,

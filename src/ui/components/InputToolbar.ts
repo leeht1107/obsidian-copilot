@@ -877,6 +877,7 @@ export class WebSearchToggle {
 
 export function createInputToolbar(
   parentEl: HTMLElement,
+  learningGroupEl: HTMLElement,
   callbacks: ToolbarCallbacks
 ): {
   modelSelector: ModelSelector;
@@ -896,9 +897,8 @@ export function createInputToolbar(
   const webSearchToggle = new WebSearchToggle(parentEl);
   const mcpServerSelector = new McpServerSelector(parentEl);
   const permissionToggle = new PermissionToggle(parentEl, callbacks);
-  const learningGroup = parentEl.createDiv({ cls: 'ocop-learning-group' });
-  const quizLauncherButton = new QuizLauncherButton(learningGroup, callbacks);
-  const socraticLauncherButton = new SocraticLauncherButton(learningGroup, callbacks);
+  const quizLauncherButton = new QuizLauncherButton(learningGroupEl, callbacks);
+  const socraticLauncherButton = new SocraticLauncherButton(learningGroupEl, callbacks);
 
   return {
     modelSelector,

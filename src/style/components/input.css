@@ -4,6 +4,25 @@
   padding: 14px 0 0 0;
 }
 
+/* Chips row: file chips (left) + quiz/learning buttons (right) */
+.ocop-chips-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.ocop-chips-row .ocop-file-indicator {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.ocop-chips-row .ocop-learning-group {
+  flex-shrink: 0;
+}
+
 /* Input wrapper (border container) */
 .ocop-input-wrapper {
   position: relative;
@@ -67,7 +86,7 @@
   color: var(--text-muted);
 }
 
-/* Input toolbar */
+/* Input toolbar — model/thinking/web/tools/permission only (learning group moved to chips row) */
 .ocop-input-toolbar {
   display: flex;
   align-items: center;
@@ -78,7 +97,6 @@
 
 /* Learning group — Quiz + 학습 모드 grouped together */
 .ocop-learning-group {
-  margin-left: auto;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -98,6 +116,9 @@
   color: #bae6fd;
   border-radius: 7px;
   padding: 5px 10px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
   font: inherit;
   font-size: 12px;
   font-weight: 500;
@@ -127,7 +148,7 @@
   color: #a5b4fc;
   border-radius: 7px;
   padding: 5px 10px;
-  min-height: 44px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   font: inherit;
