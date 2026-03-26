@@ -442,7 +442,7 @@ The student has responded to the final synthesizing question.
 You MUST now output the ##SOCRATIC_SUMMARY## marker followed by ### 발견의 여정 요약.
 Do NOT ask any more questions. Close the session.`
         : `[SOCRATIC SESSION — MANDATORY]
-Exchange ${s.currentDepth}. NEVER give a direct answer. Respond ONLY with a probing question.${s.currentDepth >= s.maxDepth ? `\nThis is the final exchange. Ask one synthesizing question. After the student responds, output ##SOCRATIC_SUMMARY## + ### 발견의 여정 요약.` : ''}`;
+NEVER give a direct answer. Respond ONLY with a probing question.`;
       promptToSend = `${socraticControl}
 
 ${promptToSend}`;
