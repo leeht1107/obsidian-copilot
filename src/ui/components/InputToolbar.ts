@@ -11,7 +11,6 @@ import type {
 } from '../../core/types';
 import {
   COPILOT_MODELS,
-  DEFAULT_THINKING_BUDGET,
   THINKING_BUDGETS,
 } from '../../core/types';
 import { CHECK_ICON_SVG, MCP_ICON_SVG } from '../../features/chat/constants';
@@ -184,8 +183,7 @@ export class ThinkingBudgetSelector {
 
   private isEnabled(): boolean {
     const currentModel = this.callbacks.getSettings().model;
-    const defaultBudget = DEFAULT_THINKING_BUDGET[currentModel];
-    return defaultBudget !== undefined && defaultBudget !== 'off';
+    return COPILOT_MODELS.find((m) => m.value === currentModel)?.supportsReasoning ?? false;
   }
 
   private render() {
@@ -200,7 +198,7 @@ export class ThinkingBudgetSelector {
 
   private async cycleThinkingBudget() {
     if (!this.isEnabled()) return;
-    const levels: ThinkingBudget[] = ['off', 'low', 'medium', 'high', 'xhigh'];
+    const levels: ThinkingBudget[] = ['off', 'low', 'medium', 'high'];
     const current = this.callbacks.getSettings().thinkingBudget;
     const currentIndex = levels.indexOf(current);
     const next = levels[(currentIndex + 1) % levels.length];
