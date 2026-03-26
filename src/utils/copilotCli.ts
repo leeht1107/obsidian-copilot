@@ -237,3 +237,46 @@ export function findCopilotCLIPath(): string | null {
 
   return null;
 }
+
+/**
+ * On Windows, resolve a .cmd shim to [nodeExe, scriptPath] so we can
+ * spawn node directly, bypassing cmd.exe entirely.
+ *
+ * Why: `shell:true` on Windows passes all args as a single cmd.exe command
+ * string. Special characters in long prompts (quotes, %, ^, &, Korean text
+ * encoding mismatch) cause cmd.exe to misinterpret arguments, producing
+ * garbled output from the CLI. Invoking node directly avoids this entirely.
+ *
+ * Returns null if resolution fails (caller should fall back to shell:true).
+ */
+export function resolveCmdShim(cmdPath: string): [string, string] | null {
+  if (process.platform !== 'win32') return null;
+  if (!cmdPath.toLowerCase().endsWith('.cmd')) return null;
+
+  try {
+    const content = fs.readFileSync(cmdPath, 'utf8');
+    const cmdDir = path.dirname(cmdPath);
+
+    // npm shims end with a line like:
+    //   "%_prog%"  "%dp0%\node_modules\pkg\bin.js"  %*
+    // Find the first .js file reference followed by %*
+    for (const line of content.split(/\r?\n/)) {
+      const m = line.match(/"([^"]+\.js)"\s+%\*/i);
+      if (!m) continue;
+
+      let scriptPath = m[1];
+      // Replace %dp0%\ with the directory containing the .cmd file
+      scriptPath = scriptPath.replace(/%dp0%\\/gi, cmdDir + path.sep);
+
+      if (!isExistingFile(scriptPath)) continue;
+
+      // Prefer a node.exe bundled alongside the .cmd (e.g. nvm-windows)
+      const localNode = path.join(cmdDir, 'node.exe');
+      const nodeExe = isExistingFile(localNode) ? localNode : 'node';
+
+      return [nodeExe, scriptPath];
+    }
+  } catch { /* fall through */ }
+
+  return null;
+}

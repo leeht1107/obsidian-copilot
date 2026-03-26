@@ -5,7 +5,7 @@ import * as path from 'path';
 
 import type ObsidianCopilotPlugin from '../../main';
 import { stripCurrentNotePrefix } from '../../utils/context';
-import { findCopilotCLIPath } from '../../utils/copilotCli';
+import { findCopilotCLIPath, resolveCmdShim } from '../../utils/copilotCli';
 import { getEnhancedPath, parseEnvironmentVariables } from '../../utils/env';
 import { normalizePathForFilesystem } from '../../utils/path';
 import { buildContextFromHistory, getLastUserMessage } from '../../utils/session';
@@ -453,11 +453,15 @@ export class CopilotBridgeService {
     }
 
     const probePromise = new Promise<CopilotCliCapabilities>((resolve) => {
-      execFile(copilotPath, ['--help', 'all'], {
+      const probeShim = resolveCmdShim(copilotPath);
+      const [probeCmd, probeArgs] = probeShim
+        ? [probeShim[0], [probeShim[1], '--help', 'all']]
+        : [copilotPath, ['--help', 'all']];
+      execFile(probeCmd, probeArgs, {
         encoding: 'utf8',
         env: this.getCustomEnv(copilotPath),
-        // shell:true required on Windows to execute .cmd shim files (e.g. copilot.cmd)
-        shell: process.platform === 'win32',
+        // shell:true only needed as fallback when .cmd shim resolution fails
+        shell: !probeShim && process.platform === 'win32',
       }, (error, stdout, stderr) => {
         const helpText = typeof stdout === 'string' && stdout.trim().length > 0
           ? stdout
@@ -675,16 +679,21 @@ export class CopilotBridgeService {
     env: NodeJS.ProcessEnv
   ): AsyncGenerator<StreamChunk> {
     const cwd = this.getWorkingDirectory();
-    // shell:true is required on Windows to execute .cmd/.bat shim files
-    // (e.g. npm-installed CLIs). Ensure `command` is validated before
-    // reaching this point to mitigate shell metacharacter risks on Windows.
+    // On Windows, resolve .cmd shims to [node, script.js] and spawn node directly.
+    // This bypasses cmd.exe entirely, avoiding shell metacharacter/encoding issues
+    // when long prompts (containing Korean text, quotes, %, ^, etc.) are passed
+    // as arguments. shell:true is only used as fallback if shim resolution fails.
+    const cmdShim = resolveCmdShim(command);
+    const [spawnCmd, spawnArgs] = cmdShim
+      ? [cmdShim[0], [cmdShim[1], ...args]]
+      : [command, args];
     let child: ChildProcess;
     try {
-      child = spawn(command, args, {
+      child = spawn(spawnCmd, spawnArgs, {
         cwd,
         env,
         stdio: ['pipe', 'pipe', 'pipe'],
-        shell: process.platform === 'win32',
+        shell: !cmdShim && process.platform === 'win32',
       });
     } catch (spawnErr) {
       // spawn() throws synchronously for invalid args/cwd (e.g. EINVAL on Windows).
