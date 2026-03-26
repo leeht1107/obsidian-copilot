@@ -38,6 +38,12 @@
   background: rgba(124, 155, 255, 0.08);
 }
 
+.ocop-socratic-banner-header:focus-visible {
+  outline: 2px solid rgba(124, 155, 255, 0.8);
+  outline-offset: -2px;
+  border-radius: 6px;
+}
+
 .ocop-socratic-banner-icon {
   font-size: 14px;
   flex-shrink: 0;
@@ -49,6 +55,8 @@
   font-weight: 600;
   color: #a5b4fc;
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .ocop-socratic-banner-topic {
@@ -117,4 +125,11 @@
   font-size: 11px;
   color: var(--text-muted);
   padding-left: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ocop-socratic-banner-header,
+  .ocop-socratic-banner-chevron {
+    transition: none;
+  }
 }

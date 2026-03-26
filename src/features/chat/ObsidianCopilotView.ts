@@ -424,7 +424,12 @@ export class ObsidianCopilotView extends ItemView {
         },
         getTodoPanel: () => this.todoPanel,
       },
-      {}
+      {
+        onNewConversation: () => {
+          this.socraticBanner?.hide();
+          this.socraticLauncherButton?.setActive(false);
+        },
+      }
     );
 
     this.inputController = new InputController({

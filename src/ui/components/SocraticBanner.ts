@@ -19,6 +19,7 @@ export class SocraticBanner {
   private containerEl: HTMLElement | null = null;
   private bannerEl: HTMLElement | null = null;
   private contentEl: HTMLElement | null = null;
+  private liveRegion: HTMLElement | null = null;
   private isExpanded = false;
 
   /**
@@ -27,6 +28,11 @@ export class SocraticBanner {
    */
   mount(containerEl: HTMLElement): void {
     this.containerEl = containerEl;
+    this.liveRegion = document.createElement('div');
+    this.liveRegion.setAttribute('aria-live', 'polite');
+    this.liveRegion.setAttribute('aria-atomic', 'true');
+    this.liveRegion.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap';
+    containerEl.appendChild(this.liveRegion);
   }
 
   /**
@@ -43,6 +49,7 @@ export class SocraticBanner {
 
     this.isExpanded = false;
     this.containerEl.classList.add('ocop-socratic-active');
+    if (this.liveRegion) this.liveRegion.textContent = '소크라테스 학습 모드가 시작되었습니다.';
 
     this.bannerEl = document.createElement('div');
     this.bannerEl.className = 'ocop-socratic-banner';
@@ -137,6 +144,7 @@ export class SocraticBanner {
     }
     this.containerEl?.classList.remove('ocop-socratic-active');
     this.isExpanded = false;
+    if (this.liveRegion) this.liveRegion.textContent = '';
   }
 
   private toggle(): void {

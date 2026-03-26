@@ -367,7 +367,12 @@ export class SocraticLauncherButton {
     }) as HTMLButtonElement;
     button.type = 'button';
     button.addEventListener('click', async () => {
-      await this.callbacks.onOpenSocratic?.();
+      button.disabled = true;
+      try {
+        await this.callbacks.onOpenSocratic?.();
+      } finally {
+        button.disabled = false;
+      }
     });
     this.buttonEl = button;
   }

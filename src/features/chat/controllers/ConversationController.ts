@@ -134,6 +134,19 @@ export class ConversationController {
     this.deps.getExternalContextSelector()?.clearExternalContexts();
     this.deps.clearQueuedMessage();
 
+    // Clear quiz/socratic session state
+    state.quizSession = null;
+    state.socraticSession = null;
+
+    // Remove any active quiz answer panel (lives in inputContainer, not messagesEl)
+    const container = this.deps.getMessagesEl().parentElement;
+    const quizPanel = container?.querySelector('.ocop-quiz-answer-panel') as HTMLElement | null;
+    if (quizPanel) {
+      quizPanel.remove();
+      const inputWrapper = container?.querySelector('.ocop-input-wrapper') as HTMLElement | null;
+      if (inputWrapper) inputWrapper.style.display = '';
+    }
+
     this.callbacks.onNewConversation?.();
   }
 

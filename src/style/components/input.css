@@ -111,6 +111,11 @@
   transform: translateY(-1px);
 }
 
+.ocop-quiz-launcher-btn:focus-visible {
+  outline: 2px solid rgba(56, 189, 248, 0.8);
+  outline-offset: 2px;
+}
+
 /* 학습 모드 button */
 .ocop-socratic-launcher {
   display: flex;
@@ -148,6 +153,11 @@
 .ocop-socratic-launcher-btn.is-active:hover {
   background: rgba(59, 99, 177, 0.85);
   transform: translateY(-1px);
+}
+
+.ocop-socratic-launcher-btn:focus-visible {
+  outline: 2px solid rgba(124, 155, 255, 0.8);
+  outline-offset: 2px;
 }
 
 /* File indicator (attached files) */
@@ -304,4 +314,11 @@
 .ocop-input-instruction-mode {
   border-color: #38bdf8 !important;
   box-shadow: 0 0 0 1px #38bdf8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ocop-quiz-launcher-btn,
+  .ocop-socratic-launcher-btn {
+    transition: none;
+  }
 }
