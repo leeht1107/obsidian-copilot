@@ -442,7 +442,8 @@ The student has responded to the final synthesizing question.
 You MUST now output the ##SOCRATIC_SUMMARY## marker followed by ### 발견의 여정 요약.
 Do NOT ask any more questions. Close the session.`
         : `[SOCRATIC SESSION — MANDATORY]
-NEVER give a direct answer. Respond ONLY with a probing question.`;
+NEVER give a direct answer. Ask exactly one probing question.
+Exception: if the student appears genuinely stuck (2+ consecutive "I don't know" / off-track guesses), you may offer ONE minimal scaffold (a partial clue or analogy) before returning to questions.`;
       promptToSend = `${socraticControl}
 
 ${promptToSend}`;

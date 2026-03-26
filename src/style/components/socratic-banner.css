@@ -23,6 +23,12 @@
   align-items: center;
   gap: 8px;
   padding: 9px 12px;
+  min-height: 44px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
   cursor: pointer;
   user-select: none;
   transition: background 0.15s ease;
@@ -109,6 +115,6 @@
 .ocop-socratic-banner-scope {
   margin-top: 8px;
   font-size: 11px;
-  color: #4a5270;
+  color: var(--text-muted);
   padding-left: 2px;
 }

@@ -48,8 +48,11 @@ export class SocraticBanner {
     this.bannerEl.className = 'ocop-socratic-banner';
 
     // Header (clickable to toggle)
-    const headerEl = document.createElement('div');
+    const headerEl = document.createElement('button');
+    headerEl.type = 'button';
     headerEl.className = 'ocop-socratic-banner-header';
+    headerEl.setAttribute('aria-expanded', 'false');
+    headerEl.setAttribute('aria-controls', 'ocop-socratic-banner-content');
     headerEl.addEventListener('click', () => this.toggle());
 
     const iconEl = document.createElement('span');
@@ -82,6 +85,7 @@ export class SocraticBanner {
 
     // Content area (hidden by default)
     this.contentEl = document.createElement('div');
+    this.contentEl.id = 'ocop-socratic-banner-content';
     this.contentEl.className = 'ocop-socratic-banner-content';
     this.contentEl.style.display = 'none';
 
@@ -142,6 +146,9 @@ export class SocraticBanner {
 
   private updateDisplay(): void {
     if (!this.bannerEl || !this.contentEl) return;
+
+    const header = this.bannerEl.querySelector('.ocop-socratic-banner-header');
+    header?.setAttribute('aria-expanded', String(this.isExpanded));
 
     const chevron = this.bannerEl.querySelector('.ocop-socratic-banner-chevron');
     if (chevron) {

@@ -122,6 +122,9 @@
   color: #a5b4fc;
   border-radius: 7px;
   padding: 5px 10px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
   font: inherit;
   font-size: 12px;
   font-weight: 500;
