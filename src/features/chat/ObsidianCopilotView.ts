@@ -233,7 +233,7 @@ export class ObsidianCopilotView extends ItemView {
 
     this.imageContextManager = new ImageContextManager(
       this.plugin.app,
-      inputContainerEl,
+      chipsRowEl,
       this.inputEl,
       {
         onImagesChanged: () => this.renderer?.scrollToBottomIfNeeded(),
