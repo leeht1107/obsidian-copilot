@@ -104,6 +104,9 @@ async function testStdioServer(server: CopilotMcpServer): Promise<McpTestResult>
       child = spawn(cmd, args, {
         env: { ...process.env, ...config.env, PATH: getEnhancedPath(config.env?.PATH) },
         stdio: ['pipe', 'pipe', 'pipe'],
+        // shell:true is required on Windows to execute .cmd/.bat shim files
+        // (e.g. npm-installed CLIs like npx.cmd)
+        shell: process.platform === 'win32',
       });
 
       child.stdout?.on('data', (data) => {
