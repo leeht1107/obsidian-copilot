@@ -45,7 +45,7 @@ export const COPILOT_MODELS: ModelOption[] = [
 
   { value: 'gpt-4.1', label: 'gpt-4.1', costLabel: '0x', requiresEnablement: false, supportsReasoning: false, description: 'Stable general-purpose model.' },
   { value: 'gpt-5-mini', label: 'gpt-5 mini', costLabel: '0x', requiresEnablement: false, supportsReasoning: true, description: 'Fast default for coding and writing.' },
-  { value: 'gpt-5.4-mini', label: 'gpt-5.4 mini', costLabel: '0x', requiresEnablement: false, supportsReasoning: true, description: 'Fast lightweight model.' },
+  { value: 'gpt-5.4-mini', label: 'gpt-5.4 mini', costLabel: '0.33x', requiresEnablement: false, supportsReasoning: true, description: 'Fast lightweight model.' },
 
   { value: 'claude-haiku-4.5', label: 'claude haiku 4.5', costLabel: '0.33x', requiresEnablement: false, supportsReasoning: false, description: 'Low-cost Claude model for quick tasks.' },
   { value: 'grok-code-fast-1', label: 'grok code fast 1', costLabel: '0.33x', requiresEnablement: false, supportsReasoning: false, description: 'Fast coding model from xAI.' },
