@@ -345,8 +345,10 @@ export class CopilotBridgeService {
 
   private getWorkingDirectory(): string {
     const adapter = this.plugin.app.vault.adapter;
-    if ('basePath' in adapter && typeof adapter.basePath === 'string') {
-      return adapter.basePath;
+    if ('basePath' in adapter && typeof adapter.basePath === 'string' && adapter.basePath) {
+      // Normalize to strip Windows extended prefixes (\\?\) and MSYS paths (/c/Users/...)
+      // that cause spawn EINVAL when passed as cwd on Windows.
+      return normalizePathForFilesystem(adapter.basePath) || process.cwd();
     }
     return process.cwd();
   }
@@ -674,12 +676,25 @@ export class CopilotBridgeService {
     // shell:true is required on Windows to execute .cmd/.bat shim files
     // (e.g. npm-installed CLIs). Ensure `command` is validated before
     // reaching this point to mitigate shell metacharacter risks on Windows.
-    const child = spawn(command, args, {
-      cwd,
-      env,
-      stdio: ['pipe', 'pipe', 'pipe'],
-      shell: process.platform === 'win32',
-    });
+    let child: ChildProcess;
+    try {
+      child = spawn(command, args, {
+        cwd,
+        env,
+        stdio: ['pipe', 'pipe', 'pipe'],
+        shell: process.platform === 'win32',
+      });
+    } catch (spawnErr) {
+      // spawn() throws synchronously for invalid args/cwd (e.g. EINVAL on Windows).
+      // child.on('error') would never fire in this case.
+      yield {
+        type: 'error',
+        content:
+          `Failed to start Copilot CLI: ${spawnErr instanceof Error ? spawnErr.message : spawnErr}` +
+          `\n(command: ${command}, cwd: ${cwd})`,
+      };
+      return;
+    }
 
     this.currentProcess = child;
 
