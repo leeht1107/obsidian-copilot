@@ -456,6 +456,8 @@ export class CopilotBridgeService {
       execFile(copilotPath, ['--help', 'all'], {
         encoding: 'utf8',
         env: this.getCustomEnv(copilotPath),
+        // shell:true required on Windows to execute .cmd shim files (e.g. copilot.cmd)
+        shell: process.platform === 'win32',
       }, (error, stdout, stderr) => {
         const helpText = typeof stdout === 'string' && stdout.trim().length > 0
           ? stdout
