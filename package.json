@@ -1,6 +1,6 @@
 {
   "name": "obsidian-copilot",
-  "version": "0.2.103",
+  "version": "0.2.104",
   "description": "Obsidian Copilot - GitHub Copilot embedded in Obsidian sidebar",
   "main": "main.js",
   "scripts": {

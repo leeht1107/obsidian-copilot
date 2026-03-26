@@ -326,6 +326,11 @@ export class ObsidianCopilotView extends ItemView {
           return;
         }
 
+        if (quizResult.enableExternalTools) {
+          this.webSearchToggle?.setEnabled(true);
+          this.mcpServerSelector?.addMentionedServers(new Set(['context7']));
+        }
+
         await this.inputController?.sendMessage({
           content: quizResult.prompt,
           displayContentOverride: quizResult.displayContent,

@@ -7,6 +7,8 @@ export interface QuizSetupResult {
   displayContent: string;
   totalQuestions: number;
   focusText?: string;
+  /** True when difficulty is '상' — caller should enable web search and context7. */
+  enableExternalTools?: boolean;
 }
 
 function getBasename(path: string): string {
@@ -185,7 +187,7 @@ export class QuizSetupModal extends Modal {
       .addDropdown((dropdown) => {
         dropdown.addOption('하', '하 — 기본 암기/이해 확인');
         dropdown.addOption('중', '중 — 종합 이해 (기본값)');
-        dropdown.addOption('상', '상 — 심화 (외부 자료 기반 응용)');
+        dropdown.addOption('상', '상 — 심화 (Web + Context7 자동 활성화)');
         dropdown.setValue(this.difficulty).onChange((value: '하' | '중' | '상') => {
           this.difficulty = value;
         });
@@ -265,6 +267,7 @@ export class QuizSetupModal extends Modal {
       displayContent: displayLabel,
       totalQuestions: Number(this.questionCount),
       focusText: this.focusText || undefined,
+      enableExternalTools: this.difficulty === '상',
       prompt: [
         `Create a ${this.questionCount}-question quiz in Korean.`,
         scopeInstruction,

@@ -857,6 +857,11 @@ export class WebSearchToggle {
     return this.enabled;
   }
 
+  setEnabled(value: boolean): void {
+    this.enabled = value;
+    this.updateDisplay();
+  }
+
   updateDisplay() {
     if (!this.valueEl) return;
     this.valueEl.empty();
