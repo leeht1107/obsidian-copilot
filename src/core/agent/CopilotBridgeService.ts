@@ -334,6 +334,15 @@ export class CopilotBridgeService {
     return this.cachedCopilotPath;
   }
 
+  /**
+   * Clears the cached CLI path so the next call re-scans the filesystem.
+   * Call this after auto-installing the CLI so the new binary is picked up
+   * without requiring an Obsidian restart.
+   */
+  invalidatePathCache(): void {
+    this.cachedCopilotPath = undefined;
+  }
+
   private getWorkingDirectory(): string {
     const adapter = this.plugin.app.vault.adapter;
     if ('basePath' in adapter && typeof adapter.basePath === 'string') {

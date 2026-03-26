@@ -175,16 +175,22 @@ export function findCopilotCLIPath(): string | null {
   const binaryNames = isWindows ? ['copilot.cmd', 'copilot.exe'] : ['copilot'];
 
   // 1. 하드코딩 후보 경로
+  // On Windows, prefer env vars over os.homedir() path joining —
+  // APPDATA / LOCALAPPDATA are always correct even on non-standard installs.
+  const appData = getEnvValue('APPDATA') ?? path.join(home, 'AppData', 'Roaming');
+  const localAppData = getEnvValue('LOCALAPPDATA') ?? path.join(home, 'AppData', 'Local');
+
   const candidateDirs: string[] = isWindows
     ? [
-        path.join(home, 'AppData', 'Roaming', 'npm'),
+        // npm global bin — primary location after `npm install -g`
+        path.join(appData, 'npm'),
         // nvm-windows: NVM_SYMLINK is a system env var pointing to active Node dir
         getEnvValue('NVM_SYMLINK') ?? '',
         // nvm-windows: NVM_HOME stores all versions; active is via NVM_SYMLINK
         getEnvValue('NVM_HOME') ?? '',
         // LocalAppData nodejs locations (some installers / nvm-windows symlinks)
-        path.join(home, 'AppData', 'Local', 'Programs', 'nodejs'),
-        path.join(home, 'AppData', 'Local', 'Programs', 'node'),
+        path.join(localAppData, 'Programs', 'nodejs'),
+        path.join(localAppData, 'Programs', 'node'),
         // scoop shims
         path.join(home, 'scoop', 'shims'),
         path.join(getEnvValue('ProgramFiles') ?? 'C:\\Program Files', 'nodejs'),

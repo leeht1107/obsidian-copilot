@@ -88,6 +88,8 @@ export class SetupWizardModal extends Modal {
     });
 
     if (result.success) {
+      // Invalidate the cached null path so the newly installed CLI is found
+      this.plugin.agentService.invalidatePathCache();
       void this.plugin.agentService.prewarmCapabilities();
       this.phase = 'login';
     } else {
