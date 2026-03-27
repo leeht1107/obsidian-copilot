@@ -26,6 +26,7 @@ describe('TitleGenerationService', () => {
       expect.stringContaining('Generate a title for this conversation:'),
       {
         disableMcp: true,
+        skipResume: true,
         model: 'gpt-5.4-mini',
       }
     );

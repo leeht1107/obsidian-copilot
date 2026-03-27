@@ -31,6 +31,7 @@ export interface QueryOptions {
   mcpMentions?: Set<string>;
   enabledMcpServers?: Set<string>;
   disableMcp?: boolean;
+  skipResume?: boolean;
   planMode?: boolean;
   externalContextPaths?: string[];
   enableWebSearch?: boolean;
@@ -285,7 +286,7 @@ interface CopilotCliCapabilities {
 }
 
 interface RuntimeLocalMcpServerConfig {
-  type: 'stdio';
+  type?: 'stdio';
   command: string;
   args: string[];
   tools: string[];
@@ -319,7 +320,6 @@ function stripWrappingQuotes(value: string): string {
 export function buildRuntimeMcpServerConfig(config: McpServerConfig): RuntimeMcpServerConfig | null {
   if ('command' in config && typeof config.command === 'string') {
     const runtimeConfig: RuntimeLocalMcpServerConfig = {
-      type: 'stdio',
       command: config.command,
       args: Array.isArray(config.args) ? [...config.args] : [],
       tools: [...DEFAULT_RUNTIME_MCP_TOOLS],
@@ -731,7 +731,7 @@ export class CopilotBridgeService {
     if (capabilities.outputFormatJson) {
       args.push('--output-format', 'json');
     }
-    if (capabilities.resume) {
+    if (capabilities.resume && !queryOptions?.skipResume) {
       args.push('--resume', sessionId);
     }
     args.push('-p', fullPrompt, '-s');

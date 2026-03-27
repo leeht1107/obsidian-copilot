@@ -126,7 +126,6 @@ describe('CopilotBridgeService helpers', () => {
       expect(config).toEqual({
         mcpServers: {
           'sequential-thinking': {
-            type: 'stdio',
             command: 'npx',
             args: ['-y', '@modelcontextprotocol/server-sequential-thinking'],
             tools: ['*'],
