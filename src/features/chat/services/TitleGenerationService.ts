@@ -58,8 +58,12 @@ Generate a title for this conversation:`;
 
     try {
       let responseText = '';
+      const titleModel = this.plugin.settings.titleGenerationModel?.trim();
 
-      for await (const chunk of this.plugin.agentService.streamQuery(prompt)) {
+      for await (const chunk of this.plugin.agentService.streamQuery(prompt, {
+        disableMcp: true,
+        model: titleModel && titleModel !== 'auto' ? titleModel : undefined,
+      })) {
         if (abortController.signal.aborted) {
           await this.safeCallback(callback, conversationId, {
             success: false,

@@ -1,5 +1,7 @@
 import {
+  buildRuntimeMcpConfig,
   detectCopilotCliCapabilities,
+  isInvalidMcpConfigError,
   resolveCopilotAllowedTools,
   translateCopilotJsonEvent,
 } from '@/core/agent/CopilotBridgeService';
@@ -91,6 +93,63 @@ describe('CopilotBridgeService helpers', () => {
         'webfetch',
         'websearch',
       ]);
+    });
+  });
+
+  describe('buildRuntimeMcpConfig', () => {
+    it('adds required tools and explicit transport types for CLI runtime config', () => {
+      const config = buildRuntimeMcpConfig([
+        {
+          name: 'sequential-thinking',
+          config: { command: 'npx', args: ['-y', '@modelcontextprotocol/server-sequential-thinking'] },
+          enabled: true,
+          contextSaving: false,
+        },
+        {
+          name: 'context7',
+          config: {
+            type: 'http',
+            url: 'https://mcp.context7.com/mcp',
+            headers: { Authorization: 'Bearer token' },
+          },
+          enabled: true,
+          contextSaving: true,
+        },
+        {
+          name: 'disabled-server',
+          config: { command: 'node', args: ['server.js'] },
+          enabled: false,
+          contextSaving: false,
+        },
+      ]);
+
+      expect(config).toEqual({
+        mcpServers: {
+          'sequential-thinking': {
+            type: 'stdio',
+            command: 'npx',
+            args: ['-y', '@modelcontextprotocol/server-sequential-thinking'],
+            tools: ['*'],
+          },
+          context7: {
+            type: 'http',
+            url: 'https://mcp.context7.com/mcp',
+            headers: { Authorization: 'Bearer token' },
+            tools: ['*'],
+          },
+        },
+      });
+    });
+  });
+
+  describe('isInvalidMcpConfigError', () => {
+    it('detects CLI schema rejection messages', () => {
+      expect(
+        isInvalidMcpConfigError(
+          'Invalid MCP server configuration in --additional-mcp-config: mcpServers.context7: Invalid input'
+        )
+      ).toBe(true);
+      expect(isInvalidMcpConfigError('spawn EINVAL')).toBe(false);
     });
   });
 
