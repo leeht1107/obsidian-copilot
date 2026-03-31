@@ -247,7 +247,7 @@ export class SocraticSetupModal extends Modal {
         '  ### 발견의 여정 요약',
         '  In Korean: summarize the key insights the student arrived at THEMSELVES — quote their own words where possible. Acknowledge what they still need to explore. End with one open question for further reflection.',
         'All output must be in Korean.',
-        'START: Begin now by asking one open-ended question in Korean that surfaces what the student already believes about the topic. Do NOT introduce concepts — surface their existing assumptions.',
+        'START: Begin with a warm, brief greeting (e.g. "안녕하세요! 반가워요 😊"). Then ask the student which part of the material they want to explore or what they find curious/confusing. Do NOT jump into a specific topic question yet — let the student choose the starting point. Keep it to 2-3 sentences max.',
       ].filter(Boolean).join('\n'),
     };
   }
