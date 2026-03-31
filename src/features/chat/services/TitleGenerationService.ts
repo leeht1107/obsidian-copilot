@@ -86,10 +86,11 @@ Generate a title for this conversation:`;
         });
       }
     } catch (error) {
-      if (error instanceof Error && error.name !== 'AbortError') {
+      const msg = error instanceof Error ? error.message : 'Unknown error';
+      const isConfigError = msg.includes('not configured') || msg.includes('CLI');
+      if (error instanceof Error && error.name !== 'AbortError' && !isConfigError) {
         console.error('[TitleGeneration] Error generating title:', error.message);
       }
-      const msg = error instanceof Error ? error.message : 'Unknown error';
       await this.safeCallback(callback, conversationId, { success: false, error: msg });
     } finally {
       this.activeGenerations.delete(conversationId);
