@@ -9,7 +9,7 @@ import { setIcon } from 'obsidian';
 
 import type { Conversation } from '../../../core/types';
 import type ObsidianCopilotPlugin from '../../../main';
-import { type ExternalContextSelector, extractLastTodosFromMessages, type FileContextManager, type ImageContextManager, type McpServerSelector, type TodoPanel } from '../../../ui';
+import { dismissQuizAnswerPanel, type ExternalContextSelector, extractLastTodosFromMessages, type FileContextManager, type ImageContextManager, type McpServerSelector, type TodoPanel } from '../../../ui';
 import type { MessageRenderer } from '../rendering/MessageRenderer';
 import type { AsyncSubagentManager } from '../services/AsyncSubagentManager';
 import type { TitleGenerationService } from '../services/TitleGenerationService';
@@ -66,6 +66,13 @@ export class ConversationController {
   constructor(deps: ConversationControllerDeps, callbacks: ConversationCallbacks = {}) {
     this.deps = deps;
     this.callbacks = callbacks;
+  }
+
+  private dismissActiveQuizAnswerPanel(): void {
+    const container = this.deps.getMessagesEl().parentElement;
+    if (container) {
+      dismissQuizAnswerPanel(container);
+    }
   }
 
   // ============================================
@@ -138,14 +145,7 @@ export class ConversationController {
     state.quizSession = null;
     state.socraticSession = null;
 
-    // Remove any active quiz answer panel (lives in inputContainer, not messagesEl)
-    const container = this.deps.getMessagesEl().parentElement;
-    const quizPanel = container?.querySelector('.ocop-quiz-answer-panel') as HTMLElement | null;
-    if (quizPanel) {
-      quizPanel.remove();
-      const inputWrapper = container?.querySelector('.ocop-input-wrapper') as HTMLElement | null;
-      if (inputWrapper) inputWrapper.style.display = '';
-    }
+    this.dismissActiveQuizAnswerPanel();
 
     this.callbacks.onNewConversation?.();
   }
@@ -181,6 +181,7 @@ export class ConversationController {
     this.restorePlanModeState();
     state.quizSession = conversation.quizSession ?? null;
     state.socraticSession = conversation.socraticSession ?? null;
+    this.dismissActiveQuizAnswerPanel();
 
     const hasMessages = state.messages.length > 0;
     const fileCtx = this.deps.getFileContextManager();
@@ -259,6 +260,7 @@ export class ConversationController {
     this.restorePlanModeState();
     state.quizSession = conversation.quizSession ?? null;
     state.socraticSession = conversation.socraticSession ?? null;
+    this.dismissActiveQuizAnswerPanel();
 
     this.deps.getInputEl().value = '';
     this.deps.clearQueuedMessage();

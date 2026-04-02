@@ -40,6 +40,7 @@ export {
 export {
   QuizAnswerPanel,
   type QuizAnswerPanelOptions,
+  dismissQuizAnswerPanel,
   showQuizAnswerPanel,
 } from './QuizAnswerPanel';
 export {

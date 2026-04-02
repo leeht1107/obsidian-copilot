@@ -7,6 +7,12 @@
 
 import type { QuizQuestionMeta } from '../../core/types';
 
+const QUIZ_PANEL_DISMISS_KEY = '__ocopDismissQuizAnswerPanel__';
+
+type QuizAnswerPanelElement = HTMLElement & {
+  [QUIZ_PANEL_DISMISS_KEY]?: () => void;
+};
+
 /** Options for creating the quiz answer panel. */
 export interface QuizAnswerPanelOptions {
   containerEl: HTMLElement;
@@ -56,6 +62,7 @@ export class QuizAnswerPanel {
     }
 
     this.panelEl = this.createPanel();
+    (this.panelEl as QuizAnswerPanelElement)[QUIZ_PANEL_DISMISS_KEY] = () => this.handleCancel();
     if (this.inputContainer) {
       this.inputContainer.appendChild(this.panelEl);
     } else {
@@ -341,6 +348,7 @@ export class QuizAnswerPanel {
   private destroy(): void {
     if (this.isDestroyed) return;
     this.isDestroyed = true;
+    delete (this.panelEl as QuizAnswerPanelElement)[QUIZ_PANEL_DISMISS_KEY];
     this.panelEl.remove();
     if (this.inputWrapper) {
       this.inputWrapper.style.display = '';
@@ -364,4 +372,25 @@ export function showQuizAnswerPanel(
       onCancel: () => resolve({ cancelled: true }),
     });
   });
+}
+
+/** Dismisses the active quiz answer panel and restores the input wrapper. */
+export function dismissQuizAnswerPanel(containerEl: HTMLElement): boolean {
+  const panelEl = containerEl.querySelector('.ocop-quiz-answer-panel') as QuizAnswerPanelElement | null;
+  if (!panelEl) {
+    return false;
+  }
+
+  const dismiss = panelEl[QUIZ_PANEL_DISMISS_KEY];
+  if (typeof dismiss === 'function') {
+    dismiss();
+    return true;
+  }
+
+  panelEl.remove();
+  const inputWrapper = containerEl.querySelector('.ocop-input-wrapper') as HTMLElement | null;
+  if (inputWrapper) {
+    inputWrapper.style.display = '';
+  }
+  return true;
 }

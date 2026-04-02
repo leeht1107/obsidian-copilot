@@ -27,6 +27,43 @@ function createMockInputEl() {
   } as unknown as HTMLTextAreaElement;
 }
 
+function createMockChatContainer() {
+  const inputWrapper = { style: { display: '' } } as any;
+  let quizPanel: any = {
+    remove: jest.fn(() => {
+      quizPanel = null;
+    }),
+  };
+
+  const container = {
+    querySelector: jest.fn((selector: string) => {
+      if (selector === '.ocop-quiz-answer-panel') {
+        return quizPanel;
+      }
+      if (selector === '.ocop-input-wrapper') {
+        return inputWrapper;
+      }
+      return null;
+    }),
+  } as any;
+
+  const messagesEl = { parentElement: container } as any;
+
+  return {
+    container,
+    inputWrapper,
+    messagesEl,
+    attachQuizPanel: () => {
+      quizPanel = {
+        remove: jest.fn(() => {
+          quizPanel = null;
+        }),
+      };
+      return quizPanel;
+    },
+  };
+}
+
 // Helper to create mock image context manager
 function createMockImageContextManager() {
   return {
@@ -433,6 +470,81 @@ describe('InputController - Message Queue', () => {
       expect(deps.state.messages[0].content).toBe('Auto prompt');
       expect(deps.state.messages[0].hidden).toBe(true);
       expect(deps.renderer.addMessage).toHaveBeenCalledTimes(1);
+    });
+
+    describe('Mode switching cleanup', () => {
+      it('clears active quiz state and answer panel before starting socratic mode', async () => {
+        const { inputWrapper, messagesEl, container, attachQuizPanel } = createMockChatContainer();
+        const showSocraticBanner = jest.fn();
+
+        deps = createMockDeps({
+          getMessagesEl: () => messagesEl,
+          showSocraticBanner,
+        });
+        controller = new InputController(deps);
+        deps.state.quizSession = {
+          totalQuestions: 5,
+          currentQuestion: 2,
+          scopeLabel: '기존 퀴즈',
+        };
+        inputWrapper.style.display = 'none';
+        attachQuizPanel();
+
+        deps.plugin.agentService.query = jest.fn().mockImplementation(() => createMockStream([{ type: 'done' }]));
+
+        await controller.sendMessage({
+          content: '학습 모드로 전환',
+          socraticSessionInit: {
+            scopeLabel: '학습 범위',
+            focusText: '트랜잭션',
+          },
+        });
+
+        const prompt = (deps.plugin.agentService.query as jest.Mock).mock.calls[0][0] as string;
+        expect(prompt).not.toContain('You are continuing an active quiz.');
+        expect(deps.state.quizSession).toBeNull();
+        expect(deps.state.socraticSession?.scopeLabel).toBe('학습 범위');
+        expect(showSocraticBanner).toHaveBeenCalledWith('학습 범위', '트랜잭션');
+        expect(container.querySelector('.ocop-quiz-answer-panel')).toBeNull();
+        expect(inputWrapper.style.display).toBe('');
+      });
+
+      it('clears active socratic state before starting quiz mode', async () => {
+        const hideSocraticBanner = jest.fn();
+
+        deps = createMockDeps({
+          hideSocraticBanner,
+        });
+        controller = new InputController(deps);
+        deps.state.socraticSession = {
+          maxDepth: 20,
+          currentDepth: 4,
+          scopeLabel: '기존 학습',
+          focusText: '정규화',
+          isSummaryPhase: false,
+        };
+        deps.plugin.agentService.query = jest.fn().mockImplementation(() => createMockStream([{ type: 'done' }]));
+
+        await controller.sendMessage({
+          content: '새 퀴즈 시작',
+          quizSessionInit: {
+            totalQuestions: 3,
+            scopeLabel: '새 퀴즈',
+            focusText: 'PK',
+          },
+        });
+
+        const prompt = (deps.plugin.agentService.query as jest.Mock).mock.calls[0][0] as string;
+        expect(prompt).not.toContain('[SOCRATIC SESSION');
+        expect(deps.state.socraticSession).toBeNull();
+        expect(hideSocraticBanner).toHaveBeenCalled();
+        expect(deps.state.quizSession).toEqual({
+          totalQuestions: 3,
+          currentQuestion: 1,
+          scopeLabel: '새 퀴즈',
+          focusText: 'PK',
+        });
+      });
     });
   });
 

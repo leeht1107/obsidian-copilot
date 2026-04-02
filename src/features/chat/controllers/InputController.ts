@@ -24,6 +24,7 @@ import {
   type PlanBanner,
   QuizSetupModal,
   SocraticSetupModal,
+  dismissQuizAnswerPanel,
   showAskUserQuestionPanel,
   showPlanApprovalPanel,
   showQuizAnswerPanel,
@@ -117,6 +118,23 @@ export class InputController {
     this.deps = deps;
   }
 
+  private dismissActiveQuizAnswerPanel(): void {
+    const quizContainerEl = this.deps.getMessagesEl().parentElement;
+    if (quizContainerEl) {
+      dismissQuizAnswerPanel(quizContainerEl);
+    }
+  }
+
+  private exitQuizMode(): void {
+    this.deps.state.quizSession = null;
+    this.dismissActiveQuizAnswerPanel();
+  }
+
+  private exitSocraticMode(): void {
+    this.deps.state.socraticSession = null;
+    this.deps.hideSocraticBanner?.();
+  }
+
   // ============================================
   // Message Sending
   // ============================================
@@ -132,6 +150,7 @@ export class InputController {
     socraticSessionInit?: SocraticSessionInit;
   }): Promise<void> {
     const { plugin, state, renderer, streamController, selectionController, conversationController } = this.deps;
+    const conversationIdAtSend = state.currentConversationId;
     const inputEl = this.deps.getInputEl();
     const imageContextManager = this.deps.getImageContextManager();
     const fileContextManager = this.deps.getFileContextManager();
@@ -238,6 +257,8 @@ export class InputController {
     }
 
     if (options?.quizSessionInit) {
+      this.exitQuizMode();
+      this.exitSocraticMode();
       state.quizSession = {
         totalQuestions: options.quizSessionInit.totalQuestions,
         currentQuestion: 1,
@@ -247,6 +268,8 @@ export class InputController {
     }
 
     if (options?.socraticSessionInit) {
+      this.exitQuizMode();
+      this.exitSocraticMode();
       state.socraticSession = {
         maxDepth: 20,
         currentDepth: 1,
@@ -549,6 +572,11 @@ ${promptToSend}`;
         const quizContainerEl = this.deps.getMessagesEl().parentElement;
         if (quizContainerEl) {
           const result = await showQuizAnswerPanel(quizContainerEl, assistantMsg.quizQuestion);
+          const isStillCurrentConversation = state.currentConversationId === conversationIdAtSend;
+          const isAssistantMessageStillPresent = state.messages.some((msg) => msg.id === assistantMsg.id);
+          if (!isStillCurrentConversation || !isAssistantMessageStillPresent) {
+            return;
+          }
           if ('answer' in result) {
             setTimeout(() => void this.sendMessage({ content: result.answer }), 50);
           }
