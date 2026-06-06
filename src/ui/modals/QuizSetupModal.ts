@@ -153,7 +153,7 @@ export class QuizSetupModal extends Modal {
         if (this.activeFilePath) {
           dropdown.addOption('current-note', 'Current note');
         }
-        dropdown.addOption('note', 'Choose note');
+        dropdown.addOption('note', 'Choose multiple notes');
         dropdown.addOption('folder', 'Choose folder');
         dropdown.setValue(this.quizScope).onChange((value: LearningScope) => {
           this.quizScope = value;

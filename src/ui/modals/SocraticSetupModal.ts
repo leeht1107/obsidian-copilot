@@ -145,7 +145,7 @@ export class SocraticSetupModal extends Modal {
         if (this.activeFilePath) {
           dropdown.addOption('current-note', 'Current note');
         }
-        dropdown.addOption('note', 'Choose note');
+        dropdown.addOption('note', 'Choose multiple notes');
         dropdown.addOption('folder', 'Choose folder');
         dropdown.setValue(this.socraticScope).onChange((value: LearningScope) => {
           this.socraticScope = value;
