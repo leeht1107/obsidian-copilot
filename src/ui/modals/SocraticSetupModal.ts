@@ -15,6 +15,7 @@ import {
 export interface SocraticSetupResult {
   prompt: string;
   displayContent: string;
+  sourceInstruction: string;
   focusText?: string;
 }
 
@@ -218,8 +219,9 @@ export class SocraticSetupModal extends Modal {
 
     return {
       displayContent: buildSocraticDisplayContent({ displayScope, focusText }),
+      sourceInstruction: scopeInstruction,
       focusText,
-      prompt: buildSocraticPrompt({ scopeInstruction, focusText }),
+      prompt: buildSocraticPrompt({ scopeInstruction, focusText, supportLevel: 1 }),
     };
   }
 

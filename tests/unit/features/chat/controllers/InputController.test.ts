@@ -491,6 +491,27 @@ describe('InputController - Message Queue', () => {
       expect(prompt).not.toContain('You are continuing an active quiz');
     });
 
+    it('keeps quiz continuation prompts grounded in the original quiz source', async () => {
+      deps.plugin.agentService.query = jest.fn().mockImplementation(() => createMockStream([{ type: 'done' }]));
+      deps.state.quizSession = {
+        totalQuestions: 5,
+        currentQuestion: 1,
+        scopeLabel: '/quiz · 현재 노트 · db.md · 5문제 · 중 · 전체 범위',
+        difficulty: '중',
+        sourceInstruction: 'Use only the current note as ground truth source material: @db.md',
+      };
+
+      await controller.sendMessage({ content: 'C' });
+
+      const prompt = (deps.plugin.agentService.query as jest.Mock).mock.calls[0][0] as string;
+      expect(prompt).toContain('You are continuing an active quiz');
+      expect(prompt).toContain('@db.md');
+      expect(prompt).toContain('Do not use any knowledge outside the selected ground truth notes/folder');
+      expect(prompt).toContain('Continue the SAME quiz scope');
+      expect(prompt).toContain('## {N}/{T}번 문제');
+      expect(deps.state.quizSession?.currentQuestion).toBe(2);
+    });
+
     it('enables web search and context7 for high-difficulty quiz launches', () => {
       const setEnabled = jest.fn();
       const addMentionedServers = jest.fn();
@@ -537,6 +558,7 @@ describe('InputController - Message Queue', () => {
           socraticSessionInit: {
             scopeLabel: '학습 범위',
             focusText: '트랜잭션',
+            sourceInstruction: 'The following note is the source material for the dialogue: @db.md',
           },
         });
 
@@ -544,9 +566,35 @@ describe('InputController - Message Queue', () => {
         expect(prompt).not.toContain('You are continuing an active quiz.');
         expect(deps.state.quizSession).toBeNull();
         expect(deps.state.socraticSession?.scopeLabel).toBe('학습 범위');
+        expect(deps.state.socraticSession?.sourceInstruction).toBe('The following note is the source material for the dialogue: @db.md');
+        expect(deps.state.socraticSession?.supportLevel).toBe(1);
         expect(showSocraticBanner).toHaveBeenCalledWith('학습 범위', '트랜잭션');
         expect(container.querySelector('.ocop-quiz-answer-panel')).toBeNull();
         expect(inputWrapper.style.display).toBe('');
+      });
+
+      it('keeps Socratic continuation prompts grounded and adapts support when stuck', async () => {
+        deps.plugin.agentService.query = jest.fn().mockImplementation(() => createMockStream([{ type: 'done' }]));
+        deps.state.socraticSession = {
+          maxDepth: 20,
+          currentDepth: 2,
+          scopeLabel: '/socratic · 현재 노트 · db.md · 전체 범위',
+          focusText: 'CTE vs VIEW',
+          sourceInstruction: 'The following note is the source material for the dialogue: @db.md',
+          supportLevel: 1,
+          isSummaryPhase: false,
+        };
+
+        await controller.sendMessage({ content: '모르겠어요' });
+
+        const prompt = (deps.plugin.agentService.query as jest.Mock).mock.calls[0][0] as string;
+        expect(prompt).toContain('[SOCRATIC SESSION');
+        expect(prompt).toContain('Mark\'s digital teaching twin');
+        expect(prompt).toContain('@db.md');
+        expect(prompt).toContain('CTE vs VIEW');
+        expect(prompt).toContain('Current mode: rescue');
+        expect(prompt).toContain('Do not run a twenty-questions game');
+        expect(deps.state.socraticSession?.supportLevel).toBe(2);
       });
 
       it('clears active socratic state before starting quiz mode', async () => {
@@ -583,6 +631,8 @@ describe('InputController - Message Queue', () => {
           currentQuestion: 1,
           scopeLabel: '새 퀴즈',
           focusText: 'PK',
+          difficulty: undefined,
+          sourceInstruction: undefined,
         });
       });
     });

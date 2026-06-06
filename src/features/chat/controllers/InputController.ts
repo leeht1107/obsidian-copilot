@@ -12,6 +12,7 @@ import type { SlashCommandManager } from '../../../core/commands';
 import {
   buildQuizContinuationPrompt,
   buildSocraticContinuationPrompt,
+  inferSocraticSupportLevel,
   parseQuizDisplayContent,
   QUIZ_EXTERNAL_MCP_SERVERS,
 } from '../../../core/learning';
@@ -107,11 +108,14 @@ interface QuizSessionInit {
   totalQuestions: number;
   scopeLabel: string;
   focusText?: string;
+  difficulty?: '하' | '중' | '상';
+  sourceInstruction?: string;
 }
 
 interface SocraticSessionInit {
   scopeLabel: string;
   focusText?: string;
+  sourceInstruction?: string;
 }
 
 /**
@@ -213,6 +217,8 @@ export class InputController {
           totalQuestions: quizResult.totalQuestions,
           scopeLabel: quizResult.displayContent,
           focusText: quizResult.focusText,
+          difficulty: quizResult.difficulty,
+          sourceInstruction: quizResult.sourceInstruction,
         },
       });
       return;
@@ -239,6 +245,7 @@ export class InputController {
         socraticSessionInit: {
           scopeLabel: socraticResult.displayContent,
           focusText: socraticResult.focusText,
+          sourceInstruction: socraticResult.sourceInstruction,
         },
       });
       return;
@@ -295,6 +302,8 @@ export class InputController {
         currentQuestion: 1,
         scopeLabel: quizSessionInit.scopeLabel,
         focusText: quizSessionInit.focusText,
+        difficulty: quizSessionInit.difficulty,
+        sourceInstruction: quizSessionInit.sourceInstruction,
       };
     }
 
@@ -306,6 +315,8 @@ export class InputController {
         currentDepth: 1,
         scopeLabel: socraticSessionInit.scopeLabel,
         focusText: socraticSessionInit.focusText,
+        sourceInstruction: socraticSessionInit.sourceInstruction,
+        supportLevel: 1,
         isSummaryPhase: false,
       };
       this.deps.showSocraticBanner?.(
@@ -457,10 +468,13 @@ export class InputController {
 
     if (!quizSessionInit && state.quizSession) {
       const quizSession = state.quizSession;
-      const quizControl = buildQuizContinuationPrompt(
-        quizSession.currentQuestion,
-        quizSession.totalQuestions
-      );
+      const quizControl = buildQuizContinuationPrompt({
+        currentQuestion: quizSession.currentQuestion,
+        totalQuestions: quizSession.totalQuestions,
+        difficulty: quizSession.difficulty,
+        sourceInstruction: quizSession.sourceInstruction,
+        focusText: quizSession.focusText,
+      });
       promptToSend = `${quizControl}
 
 ${promptToSend}`;
@@ -468,7 +482,14 @@ ${promptToSend}`;
 
     if (!socraticSessionInit && state.socraticSession) {
       const s = state.socraticSession;
-      const socraticControl = buildSocraticContinuationPrompt(s.isSummaryPhase);
+      const supportLevel = inferSocraticSupportLevel(s.supportLevel, content);
+      state.socraticSession = { ...s, supportLevel };
+      const socraticControl = buildSocraticContinuationPrompt({
+        isSummaryPhase: s.isSummaryPhase,
+        sourceInstruction: s.sourceInstruction,
+        focusText: s.focusText,
+        supportLevel,
+      });
       promptToSend = `${socraticControl}
 
 ${promptToSend}`;

@@ -22,6 +22,14 @@ export interface ParsedQuizDisplayContent {
   focusText?: string;
 }
 
+export interface QuizContinuationPromptInput {
+  currentQuestion: number;
+  totalQuestions: number;
+  difficulty?: QuizDifficulty;
+  sourceInstruction?: string;
+  focusText?: string;
+}
+
 const DIFFICULTY_INSTRUCTIONS: Record<QuizDifficulty, string> = {
   '하': 'Ask simple recall/definition questions. Keep choices straightforward. Do not use any knowledge outside the selected ground truth notes/folder. If the selected material does not support a claim, do not invent it.',
   '중': 'Do not use any knowledge outside the selected ground truth notes/folder. If the selected material does not support a claim, do not invent it.',
@@ -104,22 +112,41 @@ A. ... B. ... C. ... D. ...`,
     'IMPORTANT: When answer choices differ only by whitespace, escaping, or subtle string differences, render each choice as an inline code span (backticks) or use explicit markers like "·" for spaces so the student can visually distinguish them. Markdown collapses consecutive spaces — never rely on multiple spaces to differentiate choices.',
     'Do NOT include "답안 형식: ..." lines. For free-text/short-answer questions, write "(자유 서술)" on its own line. For multi-select questions, write "(복수 선택 가능)" on its own line.',
     'For multiple-choice and multi-select questions, accept answers case-insensitively (for example b or B) and also accept the selected choice text when it is unambiguous.',
-    'After the student answers, respond in markdown with this exact structure: "### 정답 확인", then bullet lines for "정오", "정답", "해설", and "핵심 포인트".',
+    'After the student answers, respond in markdown with this exact structure: "### 정답 확인", then bullet lines for "정오", "정답", "해설", "오개념 진단", "핵심 포인트", and "다음 회복 질문". The recovery question should be short, source-grounded, and designed to repair the misconception without starting an unrelated topic.',
     'After the feedback block, add a horizontal rule (---) and then continue with the next question.',
     'Never dump or quote raw source material, pasted notes, markdown headings, XML tags, or long excerpts from the source. Only show the quiz question, the student feedback, the correct answer, and the explanation.',
   ].filter(Boolean).join(' ');
 }
 
-export function buildQuizContinuationPrompt(currentQuestion: number, totalQuestions: number): string {
+export function buildQuizContinuationPrompt(input: QuizContinuationPromptInput): string {
+  const {
+    currentQuestion,
+    totalQuestions,
+    difficulty,
+    sourceInstruction,
+    focusText,
+  } = input;
   const isFinalQuestion = currentQuestion >= totalQuestions;
   const nextQuestionNumber = Math.min(currentQuestion + 1, totalQuestions);
+  const difficultyInstruction = difficulty ? DIFFICULTY_INSTRUCTIONS[difficulty] : '';
+  const groundingInstructions = [
+    sourceInstruction,
+    difficultyInstruction,
+    focusText ? `Continue focusing on this topic: ${focusText}.` : '',
+    'Continue the SAME quiz scope. Do not switch to unrelated general knowledge topics.',
+    'If the source material is referenced with @ note paths, use those same notes as the only ground truth before creating the next question.',
+    'Use this EXACT structure for the next question: Line 1: "## {N}/{T}번 문제". Line 2: blank. Line 3: "#### {question text}". Line 4: blank. Lines 5+: answer choices or "(자유 서술)".',
+  ].filter(Boolean).join(' ');
 
   if (!isFinalQuestion) {
-    return `You are continuing an active quiz. The student is answering question ${currentQuestion} of ${totalQuestions}. Evaluate the student's answer in Korean, then ask exactly question ${nextQuestionNumber} of ${totalQuestions} in Korean. All output must be in Korean.`;
+    return `You are continuing an active quiz. The student is answering question ${currentQuestion} of ${totalQuestions}. Evaluate the student's answer in Korean, then ask exactly question ${nextQuestionNumber} of ${totalQuestions} in Korean. ${groundingInstructions} All output must be in Korean.`;
   }
 
   return `[SYSTEM INSTRUCTION — MANDATORY]
 This is the FINAL question (${currentQuestion}/${totalQuestions}). You MUST complete ALL three steps below in order. Do NOT stop after step 1.
+
+Source and scope constraints for this quiz:
+${groundingInstructions}
 
 Step 1: Evaluate the student's answer in Korean (### 정답 확인 format, same as before).
 
@@ -134,7 +161,9 @@ For EACH wrong answer, write:
 - **학생 답:** (student's choice)
 - **정답:** (correct answer)
 - **왜 틀렸나:** 1-2 sentence misconception explanation
+- **오개념 진단:** name the misconception or missing distinction
 - **핵심 정리:** correct concept summary with code snippet if relevant
+- **다음 회복 질문:** one short source-grounded question that helps repair the misconception
 
 End with: 💡 조교 한마디: encouragement + study tip based on error patterns.
 If ALL correct: congratulate and highlight the most important concept.

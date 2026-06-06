@@ -338,6 +338,13 @@ export class ObsidianCopilotView extends ItemView {
         await this.inputController?.sendMessage({
           content: quizResult.prompt,
           displayContentOverride: quizResult.displayContent,
+          quizSessionInit: {
+            totalQuestions: quizResult.totalQuestions,
+            scopeLabel: quizResult.displayContent,
+            focusText: quizResult.focusText,
+            difficulty: quizResult.difficulty,
+            sourceInstruction: quizResult.sourceInstruction,
+          },
         });
       },
       onOpenSocratic: async () => {
@@ -357,6 +364,7 @@ export class ObsidianCopilotView extends ItemView {
           socraticSessionInit: {
             scopeLabel: socraticResult.displayContent,
             focusText: socraticResult.focusText,
+            sourceInstruction: socraticResult.sourceInstruction,
           },
         });
       },

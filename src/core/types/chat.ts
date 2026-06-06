@@ -49,6 +49,8 @@ export interface QuizSessionState {
   currentQuestion: number;
   scopeLabel: string;
   focusText?: string;
+  difficulty?: '하' | '중' | '상';
+  sourceInstruction?: string;
 }
 
 export interface SocraticSessionState {
@@ -56,6 +58,8 @@ export interface SocraticSessionState {
   currentDepth: number;
   scopeLabel: string;
   focusText?: string;
+  sourceInstruction?: string;
+  supportLevel?: 0 | 1 | 2 | 3;
   isSummaryPhase: boolean;
 }
 

@@ -18,6 +18,8 @@ export interface QuizSetupResult {
   prompt: string;
   displayContent: string;
   totalQuestions: number;
+  difficulty: QuizDifficulty;
+  sourceInstruction: string;
   focusText?: string;
   /** True when difficulty is '상' — caller should enable web search and context7. */
   enableExternalTools?: boolean;
@@ -254,6 +256,8 @@ export class QuizSetupModal extends Modal {
         focusText,
       }),
       totalQuestions: Number(this.questionCount),
+      difficulty: this.difficulty,
+      sourceInstruction: scopeInstruction,
       focusText,
       enableExternalTools: shouldEnableQuizExternalTools(this.difficulty),
       prompt: buildQuizPrompt({

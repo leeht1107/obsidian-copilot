@@ -14,6 +14,7 @@ Have meaningful conversations with your codebase. Copilot understands your notes
 *   **🧠 Context-Aware**: Copilot knows about your current note and conversation history.
 *   **⚡ Fast & Lightweight**: Uses the official `copilot` CLI for speed and reliability.
 *   **📎 Smart Attachments**: Reference other notes using `@` to give Copilot more context.
+*   **🧑‍🏫 Learning Modes**: Use `/quiz` for source-grounded checks and `/socratic` for a Korean digital teaching twin that adapts between challenge, coaching, and rescue-style scaffolding.
 *   **✏️ Inline Edits**: Select text and ask Copilot to rewrite, summarize, or fix it in place.
 
 ---
@@ -67,7 +68,8 @@ If npm reports a permissions error on macOS/Linux, prefer fixing your npm global
 1.  **Open Chat**: Click the robot icon in the left ribbon or run "Open chat view" command.
 2.  **Ask Questions**: Type your question. Copilot will answer based on the context.
 3.  **Attach Files**: Type `@` to link specific notes or folders to the conversation.
-4.  **Inline Edit**: Select text in any note -> Run "Inline edit" command -> Describe changes.
+4.  **Study from Notes**: Run `/socratic` to start a source-grounded Korean tutoring dialogue, or `/quiz` to generate one-question-at-a-time checks from the selected note scope.
+5.  **Inline Edit**: Select text in any note -> Run "Inline edit" command -> Describe changes.
 
 ---
 
