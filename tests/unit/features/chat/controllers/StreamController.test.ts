@@ -285,6 +285,49 @@ describe('StreamController - Text Content', () => {
         ].join('\n'),
       });
     });
+
+    it('preserves quiz question metadata when tool reads precede the final quiz text', async () => {
+      const msg = createTestMessage();
+      deps.state.currentContentEl = createMockElement();
+
+      await controller.handleStreamChunk(
+        { type: 'tool_use', id: 'tool-1', name: 'Read', input: { file_path: 'Week14/notes/a.md' } },
+        msg
+      );
+      await controller.handleStreamChunk(
+        { type: 'tool_result', id: 'tool-1', content: 'source note content' },
+        msg
+      );
+      await controller.handleStreamChunk({
+        type: 'text',
+        content: [
+          '## 1/5번 문제',
+          '',
+          '#### 이름 없는 인라인뷰에서 노트가 지적한 통증이 아닌 것은?',
+          '',
+          'A. 가독성 문제',
+          'B. 의도 불명 문제',
+          'C. 수정 부담 문제',
+          'D. 성능 향상',
+        ].join('\n'),
+      }, msg);
+
+      await controller.finalizeCurrentTextBlock(msg);
+
+      expect(msg.quizQuestion).toEqual({
+        current: 1,
+        total: 5,
+        multiSelect: false,
+        freeText: false,
+        options: [
+          { label: 'A', text: '가독성 문제' },
+          { label: 'B', text: '의도 불명 문제' },
+          { label: 'C', text: '수정 부담 문제' },
+          { label: 'D', text: '성능 향상' },
+        ],
+      });
+      expect(msg.contentBlocks?.some((block) => block.type === 'tool_use')).toBe(true);
+    });
   });
 
   describe('Socratic summary parsing', () => {

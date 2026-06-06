@@ -512,6 +512,59 @@ describe('InputController - Message Queue', () => {
       expect(deps.state.quizSession?.currentQuestion).toBe(2);
     });
 
+    it('injects the exact previous quiz question when grading a bare answer after progression', async () => {
+      deps.plugin.agentService.query = jest.fn().mockImplementation(() => createMockStream([{ type: 'done' }]));
+      deps.state.quizSession = {
+        totalQuestions: 5,
+        currentQuestion: 2,
+        scopeLabel: '/quiz · 폴더 · Week14/notes · 5문제 · 중 · 전체 범위',
+        difficulty: '중',
+        sourceInstruction: 'Use only these selected notes as ground truth source material: @Week14/notes/a.md, @Week14/notes/b.md',
+      };
+      deps.state.addMessage({
+        id: 'assistant-q1',
+        role: 'assistant',
+        content: '',
+        timestamp: Date.now(),
+        contentBlocks: [{
+          type: 'text',
+          content: [
+            '## 1/5번 문제',
+            '',
+            '#### 이름 없는 인라인뷰(중첩)에서 노트가 지적한 통증이 아닌 것은 무엇입니까?',
+            '',
+            'A. 가독성 문제 — 읽는 순서와 실행 순서가 반대여서 혼란이 생긴다.',
+            'B. 의도 불명 문제 — 서브쿼리의 목적이 코드만으로 드러나지 않는다.',
+            'C. 수정 부담 문제 — 조건을 바꾸려면 깊은 괄호 안을 찾아 여러 곳을 고쳐야 한다.',
+            'D. 성능 향상 — 중첩으로 인해 실행 속도가 항상 빨라진다.',
+          ].join('\n'),
+        }],
+        quizQuestion: {
+          current: 1,
+          total: 5,
+          multiSelect: false,
+          freeText: false,
+          options: [
+            { label: 'A', text: '가독성 문제 — 읽는 순서와 실행 순서가 반대여서 혼란이 생긴다.' },
+            { label: 'B', text: '의도 불명 문제 — 서브쿼리의 목적이 코드만으로 드러나지 않는다.' },
+            { label: 'C', text: '수정 부담 문제 — 조건을 바꾸려면 깊은 괄호 안을 찾아 여러 곳을 고쳐야 한다.' },
+            { label: 'D', text: '성능 향상 — 중첩으로 인해 실행 속도가 항상 빨라진다.' },
+          ],
+        },
+      });
+
+      await controller.sendMessage({ content: 'D' });
+
+      const prompt = (deps.plugin.agentService.query as jest.Mock).mock.calls[0][0] as string;
+      expect(prompt).toContain('student is answering question 1 of 5');
+      expect(prompt).toContain('ask exactly question 2 of 5');
+      expect(prompt).toContain('<quiz_question_to_grade>');
+      expect(prompt).toContain('이름 없는 인라인뷰(중첩)');
+      expect(prompt).toContain('D. 성능 향상 — 중첩으로 인해 실행 속도가 항상 빨라진다.');
+      expect(prompt).toContain('Use <quiz_question_to_grade> as the grading target');
+      expect(deps.state.quizSession?.currentQuestion).toBe(3);
+    });
+
     it('enables web search and context7 for high-difficulty quiz launches', () => {
       const setEnabled = jest.fn();
       const addMentionedServers = jest.fn();

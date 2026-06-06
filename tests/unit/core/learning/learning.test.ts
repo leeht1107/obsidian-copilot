@@ -57,6 +57,34 @@ describe('learning helpers', () => {
       expect(prompt).toContain('CTE vs VIEW');
     });
 
+    it('includes exact previous quiz question context when grading a bare answer', () => {
+      const prompt = buildQuizContinuationPrompt({
+        currentQuestion: 2,
+        totalQuestions: 5,
+        difficulty: '중',
+        questionContext: {
+          questionNumber: 1,
+          totalQuestions: 5,
+          questionText: [
+            '## 1/5번 문제',
+            '',
+            '#### 이름 없는 인라인뷰에서 노트가 지적한 통증이 아닌 것은?',
+            '',
+            'A. 가독성 문제',
+            'B. 의도 불명 문제',
+            'C. 수정 부담 문제',
+            'D. 성능 향상',
+          ].join('\n'),
+        },
+      });
+
+      expect(prompt).toContain('student is answering question 1 of 5');
+      expect(prompt).toContain('ask exactly question 2 of 5');
+      expect(prompt).toContain('<quiz_question_to_grade>');
+      expect(prompt).toContain('D. 성능 향상');
+      expect(prompt).toContain('source notes only as the answer key/ground truth');
+    });
+
     it('keeps Socratic continuations constrained to Korean', () => {
       expect(buildSocraticContinuationPrompt(false)).toContain('All output must be in Korean');
       expect(buildSocraticContinuationPrompt(true)).toContain('All output must be in Korean');

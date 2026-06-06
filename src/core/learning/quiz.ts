@@ -28,6 +28,13 @@ export interface QuizContinuationPromptInput {
   difficulty?: QuizDifficulty;
   sourceInstruction?: string;
   focusText?: string;
+  questionContext?: QuizQuestionContext;
+}
+
+export interface QuizQuestionContext {
+  questionNumber: number;
+  totalQuestions: number;
+  questionText: string;
 }
 
 const DIFFICULTY_INSTRUCTIONS: Record<QuizDifficulty, string> = {
@@ -125,11 +132,24 @@ export function buildQuizContinuationPrompt(input: QuizContinuationPromptInput):
     difficulty,
     sourceInstruction,
     focusText,
+    questionContext,
   } = input;
-  const isFinalQuestion = currentQuestion >= totalQuestions;
-  const nextQuestionNumber = Math.min(currentQuestion + 1, totalQuestions);
+  const questionToGrade = questionContext?.questionNumber ?? currentQuestion;
+  const quizTotal = questionContext?.totalQuestions ?? totalQuestions;
+  const isFinalQuestion = questionToGrade >= quizTotal;
+  const nextQuestionNumber = Math.min(questionToGrade + 1, quizTotal);
   const difficultyInstruction = difficulty ? DIFFICULTY_INSTRUCTIONS[difficulty] : '';
+  const questionContextInstruction = questionContext
+    ? [
+      'Grade this exact quiz question from the previous assistant turn before creating any next question:',
+      '<quiz_question_to_grade>',
+      questionContext.questionText,
+      '</quiz_question_to_grade>',
+      'The student answer is in the <query> block below. Use <quiz_question_to_grade> as the grading target and the selected source notes only as the answer key/ground truth.',
+    ].join('\n')
+    : '';
   const groundingInstructions = [
+    questionContextInstruction,
     sourceInstruction,
     difficultyInstruction,
     focusText ? `Continue focusing on this topic: ${focusText}.` : '',
@@ -139,11 +159,11 @@ export function buildQuizContinuationPrompt(input: QuizContinuationPromptInput):
   ].filter(Boolean).join(' ');
 
   if (!isFinalQuestion) {
-    return `You are continuing an active quiz. The student is answering question ${currentQuestion} of ${totalQuestions}. Evaluate the student's answer in Korean, then ask exactly question ${nextQuestionNumber} of ${totalQuestions} in Korean. ${groundingInstructions} All output must be in Korean.`;
+    return `You are continuing an active quiz. The student is answering question ${questionToGrade} of ${quizTotal}. Evaluate the student's answer in Korean, then ask exactly question ${nextQuestionNumber} of ${quizTotal} in Korean. ${groundingInstructions} All output must be in Korean.`;
   }
 
   return `[SYSTEM INSTRUCTION — MANDATORY]
-This is the FINAL question (${currentQuestion}/${totalQuestions}). You MUST complete ALL three steps below in order. Do NOT stop after step 1.
+This is the FINAL question (${questionToGrade}/${quizTotal}). You MUST complete ALL three steps below in order. Do NOT stop after step 1.
 
 Source and scope constraints for this quiz:
 ${groundingInstructions}
@@ -151,8 +171,8 @@ ${groundingInstructions}
 Step 1: Evaluate the student's answer in Korean (### 정답 확인 format, same as before).
 
 Step 2: Show overall score:
-### 퀴즈 결과: N/${totalQuestions} 정답 (N%)
-Count ALL correct answers from questions 1-${totalQuestions} in this conversation.
+### 퀴즈 결과: N/${quizTotal} 정답 (N%)
+Count ALL correct answers from questions 1-${quizTotal} in this conversation.
 
 Step 3: Provide wrong-answer review as 조교 (teaching assistant):
 ### 오답 복습 정리

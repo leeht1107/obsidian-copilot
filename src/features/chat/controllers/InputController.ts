@@ -15,6 +15,7 @@ import {
   inferSocraticSupportLevel,
   parseQuizDisplayContent,
   QUIZ_EXTERNAL_MCP_SERVERS,
+  type QuizQuestionContext,
 } from '../../../core/learning';
 import { isCommandBlocked } from '../../../core/security/BlocklistChecker';
 import { TOOL_BASH } from '../../../core/tools/toolNames';
@@ -148,6 +149,60 @@ export class InputController {
   private enableQuizExternalTools(): void {
     this.deps.getWebSearchToggle()?.setEnabled?.(true);
     this.deps.getMcpServerSelector()?.addMentionedServers(new Set(QUIZ_EXTERNAL_MCP_SERVERS));
+  }
+
+  private getLatestQuizQuestionContext(
+    currentQuestion: number,
+    totalQuestions: number
+  ): QuizQuestionContext | undefined {
+    for (let i = this.deps.state.messages.length - 1; i >= 0; i -= 1) {
+      const msg = this.deps.state.messages[i];
+      if (msg.role !== 'assistant' || !msg.quizQuestion) {
+        continue;
+      }
+
+      const questionNumber = msg.quizQuestion.current;
+      const matchesActiveQuestion = questionNumber === currentQuestion || questionNumber === currentQuestion - 1;
+      if (!matchesActiveQuestion || msg.quizQuestion.total !== totalQuestions) {
+        continue;
+      }
+
+      const questionHeaderPattern = new RegExp(`^##\\s*${questionNumber}\\s*/\\s*${totalQuestions}번 문제`, 'im');
+      const textBlock = [...(msg.contentBlocks ?? [])]
+        .reverse()
+        .find((block): block is { type: 'text'; content: string } =>
+          block.type === 'text' && questionHeaderPattern.test(block.content)
+        );
+      if (!textBlock) {
+        return undefined;
+      }
+
+      return {
+        questionNumber,
+        totalQuestions,
+        questionText: this.extractQuizQuestionBlock(textBlock.content, questionNumber, totalQuestions),
+      };
+    }
+
+    return undefined;
+  }
+
+  private extractQuizQuestionBlock(content: string, questionNumber: number, totalQuestions: number): string {
+    const lines = content.replace(/\r\n/g, '\n').split('\n');
+    const headerPattern = new RegExp(`^##\\s*${questionNumber}\\s*/\\s*${totalQuestions}번 문제`, 'i');
+    const startIndex = lines.findIndex((line) => headerPattern.test(line.trim()));
+    if (startIndex === -1) {
+      return content.trim();
+    }
+
+    const nextHeaderIndex = lines.findIndex((line, index) =>
+      index > startIndex && /^##\s*\d+\s*\/\s*\d+번 문제/i.test(line.trim())
+    );
+    const questionLines = nextHeaderIndex === -1
+      ? lines.slice(startIndex)
+      : lines.slice(startIndex, nextHeaderIndex);
+
+    return questionLines.join('\n').trim();
   }
 
   private inferQuizSessionInit(displayContent?: string): QuizSessionInit | undefined {
@@ -468,12 +523,17 @@ export class InputController {
 
     if (!quizSessionInit && state.quizSession) {
       const quizSession = state.quizSession;
+      const questionContext = this.getLatestQuizQuestionContext(
+        quizSession.currentQuestion,
+        quizSession.totalQuestions
+      );
       const quizControl = buildQuizContinuationPrompt({
         currentQuestion: quizSession.currentQuestion,
         totalQuestions: quizSession.totalQuestions,
         difficulty: quizSession.difficulty,
         sourceInstruction: quizSession.sourceInstruction,
         focusText: quizSession.focusText,
+        questionContext,
       });
       promptToSend = `${quizControl}
 
