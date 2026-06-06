@@ -38,22 +38,22 @@ export {
   showPlanApprovalPanel,
 } from './PlanApprovalPanel';
 export {
-  QuizAnswerPanel,
-  type QuizAnswerPanelOptions,
-  dismissQuizAnswerPanel,
-  showQuizAnswerPanel,
-} from './QuizAnswerPanel';
-export {
   PlanBanner,
   type PlanBannerOptions,
 } from './PlanBanner';
-export { SocraticBanner } from './SocraticBanner';
+export {
+  dismissQuizAnswerPanel,
+  QuizAnswerPanel,
+  type QuizAnswerPanelOptions,
+  showQuizAnswerPanel,
+} from './QuizAnswerPanel';
 export { hideSelectionHighlight, showSelectionHighlight } from './SelectionHighlight';
 export {
   SlashCommandDropdown,
   type SlashCommandDropdownCallbacks,
   type SlashCommandDropdownOptions,
 } from './SlashCommandDropdown';
+export { SocraticBanner } from './SocraticBanner';
 export {
   TodoPanel,
 } from './TodoPanel';

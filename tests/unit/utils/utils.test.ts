@@ -2,9 +2,9 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
+import { findCopilotCLIPath, resolveCmdShim } from '@/utils/copilotCli';
 import { parseEnvironmentVariables } from '@/utils/env';
 import { appendMarkdownSnippet } from '@/utils/markdown';
-import { findCopilotCLIPath } from '@/utils/copilotCli';
 import {
   expandHomePath,
   getPathAccessType,
@@ -460,6 +460,8 @@ describe('utils.ts', () => {
     });
 
     describe('on Windows', () => {
+      const winPath = path.win32;
+
       beforeEach(() => {
         Object.defineProperty(process, 'platform', { value: 'win32' });
         process.env.ProgramFiles = 'C:\\Program Files';
@@ -477,24 +479,41 @@ describe('utils.ts', () => {
 
       it('should return first matching Windows Copilot executable', () => {
         jest.spyOn(os, 'homedir').mockReturnValue('C:\\Users\\test');
-        const exePath = path.join('C:\\Users\\test', 'AppData', 'Roaming', 'npm', 'copilot.exe');
+        const exePath = winPath.join('C:\\Users\\test', 'AppData', 'Roaming', 'npm', 'copilot.exe');
         mockExistingFile(exePath);
 
         expect(findCopilotCLIPath()).toBe(exePath);
       });
 
+      it('should prefer the npm .cmd shim on Windows', () => {
+        const cmdPath = winPath.join('C:\\Users\\test\\AppData\\Roaming', 'npm', 'copilot.cmd');
+        const exePath = winPath.join('C:\\Users\\test\\AppData\\Roaming', 'npm', 'copilot.exe');
+        mockExistingFile(cmdPath, exePath);
+
+        expect(findCopilotCLIPath()).toBe(cmdPath);
+      });
+
       it('should find Copilot CLI in custom npm global path via npm_config_prefix', () => {
         process.env.npm_config_prefix = 'D:\\nodejs\\node_global';
-        const expectedPath = path.join('D:\\nodejs\\node_global', 'copilot.exe');
+        const expectedPath = winPath.join('D:\\nodejs\\node_global', 'copilot.exe');
         mockExistingFile(expectedPath);
 
         expect(findCopilotCLIPath()).toBe(expectedPath);
       });
 
       it('should resolve Copilot CLI from PATH on Windows', () => {
-        const expectedPath = path.join('C:\\Tools', 'copilot.exe');
+        const expectedPath = winPath.join('C:\\Tools', 'copilot.exe');
         mockExistingFile(expectedPath);
         process.env.PATH = 'C:\\Tools;C:\\Windows\\System32';
+
+        expect(findCopilotCLIPath()).toBe(expectedPath);
+      });
+
+      it('should expand tilde PATH entries with Windows separators', () => {
+        jest.spyOn(os, 'homedir').mockReturnValue('C:\\Users\\test');
+        const expectedPath = winPath.join('C:\\Users\\test', 'bin', 'copilot.cmd');
+        mockExistingFile(expectedPath);
+        process.env.PATH = '~\\bin;C:\\Windows\\System32';
 
         expect(findCopilotCLIPath()).toBe(expectedPath);
       });
@@ -507,13 +526,27 @@ describe('utils.ts', () => {
       });
 
       it('should not return a directory path even if it exists', () => {
-        const dirPath = path.join('C:\\Users\\test', 'AppData', 'Roaming', 'npm', 'copilot.exe');
+        const dirPath = winPath.join('C:\\Users\\test', 'AppData', 'Roaming', 'npm', 'copilot.exe');
         jest.spyOn(fs, 'existsSync').mockImplementation((p: any) => p === dirPath);
         jest.spyOn(fs, 'statSync').mockImplementation(() => ({
           isFile: () => false,
         }) as fs.Stats);
 
         expect(findCopilotCLIPath()).toBeNull();
+      });
+
+      it('should resolve npm .cmd shims with Windows path semantics', () => {
+        const cmdDir = winPath.join('C:\\Users\\test\\AppData\\Roaming', 'npm');
+        const cmdPath = winPath.join(cmdDir, 'copilot.cmd');
+        const scriptPath = winPath.join(cmdDir, 'node_modules', '@github', 'copilot', 'dist', 'cli.js');
+        const nodePath = winPath.join(cmdDir, 'node.exe');
+
+        jest.spyOn(fs, 'readFileSync').mockImplementation(() => (
+          '@"%dp0%\\node.exe" "%dp0%\\node_modules\\@github\\copilot\\dist\\cli.js" %*\r\n'
+        ) as any);
+        mockExistingFile(scriptPath, nodePath);
+
+        expect(resolveCmdShim(cmdPath)).toEqual([nodePath, scriptPath]);
       });
     });
   });

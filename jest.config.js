@@ -15,6 +15,8 @@ const baseConfig = {
   transformIgnorePatterns: [
     'node_modules/(?!(@anthropic-ai/claude-agent-sdk)/)',
   ],
+  modulePathIgnorePatterns: ['<rootDir>/.claude/'],
+  testPathIgnorePatterns: ['<rootDir>/.claude/'],
 };
 
 module.exports = {
@@ -35,4 +37,5 @@ module.exports = {
     '!src/**/*.d.ts',
   ],
   coverageDirectory: 'coverage',
+  watchPathIgnorePatterns: ['<rootDir>/.claude/'],
 };

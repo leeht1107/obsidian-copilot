@@ -1,14 +1,15 @@
 import type {
   ChatMessage,
-  ObsidianCopilotSettings,
   Conversation,
   ConversationMeta,
-  EnvSnippet, StreamChunk,
-  ToolCallInfo
+  EnvSnippet,
+  ObsidianCopilotSettings,
+  StreamChunk,
+  ToolCallInfo,
 } from '@/core/types';
 import {
   DEFAULT_SETTINGS,
-  VIEW_TYPE_OBSIDIAN_COPILOT
+  VIEW_TYPE_OBSIDIAN_COPILOT,
 } from '@/core/types';
 
 describe('types.ts', () => {

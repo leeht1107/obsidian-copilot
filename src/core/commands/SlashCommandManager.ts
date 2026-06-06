@@ -7,7 +7,7 @@
 
 import { exec } from 'child_process';
 import type { App } from 'obsidian';
-import { TFile } from 'obsidian';
+import type { TFile } from 'obsidian';
 
 import { getEnhancedPath } from '../../utils/env';
 import { parseSlashCommandContent } from '../../utils/slashCommand';
@@ -158,6 +158,7 @@ export class SlashCommandManager {
    */
   private replaceArgumentPlaceholders(content: string, args: string): string {
     const argParts = this.parseArguments(args);
+    const bashSentinel = '\uE000';
 
     // Collect bash inline blocks (!`...`) and replace with unique placeholders.
     // Args inside bash blocks are shell-escaped to prevent injection.
@@ -172,7 +173,7 @@ export class SlashCommandManager {
       block = block.replace(/\$\d+/g, '');
       const idx = bashBlocks.length;
       bashBlocks.push(block);
-      return `\x00BASH${idx}\x00`;
+      return `${bashSentinel}BASH${idx}${bashSentinel}`;
     });
 
     // Replace $ARGUMENTS and $N in non-bash content (plain, no escaping)
@@ -184,7 +185,7 @@ export class SlashCommandManager {
     result = result.replace(/\$\d+/g, '');
 
     // Restore bash blocks
-    return result.replace(/\x00BASH(\d+)\x00/g, (_, idx) => bashBlocks[Number(idx)]);
+    return result.replace(new RegExp(`${bashSentinel}BASH(\\d+)${bashSentinel}`, 'g'), (_, idx) => bashBlocks[Number(idx)]);
   }
 
   /**

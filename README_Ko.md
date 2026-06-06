@@ -40,6 +40,8 @@
 - GitHub 계정이 있어야 합니다.
 - GitHub Copilot 사용 권한이 있어야 합니다.
 - 학교나 조직 계정이라면 관리자 정책에 따라 일부 모델이 보이지 않을 수 있습니다.
+- 조직 계정이라면 관리자가 Copilot CLI 사용을 막아두었을 수도 있습니다.
+- GitHub AI Credits와 과금/한도는 GitHub 계정 또는 조직에서 관리합니다. 이 플러그인에 보이는 사용량은 Copilot CLI 응답에서 관찰된 로컬 값일 뿐이며, 실제 남은 크레딧/청구 금액을 보장하지 않습니다.
 
 ## 2. Node.js 설치
 
@@ -88,13 +90,26 @@ npm --version
 
 공식 안내 참고:
 
-- GitHub Copilot CLI 관련 공식 문서
-- `copilot` CLI 설치는 npm 기반으로 진행
+- https://docs.github.com/copilot/how-tos/copilot-cli/install-copilot-cli
+- 이 플러그인은 `copilot` 단독 CLI를 사용합니다. `gh copilot` 과는 다릅니다.
+- GitHub 공식 문서는 npm, Windows WinGet, macOS/Linux Homebrew 설치를 안내합니다. 이 플러그인의 자동 설치는 모든 OS에서 쓸 수 있는 npm 방식을 사용합니다.
 
 터미널에서 아래 명령을 입력하세요.
 
 ```bash
 npm install -g @github/copilot
+```
+
+Windows에서 WinGet을 쓰고 싶다면:
+
+```powershell
+winget install GitHub.Copilot
+```
+
+macOS/Linux에서 Homebrew를 쓰고 싶다면:
+
+```bash
+brew install copilot-cli
 ```
 
 설치 확인:
@@ -108,6 +123,7 @@ copilot version
 
 - 터미널을 완전히 닫았다가 다시 열어보세요.
 - 그래도 안 되면 Node.js 설치가 제대로 되었는지 다시 확인하세요.
+- Mac/Linux에서 npm 권한 오류가 나면 먼저 npm 전역 설치 위치를 사용자 폴더로 바꾸거나 Homebrew 설치를 고려하세요. `sudo npm install -g @github/copilot` 은 마지막 방법으로만 사용하세요.
 
 ## 4. GitHub Copilot CLI 로그인
 
@@ -119,10 +135,13 @@ copilot login
 
 그 다음 화면 안내에 따라 로그인하세요.
 
+먼저 `copilot` 명령으로 대화형 CLI를 실행했다면, CLI 안에서 `/login` 을 입력해도 됩니다.
+
 정상 확인:
 
 ```bash
 copilot --help
+copilot version
 ```
 
 또는 실제로 CLI가 실행되는지 확인합니다.
@@ -161,6 +180,8 @@ BRAT 소개:
 https://github.com/leeht1107/obsidian-copilot
 ```
 
+선생님이 수업용 fork 주소를 따로 알려준 경우에는 그 주소를 사용하세요. BRAT은 실제 릴리스 파일이 올라간 저장소 URL을 넣어야 합니다.
+
 4. BRAT이 설치를 완료하면 `설정 -> 커뮤니티 플러그인` 으로 다시 이동합니다.
 5. `Obsidian Copilot` 을 찾아 활성화합니다.
 
@@ -172,10 +193,11 @@ https://github.com/leeht1107/obsidian-copilot
 node --version
 npm --version
 copilot --help
+copilot version
 copilot login
 ```
 
-이 네 가지가 모두 정상이어야 합니다.
+위 명령이 모두 정상이어야 합니다.
 
 ## 8. 플러그인 첫 실행
 
@@ -233,6 +255,8 @@ npm install -g @github/copilot
 ```
 
 - 설치 후 터미널을 다시 열어보세요.
+- Mac/Linux 권한 오류라면 `sudo` 를 바로 쓰기보다 npm 전역 설치 위치 수정 또는 Homebrew 설치를 먼저 시도하세요.
+- 그래도 수업 중 바로 해결해야 한다면 Mac/Linux에서만 마지막 방법으로 `sudo npm install -g @github/copilot` 을 사용할 수 있습니다.
 
 ### 로그인은 했는데 플러그인이 응답하지 않습니다
 
@@ -253,7 +277,8 @@ npm install -g @github/copilot
 
 - Node.js 다운로드: https://nodejs.org/en/download/
 - Obsidian 다운로드: https://obsidian.md/download
-- GitHub Copilot 관련 문서: https://docs.github.com/en/copilot
+- GitHub Copilot CLI 설치: https://docs.github.com/copilot/how-tos/copilot-cli/install-copilot-cli
+- GitHub Copilot AI Credits/과금: https://docs.github.com/en/copilot/concepts/billing
 - BRAT 소개: https://tfthacker.com/BRAT
 
 ## 12. 가장 짧은 설치 체크리스트

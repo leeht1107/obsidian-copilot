@@ -18,6 +18,7 @@ import type {
   ConversationMeta,
   ImageAttachment,
   QuizSessionState,
+  SocraticSessionState,
   UsageInfo,
 } from '../types';
 import type { VaultFileAdapter } from './VaultFileAdapter';
@@ -45,6 +46,7 @@ interface SessionMetaRecord {
   titleGenerationStatus?: 'pending' | 'success' | 'failed';
   enabledMcpServers?: string[];
   quizSession?: QuizSessionState;
+  socraticSession?: SocraticSessionState;
 }
 
 /** Message record stored as subsequent lines. */
@@ -257,6 +259,7 @@ export class SessionStorage {
       titleGenerationStatus: meta.titleGenerationStatus,
       enabledMcpServers: meta.enabledMcpServers,
       quizSession: meta.quizSession,
+      socraticSession: meta.socraticSession,
     };
   }
 
@@ -284,6 +287,7 @@ export class SessionStorage {
       titleGenerationStatus: conversation.titleGenerationStatus,
       enabledMcpServers: conversation.enabledMcpServers,
       quizSession: conversation.quizSession,
+      socraticSession: conversation.socraticSession,
     };
     lines.push(JSON.stringify(meta));
 

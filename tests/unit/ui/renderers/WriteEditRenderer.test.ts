@@ -346,6 +346,25 @@ describe('WriteEditRenderer', () => {
       // Should have stats children
       expect((state.statsEl as any)._children.length).toBeGreaterThan(0);
     });
+
+    it('should skip rendering for many-line edits before computing diff lines', () => {
+      const parentEl = createMockElement();
+      const toolCall = createToolCall();
+      const state = createWriteEditBlock(parentEl, toolCall);
+      const originalContent = Array.from({ length: 500 }, (_, index) => `old ${index}`).join('\n');
+      const newContent = Array.from({ length: 500 }, (_, index) => `new ${index}`).join('\n');
+
+      updateWriteEditWithDiff(state, {
+        filePath: 'test.md',
+        originalContent,
+        newContent,
+      });
+
+      const contentText = getTextContent(state.contentEl);
+      expect(contentText).toContain('Diff skipped: file too large');
+      expect(state.diffLines).toBeUndefined();
+      expect((state.statsEl as any)._children.length).toBe(0);
+    });
   });
 
   describe('finalizeWriteEditBlock', () => {
@@ -465,6 +484,24 @@ describe('WriteEditRenderer', () => {
       const block = renderStoredWriteEdit(parentEl, toolCall);
 
       expect(block).toBeDefined();
+    });
+
+    it('should render the skipped diff UI for stored many-line edits', () => {
+      const parentEl = createMockElement();
+      const originalContent = Array.from({ length: 500 }, (_, index) => `old ${index}`).join('\n');
+      const newContent = Array.from({ length: 500 }, (_, index) => `new ${index}`).join('\n');
+      const toolCall = createToolCall({
+        status: 'completed',
+        diffData: {
+          filePath: 'test.md',
+          originalContent,
+          newContent,
+        },
+      });
+
+      const block = renderStoredWriteEdit(parentEl, toolCall);
+
+      expect(getTextContent(block)).toContain('Diff skipped: file too large');
     });
 
     it('should show error message when no diffData and error', () => {

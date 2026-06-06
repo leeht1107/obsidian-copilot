@@ -6,14 +6,14 @@
  * Falls back to manual instructions when Node.js / npm is absent.
  */
 
-import { Modal, Notice, type App } from 'obsidian';
+import { type App,Modal, Notice } from 'obsidian';
 
-import type ObsidianCopilotPlugin from '../../main';
 import {
   checkSetupStatus,
   installCopilotCLI,
   markShownThisSession,
 } from '../../core/setup/AutoSetupService';
+import type ObsidianCopilotPlugin from '../../main';
 import { findCopilotCLIPath } from '../../utils/copilotCli';
 
 type Phase = 'installing' | 'login' | 'done' | 'manual' | 'error';
@@ -106,7 +106,7 @@ export class SetupWizardModal extends Modal {
 
     wrap.createEl('p', { text: '✅ CLI 설치 완료!', cls: 'ocop-setup-success' });
     wrap.createEl('p', {
-      text: '마지막으로 터미널에서 아래 명령을 실행해 GitHub 계정을 연결하세요.',
+      text: '마지막으로 터미널에서 아래 명령을 실행해 GitHub 계정을 연결하세요. 대화형 CLI를 먼저 열었다면 /login을 입력해도 됩니다.',
       cls: 'ocop-setup-desc',
     });
 
@@ -164,7 +164,7 @@ export class SetupWizardModal extends Modal {
 
     // Step 2 — npm install
     const s2 = list.createEl('li');
-    s2.createSpan({ text: 'CLI 설치 (터미널): ' });
+    s2.createSpan({ text: 'CLI 설치 (터미널, npm 기준): ' });
     this.renderCmdRow(s2, 'npm install -g @github/copilot');
 
     // Step 3 — login
@@ -210,7 +210,7 @@ export class SetupWizardModal extends Modal {
     this.renderCmdRow(wrap, 'npm install -g @github/copilot');
 
     wrap.createEl('p', {
-      text: '권한 오류가 발생하면 Mac/Linux에서는 명령 앞에 sudo를 붙이세요.',
+      text: '권한 오류가 계속되면 npm 전역 설치 위치를 사용자 폴더로 바꾸거나 Homebrew 설치를 먼저 고려하세요. sudo는 Mac/Linux에서 마지막 방법으로만 사용하세요.',
       cls: 'ocop-setup-hint',
     });
     this.renderCmdRow(wrap, 'sudo npm install -g @github/copilot');

@@ -8,6 +8,7 @@ import {
   countLineChanges,
   diffLinesToHtml,
   isBinaryContent,
+  shouldSkipLineDiff,
   splitIntoHunks,
 } from '@/ui/renderers/DiffRenderer';
 
@@ -195,6 +196,23 @@ describe('DiffRenderer', () => {
     it('should return zeros for empty array', () => {
       const stats = countLineChanges([]);
       expect(stats).toEqual({ added: 0, removed: 0 });
+    });
+  });
+
+  describe('shouldSkipLineDiff', () => {
+    it('should skip when line comparison count exceeds the guard', () => {
+      expect(shouldSkipLineDiff('a\nb', 'x\ny', 3)).toBe(true);
+    });
+
+    it('should allow diffs within the comparison guard', () => {
+      expect(shouldSkipLineDiff('a\nb', 'x\ny', 4)).toBe(false);
+    });
+
+    it('should use the default guard for many-line edits', () => {
+      const oldText = Array.from({ length: 500 }, (_, index) => `old ${index}`).join('\n');
+      const newText = Array.from({ length: 500 }, (_, index) => `new ${index}`).join('\n');
+
+      expect(shouldSkipLineDiff(oldText, newText)).toBe(true);
     });
   });
 

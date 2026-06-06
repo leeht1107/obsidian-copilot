@@ -13,12 +13,14 @@ import { TOOL_EDIT } from '../../core/tools/toolNames';
 import type { ToolCallInfo, ToolDiffData } from '../../core/types';
 import { setupCollapsible } from '../utils/collapsible';
 import type {
-  DiffLine} from './DiffRenderer';
+  DiffLine,
+} from './DiffRenderer';
 import {
   computeLineDiff,
   countLineChanges,
   isBinaryContent,
   renderDiffContent,
+  shouldSkipLineDiff,
 } from './DiffRenderer';
 
 /** State for a streaming Write/Edit block. */
@@ -56,6 +58,16 @@ function shortenPath(filePath: string, maxLength = 40): string {
   }
 
   return `${firstDir}/.../${filename}`;
+}
+
+function renderSkippedDiff(row: HTMLElement, text: string): void {
+  const skipEl = row.createDiv({ cls: 'ocop-write-edit-binary' });
+  skipEl.setText(text);
+}
+
+function renderSkippedDiffContent(contentEl: HTMLElement, text: string): void {
+  const row = contentEl.createDiv({ cls: 'ocop-write-edit-diff-row' });
+  renderSkippedDiff(row, text);
 }
 
 /** Create a Write/Edit block during streaming (collapsed by default). */
@@ -126,9 +138,7 @@ export function updateWriteEditWithDiff(state: WriteEditState, diffData: ToolDif
 
   // Handle skipped reasons or missing content
   if (diffData.skippedReason === 'too_large') {
-    const row = state.contentEl.createDiv({ cls: 'ocop-write-edit-diff-row' });
-    const skipEl = row.createDiv({ cls: 'ocop-write-edit-binary' });
-    skipEl.setText('Diff skipped: file too large');
+    renderSkippedDiffContent(state.contentEl, 'Diff skipped: file too large');
     return;
   }
 
@@ -137,9 +147,7 @@ export function updateWriteEditWithDiff(state: WriteEditState, diffData: ToolDif
     diffData.originalContent === undefined ||
     diffData.newContent === undefined
   ) {
-    const row = state.contentEl.createDiv({ cls: 'ocop-write-edit-diff-row' });
-    const skipEl = row.createDiv({ cls: 'ocop-write-edit-binary' });
-    skipEl.setText('Diff unavailable');
+    renderSkippedDiffContent(state.contentEl, 'Diff unavailable');
     return;
   }
 
@@ -148,8 +156,12 @@ export function updateWriteEditWithDiff(state: WriteEditState, diffData: ToolDif
   // Check for binary content
   if (isBinaryContent(originalContent) || isBinaryContent(newContent)) {
     const row = state.contentEl.createDiv({ cls: 'ocop-write-edit-diff-row' });
-    const binaryEl = row.createDiv({ cls: 'ocop-write-edit-binary' });
-    binaryEl.setText('Binary file');
+    renderSkippedDiff(row, 'Binary file');
+    return;
+  }
+
+  if (shouldSkipLineDiff(originalContent, newContent)) {
+    renderSkippedDiffContent(state.contentEl, 'Diff skipped: file too large');
     return;
   }
 
@@ -239,7 +251,8 @@ export function renderStoredWriteEdit(parentEl: HTMLElement, toolCall: ToolCallI
     toolCall.diffData &&
     !toolCall.diffData.skippedReason &&
     toolCall.diffData.originalContent !== undefined &&
-    toolCall.diffData.newContent !== undefined
+    toolCall.diffData.newContent !== undefined &&
+    !shouldSkipLineDiff(toolCall.diffData.originalContent, toolCall.diffData.newContent)
   ) {
     const diffLines = computeLineDiff(toolCall.diffData.originalContent, toolCall.diffData.newContent);
     const stats = countLineChanges(diffLines);
@@ -271,15 +284,15 @@ export function renderStoredWriteEdit(parentEl: HTMLElement, toolCall: ToolCallI
 
   if (toolCall.diffData) {
     if (toolCall.diffData.skippedReason === 'too_large') {
-      const skipEl = row.createDiv({ cls: 'ocop-write-edit-binary' });
-      skipEl.setText('Diff skipped: file too large');
+      renderSkippedDiff(row, 'Diff skipped: file too large');
     } else if (
       toolCall.diffData.skippedReason === 'unavailable' ||
       toolCall.diffData.originalContent === undefined ||
       toolCall.diffData.newContent === undefined
     ) {
-      const skipEl = row.createDiv({ cls: 'ocop-write-edit-binary' });
-      skipEl.setText('Diff unavailable');
+      renderSkippedDiff(row, 'Diff unavailable');
+    } else if (shouldSkipLineDiff(toolCall.diffData.originalContent, toolCall.diffData.newContent)) {
+      renderSkippedDiff(row, 'Diff skipped: file too large');
     } else {
       const diffEl = row.createDiv({ cls: 'ocop-write-edit-diff' });
       const diffLines = computeLineDiff(toolCall.diffData.originalContent, toolCall.diffData.newContent);

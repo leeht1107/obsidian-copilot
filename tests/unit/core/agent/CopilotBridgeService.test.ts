@@ -3,6 +3,7 @@ import {
   detectCopilotCliCapabilities,
   isInvalidMcpConfigError,
   resolveCopilotAllowedTools,
+  shouldUseCopilotAllowAllTools,
   translateCopilotJsonEvent,
 } from '@/core/agent/CopilotBridgeService';
 
@@ -93,6 +94,44 @@ describe('CopilotBridgeService helpers', () => {
         'webfetch',
         'websearch',
       ]);
+    });
+
+    it('uses plan guardrails in agent mode when plan mode has no explicit tools', () => {
+      expect(resolveCopilotAllowedTools('agent', undefined, true)).toEqual([
+        'view',
+        'grep',
+        'glob',
+        'ls',
+        'task',
+        'agent_output',
+        'report_intent',
+        'webfetch',
+        'websearch',
+      ]);
+    });
+  });
+
+  describe('shouldUseCopilotAllowAllTools', () => {
+    it('uses allow-all-tools for unrestricted agent mode without explicit tools', () => {
+      expect(shouldUseCopilotAllowAllTools('agent', true, undefined, false)).toBe(true);
+    });
+
+    it('does not use allow-all-tools in plan mode with default tool guardrails', () => {
+      expect(shouldUseCopilotAllowAllTools('agent', true, { planMode: true }, false)).toBe(false);
+    });
+
+    it('lets explicit tool requests use available-tools instead of allow-all-tools', () => {
+      expect(
+        shouldUseCopilotAllowAllTools('agent', true, { allowedTools: ['view'] }, false)
+      ).toBe(false);
+    });
+
+    it('uses allow-all-tools for MCP routing when no explicit tools are requested', () => {
+      expect(shouldUseCopilotAllowAllTools('normal', true, undefined, true)).toBe(true);
+    });
+
+    it('falls back when the CLI does not support allow-all-tools', () => {
+      expect(shouldUseCopilotAllowAllTools('agent', false, undefined, false)).toBe(false);
     });
   });
 

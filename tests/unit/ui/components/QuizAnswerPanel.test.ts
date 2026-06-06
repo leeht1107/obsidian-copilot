@@ -1,5 +1,5 @@
 import type { QuizQuestionMeta } from '@/core/types';
-import { QuizAnswerPanel, dismissQuizAnswerPanel } from '@/ui/components/QuizAnswerPanel';
+import { dismissQuizAnswerPanel,QuizAnswerPanel } from '@/ui/components/QuizAnswerPanel';
 
 type Listener = (event: any) => void;
 

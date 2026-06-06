@@ -25,8 +25,8 @@ export {
 // Model types
 export {
   COPILOT_MODELS,
-  DEFAULT_MODEL,
   type CopilotModel,
+  DEFAULT_MODEL,
   DEFAULT_THINKING_BUDGET,
   THINKING_BUDGETS,
   type ThinkingBudget,
@@ -34,7 +34,6 @@ export {
 
 // Settings types
 export {
-  type ObsidianCopilotSettings,
   DEFAULT_SETTINGS,
   type EnvSnippet,
   getBashToolBlockedCommands,
@@ -44,6 +43,7 @@ export {
   type InstructionRefineResult,
   type KeyboardNavigationSettings,
   type NonPlanPermissionMode,
+  type ObsidianCopilotSettings,
   type Permission,
   type PermissionMode,
   type PlatformBlockedCommands,

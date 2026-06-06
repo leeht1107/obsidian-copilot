@@ -23,6 +23,25 @@ export interface DiffStats {
   removed: number;
 }
 
+const MAX_DIFF_LINE_COMPARISONS = 200000;
+
+function countLines(text: string): number {
+  let count = 1;
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '\n') count++;
+  }
+  return count;
+}
+
+/** Check whether the quadratic line diff should be skipped for this input size. */
+export function shouldSkipLineDiff(
+  oldText: string,
+  newText: string,
+  maxComparisons = MAX_DIFF_LINE_COMPARISONS
+): boolean {
+  return countLines(oldText) * countLines(newText) > maxComparisons;
+}
+
 /** Compute line-based diff between two texts using LCS algorithm. */
 export function computeLineDiff(oldText: string, newText: string): DiffLine[] {
   // Normalize line endings for cross-platform compatibility

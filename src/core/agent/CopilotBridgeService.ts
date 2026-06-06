@@ -1,4 +1,4 @@
-import { execFile, type ChildProcess, spawn } from 'child_process';
+import { type ChildProcess, execFile, spawn } from 'child_process';
 import { randomUUID } from 'crypto';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -46,7 +46,6 @@ export type ApprovalCallback = (
 export type ExitPlanModeCallback = (planContent: string) => Promise<ExitPlanModeDecision>;
 export type EnterPlanModeCallback = () => Promise<void>;
 
-const MCP_CONFIG_RELATIVE_PATH = '.copilot/mcp.json';
 const ALLOWED_TOOLS = [
   'view',
   'grep',
@@ -61,6 +60,7 @@ const ALLOWED_TOOLS = [
 
 const MAX_DIFF_SIZE = 100 * 1024;
 const DEFAULT_RUNTIME_MCP_TOOLS = ['*'];
+const CLI_CAPABILITY_PROBE_TIMEOUT_MS = 2500;
 
 interface DiffContentEntry {
   filePath: string;
@@ -95,6 +95,25 @@ export function resolveCopilotAllowedTools(
   return guardrailSet && effectiveTools.length === 0
     ? guardrailTools ?? []
     : effectiveTools;
+}
+
+function hasExplicitCopilotAllowedTools(requestedTools?: string[]): boolean {
+  return requestedTools?.some((tool) => tool.trim().length > 0) ?? false;
+}
+
+export function shouldUseCopilotAllowAllTools(
+  permissionMode: string,
+  allowAllToolsSupported: boolean,
+  queryOptions: Pick<QueryOptions, 'allowedTools' | 'planMode'> | undefined,
+  hasMcp: boolean
+): boolean {
+  if (!allowAllToolsSupported || queryOptions?.planMode) {
+    return false;
+  }
+  if (hasExplicitCopilotAllowedTools(queryOptions?.allowedTools)) {
+    return false;
+  }
+  return permissionMode === 'agent' || hasMcp;
 }
 
 interface CopilotJsonEvent {
@@ -562,6 +581,7 @@ export class CopilotBridgeService {
       execFile(probeCmd, probeArgs, {
         encoding: 'utf8',
         env: this.getCustomEnv(copilotPath),
+        timeout: CLI_CAPABILITY_PROBE_TIMEOUT_MS,
         // shell:true only needed as fallback when .cmd shim resolution fails
         shell: !probeShim && process.platform === 'win32',
       }, (error, stdout, stderr) => {
@@ -664,7 +684,7 @@ export class CopilotBridgeService {
     args: string[],
     capabilities: CopilotCliCapabilities,
     queryOptions?: QueryOptions,
-    activeMcpServerNames?: Set<string>
+    skipAvailableTools = false
   ): void {
     const enableWebSearch = queryOptions?.enableWebSearch ?? this.plugin.settings.enableWebSearch;
     const finalTools = resolveCopilotAllowedTools(
@@ -674,9 +694,7 @@ export class CopilotBridgeService {
       enableWebSearch
     );
 
-    // activeMcpServerNames is undefined when --allow-all-tools is already being used.
-    // In that case, skip --available-tools entirely to avoid conflicts.
-    if (!activeMcpServerNames) return;
+    if (skipAvailableTools) return;
 
     if (capabilities.availableTools && finalTools.length > 0) {
       args.push('--available-tools', ...finalTools);
@@ -718,11 +736,18 @@ export class CopilotBridgeService {
     // MCP active and not plan mode → grant full tool access so model calls MCP directly
     // (without this, ask-mode's --available-tools blocks MCP tools → model routes via task subagent)
     const hasMcp = !!runtimeMcpConfigPath && activeMcpNames.size > 0 && !queryOptions?.planMode;
+    const explicitToolsRequested = hasExplicitCopilotAllowedTools(queryOptions?.allowedTools);
+    const useAllowAllTools = shouldUseCopilotAllowAllTools(
+      this.plugin.settings.permissionMode,
+      capabilities.allowAllTools,
+      queryOptions,
+      hasMcp
+    );
 
     if (capabilities.noAskUser) {
       args.push('--no-ask-user');
     }
-    if (capabilities.allowAllTools && (this.plugin.settings.permissionMode === 'agent' || hasMcp)) {
+    if (useAllowAllTools) {
       args.push('--allow-all-tools');
     }
     if (capabilities.noCustomInstructions) {
@@ -750,9 +775,9 @@ export class CopilotBridgeService {
       args.push('--reasoning-effort', budgetInfo.cliValue);
     }
 
-    // When --allow-all-tools is used (MCP active or agent mode), skip --available-tools restriction
-    // to avoid conflicts — tool access is already unrestricted
-    this.addToolArgs(args, capabilities, queryOptions, hasMcp ? undefined : activeMcpNames);
+    // Avoid combining unrestricted access with a default --available-tools list. For MCP without
+    // explicit tool requests, preserve unrestricted MCP routing even on older CLIs.
+    this.addToolArgs(args, capabilities, queryOptions, useAllowAllTools || (hasMcp && !explicitToolsRequested));
     this.addMcpArgs(args, runtimeMcpConfigPath, capabilities, queryOptions);
 
     this.abortController = new AbortController();

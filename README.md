@@ -1,6 +1,6 @@
 # Obsidian Copilot
 
-[![GitHub](https://img.shields.io/badge/GitHub-Obsidian--Copilot-blue?style=for-the-badge&logo=github)](https://github.com/reallygood83/obsidian-copilot)
+[![GitHub](https://img.shields.io/badge/GitHub-Obsidian--Copilot-blue?style=for-the-badge&logo=github)](https://github.com/leeht1107/obsidian-copilot)
 
 Your AI coding assistant inside Obsidian, powered by **GitHub Copilot CLI**.
 
@@ -20,18 +20,27 @@ Have meaningful conversations with your codebase. Copilot understands your notes
 
 ## 🚀 Prerequisites
 
-This plugin requires **GitHub Copilot CLI**.
+This plugin requires the standalone **GitHub Copilot CLI** (`copilot`), not `gh copilot`.
 
 1.  **Install Node.js** (v22 or higher)
-2.  **Install Copilot CLI**:
+2.  **Install or update Copilot CLI**:
     ```bash
     npm install -g @github/copilot
     ```
+    GitHub also documents WinGet on Windows and Homebrew on macOS/Linux. The plugin's built-in setup flow uses the npm package because it works across platforms.
 3.  **Authenticate**:
     Run this command in your terminal and follow the instructions:
     ```bash
     copilot login
     ```
+    If you start the interactive CLI with `copilot` first, use `/login` when prompted.
+4.  **Verify**:
+    ```bash
+    copilot version
+    copilot --help
+    ```
+
+If npm reports a permissions error on macOS/Linux, prefer fixing your npm global install location or using Homebrew first. Use `sudo npm install -g @github/copilot` only as a last resort.
 
 ---
 
@@ -42,6 +51,7 @@ This plugin requires **GitHub Copilot CLI**.
 1.  Install **BRAT** from the Obsidian Community Plugins.
 2.  Open command palette (`Cmd/Ctrl + P`) -> `BRAT: Add a beta plugin for testing`.
 3.  Enter the repository URL: `https://github.com/leeht1107/obsidian-copilot`.
+    If your teacher or maintainer provides a class fork, use that fork URL instead.
 4.  Enable "Obsidian Copilot" in Community Plugins settings.
 
 ### Manual Installation
@@ -65,6 +75,7 @@ This plugin requires **GitHub Copilot CLI**.
 
 *   **Copilot CLI Path**: If Copilot is not found automatically, enter the full path to the executable (e.g., `/usr/local/bin/copilot`).
 *   **GitHub Token** (Optional): Provide a `GH_TOKEN` if you prefer not to use the global auth session.
+*   **AI Credits / Usage**: GitHub manages AI Credits and billing. Any usage shown by this plugin is based only on values observed locally from Copilot CLI responses, so it is not an authoritative credits, quota, billing, or remaining-balance view.
 
 ---
 

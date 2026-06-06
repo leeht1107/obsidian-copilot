@@ -1,7 +1,6 @@
 import * as fs from 'fs';
-
 import type { App } from 'obsidian';
-import { Notice, PluginSettingTab, Setting, setIcon } from 'obsidian';
+import { Notice, PluginSettingTab, setIcon,Setting } from 'obsidian';
 
 import { getCurrentPlatformKey } from '../../core/types';
 import { COPILOT_MODELS } from '../../core/types/models';
@@ -9,7 +8,6 @@ import type ObsidianCopilotPlugin from '../../main';
 import { EnvSnippetManager, McpSettingsManager, SlashCommandSettings } from '../../ui';
 import { setupCollapsible } from '../../ui/utils/collapsible';
 import { expandHomePath } from '../../utils/path';
-import { buildNavMappingText, parseNavMappings } from './keyboardNavigation';
 import {
   getInstalledSkills,
   installObsidianSkills,
@@ -18,6 +16,7 @@ import {
   removeSkill,
   uninstallObsidianSkills,
 } from '../skills/ObsidianSkillsInstaller';
+import { buildNavMappingText, parseNavMappings } from './keyboardNavigation';
 
 function formatHotkey(hotkey: { modifiers: string[]; key: string }): string {
   const isMac = navigator.platform.includes('Mac');

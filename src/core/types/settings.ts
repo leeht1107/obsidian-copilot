@@ -2,7 +2,7 @@
  * Settings type definitions.
  */
 
-import { DEFAULT_MODEL, type CopilotModel, type ThinkingBudget } from './models';
+import { type CopilotModel, DEFAULT_MODEL, type ThinkingBudget } from './models';
 
 /** Platform-specific blocked commands (Unix). */
 const UNIX_BLOCKED_COMMANDS = [

@@ -7,8 +7,8 @@
  */
 
 import { McpServerManager } from '../../core/mcp';
-import type { CopilotMcpServer, McpServerConfig } from '../../core/types';
 import type { McpStorage } from '../../core/storage';
+import type { CopilotMcpServer, McpServerConfig } from '../../core/types';
 import type ObsidianCopilotPlugin from '../../main';
 import { extractMcpMentions, transformMcpMentions } from '../../utils/mcp';
 

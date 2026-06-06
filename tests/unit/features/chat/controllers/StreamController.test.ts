@@ -287,6 +287,23 @@ describe('StreamController - Text Content', () => {
     });
   });
 
+  describe('Socratic summary parsing', () => {
+    it('detects summary markers with leading indentation', async () => {
+      const msg = createTestMessage();
+      deps.state.currentContentEl = createMockElement();
+      deps.state.currentTextEl = createMockElement();
+      deps.state.currentTextContent = [
+        '  ##SOCRATIC_SUMMARY##',
+        '  ### 발견의 여정 요약',
+        '정규화의 핵심을 스스로 정리했어요.',
+      ].join('\n');
+
+      await controller.finalizeCurrentTextBlock(msg);
+
+      expect(msg.socraticTurn).toEqual({ isSummary: true });
+    });
+  });
+
   describe('Usage handling', () => {
     it('should update usage for current session', async () => {
       const msg = createTestMessage();

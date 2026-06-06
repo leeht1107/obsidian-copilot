@@ -472,6 +472,46 @@ describe('InputController - Message Queue', () => {
       expect(deps.renderer.addMessage).toHaveBeenCalledTimes(1);
     });
 
+    it('infers quiz session state for toolbar-launched quiz prompts', async () => {
+      deps.plugin.agentService.query = jest.fn().mockImplementation(() => createMockStream([{ type: 'done' }]));
+      const displayContent = '/quiz · 현재 노트 · db.md · 4문제 · 중 · 정규화';
+
+      await controller.sendMessage({
+        content: 'Generated quiz prompt',
+        displayContentOverride: displayContent,
+      });
+
+      expect(deps.state.quizSession).toEqual({
+        totalQuestions: 4,
+        currentQuestion: 1,
+        scopeLabel: displayContent,
+        focusText: '정규화',
+      });
+      const prompt = (deps.plugin.agentService.query as jest.Mock).mock.calls[0][0] as string;
+      expect(prompt).not.toContain('You are continuing an active quiz');
+    });
+
+    it('enables web search and context7 for high-difficulty quiz launches', () => {
+      const setEnabled = jest.fn();
+      const addMentionedServers = jest.fn();
+      deps = createMockDeps({
+        getWebSearchToggle: () => ({
+          isEnabled: jest.fn().mockReturnValue(false),
+          setEnabled,
+        }),
+        getMcpServerSelector: () => ({
+          getEnabledServers: () => new Set(),
+          addMentionedServers,
+        }) as any,
+      });
+      controller = new InputController(deps);
+
+      (controller as any).enableQuizExternalTools();
+
+      expect(setEnabled).toHaveBeenCalledWith(true);
+      expect(addMentionedServers).toHaveBeenCalledWith(new Set(['context7']));
+    });
+
     describe('Mode switching cleanup', () => {
       it('clears active quiz state and answer panel before starting socratic mode', async () => {
         const { inputWrapper, messagesEl, container, attachQuizPanel } = createMockChatContainer();

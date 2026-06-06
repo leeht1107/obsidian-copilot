@@ -1,4 +1,4 @@
-import { Modal, Notice, requestUrl, Setting, type App } from 'obsidian';
+import { type App,Modal, Notice, requestUrl, Setting } from 'obsidian';
 
 interface McpImportModalResult {
   text: string;
@@ -20,6 +20,7 @@ function toRawGitHubUrl(value: string): string {
       }
     }
   } catch {
+    // Not a URL; treat the original input as raw JSON or a local-looking value.
   }
 
   return value;

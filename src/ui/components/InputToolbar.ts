@@ -1,10 +1,9 @@
+import { Notice, setIcon } from 'obsidian';
 import * as os from 'os';
 
-import { Notice, setIcon } from 'obsidian';
-
 import type {
-  CopilotModel,
   CopilotMcpServer,
+  CopilotModel,
   PermissionMode,
   ThinkingBudget,
   UsageInfo,
@@ -37,6 +36,17 @@ export interface ToolbarCallbacks {
 }
 
 type CostBucket = 'best' | '0x' | '0.33x' | '1x' | '3x';
+
+type ElectronRequire = (moduleName: 'electron') => {
+  remote?: {
+    dialog: {
+      showOpenDialog(options: { properties: string[]; title: string }): Promise<{
+        canceled: boolean;
+        filePaths: string[];
+      }>;
+    };
+  };
+};
 
 function getProviderGroup(model: CopilotModel): string {
   if (model === 'auto') return 'recommended';
@@ -437,8 +447,11 @@ export class ExternalContextSelector {
 
   private async openFolderPicker() {
     try {
-      const electron = require('electron');
-      const remote = electron.remote;
+      const electronRequire = (window as Window & { require?: ElectronRequire }).require;
+      const remote = electronRequire?.('electron').remote;
+      if (!remote) {
+        throw new Error('Electron remote API is not available');
+      }
       const result = await remote.dialog.showOpenDialog({
         properties: ['openDirectory'],
         title: 'Select External Context',
@@ -797,8 +810,25 @@ export class ContextUsageMeter {
       return;
     }
 
+    const premiumRequests = usage.premiumRequests ?? 0;
     if (usage.contextWindow <= 0) {
-      this.container.style.display = 'none';
+      if (premiumRequests <= 0) {
+        this.container.style.display = 'none';
+        return;
+      }
+
+      this.container.style.display = 'flex';
+      if (this.fillPath) {
+        this.fillPath.style.strokeDashoffset = String(this.circumference);
+      }
+      if (this.percentEl) {
+        this.percentEl.setText(`P ${this.formatPremiumRequests(premiumRequests)}`);
+      }
+      this.container.removeClass('warning');
+      this.container.setAttribute(
+        'data-tooltip',
+        `Local CLI observed premium usage: ${this.formatPremiumRequests(premiumRequests)} request${premiumRequests === 1 ? '' : 's'}`
+      );
       return;
     }
 
@@ -817,9 +847,8 @@ export class ContextUsageMeter {
       this.container.removeClass('warning');
     }
 
-    const premiumRequests = usage.premiumRequests ?? 0;
-    const tooltip = `${this.formatTokens(usage.contextTokens)} / ${this.formatTokens(usage.contextWindow)}` +
-      (premiumRequests > 0 ? ` • premium ${premiumRequests}` : '');
+    const tooltip = `Local CLI observed context: ${this.formatTokens(usage.contextTokens)} / ${this.formatTokens(usage.contextWindow)} tokens` +
+      (premiumRequests > 0 ? ` • premium usage: ${this.formatPremiumRequests(premiumRequests)} request${premiumRequests === 1 ? '' : 's'}` : '');
     this.container.setAttribute('data-tooltip', tooltip);
   }
 
@@ -828,6 +857,13 @@ export class ContextUsageMeter {
       return `${Math.round(tokens / 1000)}k`;
     }
     return String(tokens);
+  }
+
+  private formatPremiumRequests(requests: number): string {
+    if (Number.isInteger(requests)) {
+      return String(requests);
+    }
+    return requests.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
   }
 }
 

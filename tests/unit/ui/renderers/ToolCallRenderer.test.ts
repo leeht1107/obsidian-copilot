@@ -6,6 +6,7 @@ import { setIcon } from 'obsidian';
 
 import type { ToolCallInfo } from '@/core/types';
 import {
+  renderResultLines,
   renderStoredToolCall,
   renderToolCall,
   updateToolCallResult,
@@ -331,6 +332,55 @@ describe('ToolCallRenderer', () => {
       const statusEl = toolEl.querySelector('.ocop-tool-status');
       expect(statusEl?.hasClass('status-completed')).toBe(true);
     });
+
+    it('should cap large result previews without mutating the full result', () => {
+      const parentEl = createMockElement();
+      const toolCall = createToolCall({
+        id: 'tool-1',
+        name: 'Bash',
+        input: { command: 'generate-output' },
+      });
+      const toolCallElements = new Map<string, HTMLElement>();
+      const fullResult = `first line\n${'x'.repeat(3000)}\nlast line`;
+
+      const toolEl = renderToolCall(parentEl, toolCall, toolCallElements);
+
+      toolCall.status = 'completed';
+      toolCall.result = fullResult;
+      updateToolCallResult('tool-1', toolCall, toolCallElements);
+
+      const resultText = toolEl.querySelector('.ocop-tool-result-text');
+      const previewText = getTextContent(resultText);
+      expect(previewText).toContain('first line');
+      expect(previewText).toContain('Result preview truncated');
+      expect(previewText).not.toContain('last line');
+      expect(toolCall.result).toBe(fullResult);
+    });
+  });
+
+  describe('renderResultLines', () => {
+    it('should preserve exact remaining line counts when the character cap is not hit', () => {
+      const container = createMockElement();
+
+      renderResultLines(container, 'first\nsecond\nthird\nfourth', 2, 100);
+
+      const previewText = getTextContent(container);
+      expect(previewText).toContain('first');
+      expect(previewText).toContain('second');
+      expect(previewText).toContain('2 more lines');
+    });
+
+    it('should apply the character cap before rendering preview lines', () => {
+      const container = createMockElement();
+      const result = `1→first\n${'x'.repeat(100)}\nlast`;
+
+      renderResultLines(container, result, 3, 16);
+
+      const previewText = getTextContent(container);
+      expect(previewText).toContain('first');
+      expect(previewText).toContain('Result preview truncated');
+      expect(previewText).not.toContain('last');
+    });
   });
 
   describe('keyboard navigation', () => {
@@ -397,3 +447,16 @@ describe('ToolCallRenderer', () => {
     });
   });
 });
+
+// Helper to get text content recursively
+function getTextContent(element: any): string {
+  if (!element) return '';
+
+  let text = element.textContent || '';
+  if (element._children) {
+    for (const child of element._children) {
+      text += getTextContent(child);
+    }
+  }
+  return text;
+}

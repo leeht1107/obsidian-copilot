@@ -8,6 +8,10 @@ function isExistingFile(p: string): boolean {
   } catch { return false; }
 }
 
+function platformPath(): path.PlatformPath {
+  return process.platform === 'win32' ? path.win32 : path.posix;
+}
+
 /** process.env 케이싱 불일치 처리 (Windows: PATH / Path / path 모두 대응) */
 function getEnvValue(key: string): string | undefined {
   const exact = process.env[key];
@@ -36,8 +40,11 @@ function isPathPlaceholder(value: string): boolean {
 
 /** ~/foo → /Users/mark/foo */
 function expandHomePath(p: string): string {
-  if (p.startsWith('~/') || p === '~') {
-    return os.homedir() + p.slice(1);
+  if (p === '~') {
+    return os.homedir();
+  }
+  if (p.startsWith('~/') || p.startsWith('~\\')) {
+    return platformPath().join(os.homedir(), p.slice(2));
   }
   return p;
 }
@@ -77,7 +84,7 @@ function getNpmGlobalPrefix(): string | null {
 
   if (process.platform === 'win32') {
     const appData = getEnvValue('APPDATA');
-    if (appData) return path.join(appData, 'npm');
+    if (appData) return path.win32.join(appData, 'npm');
   }
 
   return null;
@@ -89,22 +96,23 @@ function getNpmGlobalPrefix(): string | null {
  * typically not set. We read ~/.nvm/alias/default directly instead.
  */
 function nvmCandidateDirs(home: string): string[] {
+  const pp = platformPath();
   const dirs: string[] = [];
-  const nvmDir = path.join(home, '.nvm');
+  const nvmDir = pp.join(home, '.nvm');
 
   // Primary: read the default alias file to find the active version
   try {
-    const raw = fs.readFileSync(path.join(nvmDir, 'alias', 'default'), 'utf8').trim();
+    const raw = fs.readFileSync(pp.join(nvmDir, 'alias', 'default'), 'utf8').trim();
     // Could be "20.0.0", "v20.0.0", or an LTS alias like "lts/hydrogen"
     const version = raw.startsWith('v') ? raw : /^\d/.test(raw) ? `v${raw}` : null;
     if (version) {
-      dirs.push(path.join(nvmDir, 'versions', 'node', version, 'bin'));
+      dirs.push(pp.join(nvmDir, 'versions', 'node', version, 'bin'));
     }
   } catch { /* nvm not installed */ }
 
   // Fallback: scan installed versions and try up to 3 most recent
   try {
-    const nvmNodeDir = path.join(nvmDir, 'versions', 'node');
+    const nvmNodeDir = pp.join(nvmDir, 'versions', 'node');
     if (fs.existsSync(nvmNodeDir)) {
       const versions = (fs.readdirSync(nvmNodeDir) as string[])
         .filter((v: string) => v.startsWith('v'))
@@ -118,7 +126,7 @@ function nvmCandidateDirs(home: string): string[] {
           return 0;
         });
       for (const v of versions.slice(0, 3)) {
-        dirs.push(path.join(nvmNodeDir, v, 'bin'));
+        dirs.push(pp.join(nvmNodeDir, v, 'bin'));
       }
     }
   } catch { /* ignore */ }
@@ -131,6 +139,7 @@ function nvmCandidateDirs(home: string): string[] {
  * Like NVM, fnm's PATH hook isn't available in GUI apps unless FNM_MULTISHELL_PATH is set.
  */
 function fnmCandidateDirs(home: string): string[] {
+  const pp = platformPath();
   const dirs: string[] = [];
 
   // FNM_MULTISHELL_PATH is set by fnm's shell hook — may be absent in GUI apps
@@ -140,12 +149,12 @@ function fnmCandidateDirs(home: string): string[] {
   // Common fnm data dirs
   const fnmDataDirs = [
     process.env.FNM_DIR,
-    path.join(home, '.local', 'share', 'fnm'),
-    path.join(home, '.fnm'),
+    pp.join(home, '.local', 'share', 'fnm'),
+    pp.join(home, '.fnm'),
   ].filter(Boolean) as string[];
 
   for (const fnmDir of fnmDataDirs) {
-    const nodeVersionsDir = path.join(fnmDir, 'node-versions');
+    const nodeVersionsDir = pp.join(fnmDir, 'node-versions');
     try {
       if (fs.existsSync(nodeVersionsDir)) {
         const versions = (fs.readdirSync(nodeVersionsDir) as string[])
@@ -157,9 +166,9 @@ function fnmCandidateDirs(home: string): string[] {
               if (diff !== 0) return diff;
             }
             return 0;
-          });
+        });
         for (const v of versions.slice(0, 3)) {
-          dirs.push(path.join(nodeVersionsDir, v, 'installation', 'bin'));
+          dirs.push(pp.join(nodeVersionsDir, v, 'installation', 'bin'));
         }
       }
     } catch { /* ignore */ }
@@ -169,6 +178,7 @@ function fnmCandidateDirs(home: string): string[] {
 }
 
 export function findCopilotCLIPath(): string | null {
+  const pp = platformPath();
   const home = os.homedir();
   const isWindows = process.platform === 'win32';
   // npm creates .cmd wrappers on Windows; .exe only from volta/scoop shims
@@ -177,42 +187,42 @@ export function findCopilotCLIPath(): string | null {
   // 1. 하드코딩 후보 경로
   // On Windows, prefer env vars over os.homedir() path joining —
   // APPDATA / LOCALAPPDATA are always correct even on non-standard installs.
-  const appData = getEnvValue('APPDATA') ?? path.join(home, 'AppData', 'Roaming');
-  const localAppData = getEnvValue('LOCALAPPDATA') ?? path.join(home, 'AppData', 'Local');
+  const appData = getEnvValue('APPDATA') ?? pp.join(home, 'AppData', 'Roaming');
+  const localAppData = getEnvValue('LOCALAPPDATA') ?? pp.join(home, 'AppData', 'Local');
 
   const candidateDirs: string[] = isWindows
     ? [
         // npm global bin — primary location after `npm install -g`
-        path.join(appData, 'npm'),
+        pp.join(appData, 'npm'),
         // nvm-windows: NVM_SYMLINK is a system env var pointing to active Node dir
         getEnvValue('NVM_SYMLINK') ?? '',
         // nvm-windows: NVM_HOME stores all versions; active is via NVM_SYMLINK
         getEnvValue('NVM_HOME') ?? '',
         // LocalAppData nodejs locations (some installers / nvm-windows symlinks)
-        path.join(localAppData, 'Programs', 'nodejs'),
-        path.join(localAppData, 'Programs', 'node'),
+        pp.join(localAppData, 'Programs', 'nodejs'),
+        pp.join(localAppData, 'Programs', 'node'),
         // scoop shims
-        path.join(home, 'scoop', 'shims'),
-        path.join(getEnvValue('ProgramFiles') ?? 'C:\\Program Files', 'nodejs'),
-        path.join(home, '.volta', 'bin'),
-        path.join(home, '.local', 'bin'),
+        pp.join(home, 'scoop', 'shims'),
+        pp.join(getEnvValue('ProgramFiles') ?? 'C:\\Program Files', 'nodejs'),
+        pp.join(home, '.volta', 'bin'),
+        pp.join(home, '.local', 'bin'),
       ].filter(Boolean)
     : [
         '/usr/local/bin',
         '/opt/homebrew/bin',
-        path.join(home, '.local', 'bin'),
-        path.join(home, '.volta', 'bin'),
-        path.join(home, '.asdf', 'shims'),
-        path.join(home, '.asdf', 'bin'),
-        path.join(home, '.npm-global', 'bin'),
-        path.join(home, 'bin'),
+        pp.join(home, '.local', 'bin'),
+        pp.join(home, '.volta', 'bin'),
+        pp.join(home, '.asdf', 'shims'),
+        pp.join(home, '.asdf', 'bin'),
+        pp.join(home, '.npm-global', 'bin'),
+        pp.join(home, 'bin'),
         ...nvmCandidateDirs(home),
         ...fnmCandidateDirs(home),
       ];
 
   for (const dir of candidateDirs) {
     for (const name of binaryNames) {
-      const p = path.join(dir, name);
+      const p = pp.join(dir, name);
       if (isExistingFile(p)) return p;
     }
   }
@@ -220,9 +230,9 @@ export function findCopilotCLIPath(): string | null {
   // 2. npm global prefix (env var 기반, execSync 없음)
   const npmPrefix = getNpmGlobalPrefix();
   if (npmPrefix) {
-    const binDir = isWindows ? npmPrefix : path.join(npmPrefix, 'bin');
+    const binDir = isWindows ? npmPrefix : pp.join(npmPrefix, 'bin');
     for (const name of binaryNames) {
-      const p = path.join(binDir, name);
+      const p = pp.join(binDir, name);
       if (isExistingFile(p)) return p;
     }
   }
@@ -230,7 +240,7 @@ export function findCopilotCLIPath(): string | null {
   // 3. PATH 탐색 (따옴표 제거 + ~ 확장 + 플레이스홀더 필터 + 중복 제거)
   for (const dir of dedupePaths(parsePathEntries(getEnvValue('PATH')))) {
     for (const name of binaryNames) {
-      const p = path.join(dir, name);
+      const p = pp.join(dir, name);
       if (isExistingFile(p)) return p;
     }
   }
@@ -254,8 +264,9 @@ export function resolveCmdShim(cmdPath: string): [string, string] | null {
   if (!cmdPath.toLowerCase().endsWith('.cmd')) return null;
 
   try {
+    const pp = platformPath();
     const content = fs.readFileSync(cmdPath, 'utf8');
-    const cmdDir = path.dirname(cmdPath);
+    const cmdDir = pp.dirname(cmdPath);
 
     // npm shims end with a line like:
     //   "%_prog%"  "%dp0%\node_modules\pkg\bin.js"  %*
@@ -266,12 +277,12 @@ export function resolveCmdShim(cmdPath: string): [string, string] | null {
 
       let scriptPath = m[1];
       // Replace %dp0%\ with the directory containing the .cmd file
-      scriptPath = scriptPath.replace(/%dp0%\\/gi, cmdDir + path.sep);
+      scriptPath = scriptPath.replace(/%dp0%\\/gi, cmdDir + pp.sep);
 
       if (!isExistingFile(scriptPath)) continue;
 
       // Prefer a node.exe bundled alongside the .cmd (e.g. nvm-windows)
-      const localNode = path.join(cmdDir, 'node.exe');
+      const localNode = pp.join(cmdDir, 'node.exe');
       const nodeExe = isExistingFile(localNode) ? localNode : 'node';
 
       return [nodeExe, scriptPath];

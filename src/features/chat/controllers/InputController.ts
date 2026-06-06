@@ -9,6 +9,12 @@ import type { Component } from 'obsidian';
 import { Notice, TFile } from 'obsidian';
 
 import type { SlashCommandManager } from '../../../core/commands';
+import {
+  buildQuizContinuationPrompt,
+  buildSocraticContinuationPrompt,
+  parseQuizDisplayContent,
+  QUIZ_EXTERNAL_MCP_SERVERS,
+} from '../../../core/learning';
 import { isCommandBlocked } from '../../../core/security/BlocklistChecker';
 import { TOOL_BASH } from '../../../core/tools/toolNames';
 import type { AskUserQuestionInput, ChatMessage, ExitPlanModeDecision, ImageAttachment } from '../../../core/types';
@@ -16,6 +22,7 @@ import { getBashToolBlockedCommands } from '../../../core/types';
 import type ObsidianCopilotPlugin from '../../../main';
 import {
   ApprovalModal,
+  dismissQuizAnswerPanel,
   type FileContextManager,
   type ImageContextManager,
   InstructionModal,
@@ -23,11 +30,10 @@ import {
   type McpServerSelector,
   type PlanBanner,
   QuizSetupModal,
-  SocraticSetupModal,
-  dismissQuizAnswerPanel,
   showAskUserQuestionPanel,
   showPlanApprovalPanel,
   showQuizAnswerPanel,
+  SocraticSetupModal,
 } from '../../../ui';
 import { prependCurrentNote, prependCurrentNoteContent } from '../../../utils/context';
 import { type EditorSelectionContext, prependEditorContext } from '../../../utils/editor';
@@ -69,7 +75,7 @@ export interface InputControllerDeps {
   getImageContextManager: () => ImageContextManager | null;
   getSlashCommandManager: () => SlashCommandManager | null;
   getMcpServerSelector: () => McpServerSelector | null;
-  getWebSearchToggle: () => { isEnabled: () => boolean } | null;
+  getWebSearchToggle: () => { isEnabled: () => boolean; setEnabled?: (enabled: boolean) => void } | null;
   getExternalContextSelector: () => { getExternalContexts: () => string[] } | null;
   getInstructionModeManager: () => InstructionModeManager | null;
   getInstructionRefineService: () => InstructionRefineService | null;
@@ -135,6 +141,24 @@ export class InputController {
     this.deps.hideSocraticBanner?.();
   }
 
+  private enableQuizExternalTools(): void {
+    this.deps.getWebSearchToggle()?.setEnabled?.(true);
+    this.deps.getMcpServerSelector()?.addMentionedServers(new Set(QUIZ_EXTERNAL_MCP_SERVERS));
+  }
+
+  private inferQuizSessionInit(displayContent?: string): QuizSessionInit | undefined {
+    const parsed = parseQuizDisplayContent(displayContent);
+    if (!parsed) {
+      return undefined;
+    }
+
+    return {
+      totalQuestions: parsed.totalQuestions,
+      scopeLabel: displayContent ?? '/quiz',
+      focusText: parsed.focusText,
+    };
+  }
+
   // ============================================
   // Message Sending
   // ============================================
@@ -169,6 +193,10 @@ export class InputController {
       const quizResult = await quizModal.openAndWait();
       if (!quizResult) {
         return;
+      }
+
+      if (quizResult.enableExternalTools) {
+        this.enableQuizExternalTools();
       }
 
       if (shouldUseInput) {
@@ -256,30 +284,33 @@ export class InputController {
       inputEl.value = '';
     }
 
-    if (options?.quizSessionInit) {
+    const quizSessionInit = options?.quizSessionInit ?? this.inferQuizSessionInit(options?.displayContentOverride);
+    const socraticSessionInit = options?.socraticSessionInit;
+
+    if (quizSessionInit) {
       this.exitQuizMode();
       this.exitSocraticMode();
       state.quizSession = {
-        totalQuestions: options.quizSessionInit.totalQuestions,
+        totalQuestions: quizSessionInit.totalQuestions,
         currentQuestion: 1,
-        scopeLabel: options.quizSessionInit.scopeLabel,
-        focusText: options.quizSessionInit.focusText,
+        scopeLabel: quizSessionInit.scopeLabel,
+        focusText: quizSessionInit.focusText,
       };
     }
 
-    if (options?.socraticSessionInit) {
+    if (socraticSessionInit) {
       this.exitQuizMode();
       this.exitSocraticMode();
       state.socraticSession = {
         maxDepth: 20,
         currentDepth: 1,
-        scopeLabel: options.socraticSessionInit.scopeLabel,
-        focusText: options.socraticSessionInit.focusText,
+        scopeLabel: socraticSessionInit.scopeLabel,
+        focusText: socraticSessionInit.focusText,
         isSummaryPhase: false,
       };
       this.deps.showSocraticBanner?.(
-        options.socraticSessionInit.scopeLabel,
-        options.socraticSessionInit.focusText
+        socraticSessionInit.scopeLabel,
+        socraticSessionInit.focusText
       );
     }
 
@@ -424,50 +455,20 @@ export class InputController {
       promptToSend = `${options.promptPrefix}\n\n${promptToSend}`;
     }
 
-    if (!options?.quizSessionInit && state.quizSession) {
+    if (!quizSessionInit && state.quizSession) {
       const quizSession = state.quizSession;
-      const isFinalQuestion = quizSession.currentQuestion >= quizSession.totalQuestions;
-      const nextQuestionNumber = Math.min(quizSession.currentQuestion + 1, quizSession.totalQuestions);
-      const quizControl = isFinalQuestion
-        ? `[SYSTEM INSTRUCTION — MANDATORY]
-This is the FINAL question (${quizSession.currentQuestion}/${quizSession.totalQuestions}). You MUST complete ALL three steps below in order. Do NOT stop after step 1.
-
-Step 1: Evaluate the student's answer (### 정답 확인 format, same as before).
-
-Step 2: Show overall score:
-### 퀴즈 결과: N/${quizSession.totalQuestions} 정답 (N%)
-Count ALL correct answers from questions 1-${quizSession.totalQuestions} in this conversation.
-
-Step 3: Provide wrong-answer review as 조교 (teaching assistant):
-### 오답 복습 정리
-For EACH wrong answer, write:
-**N번 문제 — (topic keyword)**
-- **학생 답:** (student's choice)
-- **정답:** (correct answer)
-- **왜 틀렸나:** 1-2 sentence misconception explanation
-- **핵심 정리:** correct concept summary with code snippet if relevant
-
-End with: 💡 조교 한마디: encouragement + study tip based on error patterns.
-If ALL correct: congratulate and highlight the most important concept.
-
-All output in Korean. Do NOT ask another question. Do NOT skip steps 2 and 3.`
-        : `You are continuing an active quiz. The student is answering question ${quizSession.currentQuestion} of ${quizSession.totalQuestions}. Evaluate the student's answer, then ask exactly question ${nextQuestionNumber} of ${quizSession.totalQuestions}.`;
+      const quizControl = buildQuizContinuationPrompt(
+        quizSession.currentQuestion,
+        quizSession.totalQuestions
+      );
       promptToSend = `${quizControl}
 
 ${promptToSend}`;
     }
 
-    if (!options?.socraticSessionInit && state.socraticSession) {
+    if (!socraticSessionInit && state.socraticSession) {
       const s = state.socraticSession;
-      const socraticControl = s.isSummaryPhase
-        ? `[SOCRATIC SESSION — SUMMARY REQUIRED]
-The student has responded to the final synthesizing question.
-You MUST now output the ##SOCRATIC_SUMMARY## marker followed by ### 발견의 여정 요약.
-Do NOT ask any more questions. Close the session.`
-        : `[SOCRATIC SESSION — MANDATORY]
-Follow the Acknowledge → Guide → Probe pattern.
-Acknowledge what's right, guide what's missing with hints/examples, then ask one probing question.
-If stuck 2+ turns: provide a concrete example or analogy to unblock, then resume questioning.`;
+      const socraticControl = buildSocraticContinuationPrompt(s.isSummaryPhase);
       promptToSend = `${socraticControl}
 
 ${promptToSend}`;
@@ -540,7 +541,7 @@ ${promptToSend}`;
       }
       state.activeSubagents.clear();
 
-      if (state.quizSession && !options?.quizSessionInit && !wasInterrupted) {
+      if (state.quizSession && !quizSessionInit && !wasInterrupted) {
         if (state.quizSession.currentQuestion < state.quizSession.totalQuestions) {
           state.quizSession = {
             ...state.quizSession,
@@ -551,7 +552,7 @@ ${promptToSend}`;
         }
       }
 
-      if (state.socraticSession && !options?.socraticSessionInit && !wasInterrupted) {
+      if (state.socraticSession && !socraticSessionInit && !wasInterrupted) {
         const s = state.socraticSession;
         if (assistantMsg.socraticTurn?.isSummary) {
           state.socraticSession = null;
@@ -568,6 +569,7 @@ ${promptToSend}`;
       await conversationController.save(true);
 
       // Show quiz answer panel if the assistant message has a quiz question
+      let skipPostCompletionFollowups = false;
       if (assistantMsg.quizQuestion && !wasInterrupted) {
         const quizContainerEl = this.deps.getMessagesEl().parentElement;
         if (quizContainerEl) {
@@ -575,20 +577,21 @@ ${promptToSend}`;
           const isStillCurrentConversation = state.currentConversationId === conversationIdAtSend;
           const isAssistantMessageStillPresent = state.messages.some((msg) => msg.id === assistantMsg.id);
           if (!isStillCurrentConversation || !isAssistantMessageStillPresent) {
-            return;
-          }
-          if ('answer' in result) {
+            skipPostCompletionFollowups = true;
+          } else if ('answer' in result) {
             setTimeout(() => void this.sendMessage({ content: result.answer }), 50);
           }
         }
       }
 
-      await this.activatePendingPlanMode();
+      if (!skipPostCompletionFollowups) {
+        await this.activatePendingPlanMode();
 
-      // Generate AI title after first complete exchange (user + assistant)
-      await this.triggerTitleGeneration();
+        // Generate AI title after first complete exchange (user + assistant)
+        await this.triggerTitleGeneration();
 
-      this.processQueuedMessage();
+        this.processQueuedMessage();
+      }
     }
   }
 

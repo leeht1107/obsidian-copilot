@@ -77,6 +77,22 @@ describe('SessionStorage JSONL format', () => {
       const conversation = parseJSONLHelper(jsonl);
       expect(conversation!.currentNote).toBe('file1.md');
     });
+
+    it('should parse Socratic session state when present', () => {
+      const jsonl = [
+        '{"type":"meta","id":"conv-socratic","title":"Study","createdAt":1000,"updatedAt":2000,"sessionId":null,"socraticSession":{"maxDepth":20,"currentDepth":3,"scopeLabel":"/socratic · 현재 노트","focusText":"정규화","isSummaryPhase":false}}',
+      ].join('\n');
+
+      const conversation = parseJSONLHelper(jsonl);
+
+      expect(conversation!.socraticSession).toEqual({
+        maxDepth: 20,
+        currentDepth: 3,
+        scopeLabel: '/socratic · 현재 노트',
+        focusText: '정규화',
+        isSummaryPhase: false,
+      });
+    });
   });
 
   describe('serializeToJSONL', () => {
@@ -227,6 +243,13 @@ describe('SessionStorage JSONL format', () => {
         currentNote: 'a.md',
         externalContextPaths: ['/ext/a', '/ext/b'],
         enabledMcpServers: ['alpha', 'beta'],
+        socraticSession: {
+          maxDepth: 20,
+          currentDepth: 4,
+          scopeLabel: '/socratic · 현재 노트',
+          focusText: '트랜잭션',
+          isSummaryPhase: true,
+        },
         messages: [
           { id: 'msg-1', role: 'user', content: 'Hello', timestamp: 1001 },
           { id: 'msg-2', role: 'assistant', content: 'World', timestamp: 1002 },
@@ -246,6 +269,7 @@ describe('SessionStorage JSONL format', () => {
       expect(parsed!.currentNote).toBe(original.currentNote);
       expect(parsed!.externalContextPaths).toEqual(original.externalContextPaths);
       expect(parsed!.enabledMcpServers).toEqual(original.enabledMcpServers);
+      expect(parsed!.socraticSession).toEqual(original.socraticSession);
       expect(parsed!.messages).toHaveLength(2);
     });
   });
@@ -551,6 +575,8 @@ interface SessionMetaRecord {
   externalContextPaths?: string[];
   titleGenerationStatus?: 'pending' | 'success' | 'failed';
   enabledMcpServers?: string[];
+  quizSession?: Conversation['quizSession'];
+  socraticSession?: Conversation['socraticSession'];
 }
 
 interface SessionMessageRecord {
@@ -603,6 +629,8 @@ function parseJSONLHelper(content: string): Conversation | null {
     currentNote: meta.currentNote,
     externalContextPaths: meta.externalContextPaths,
     enabledMcpServers: meta.enabledMcpServers,
+    quizSession: meta.quizSession,
+    socraticSession: meta.socraticSession,
   };
 }
 
@@ -664,6 +692,8 @@ function serializeToJSONLHelper(conversation: Conversation): string {
     currentNote: conversation.currentNote,
     externalContextPaths: conversation.externalContextPaths,
     enabledMcpServers: conversation.enabledMcpServers,
+    quizSession: conversation.quizSession,
+    socraticSession: conversation.socraticSession,
   };
   lines.push(JSON.stringify(meta));
 

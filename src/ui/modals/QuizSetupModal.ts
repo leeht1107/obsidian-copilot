@@ -1,6 +1,18 @@
-import { Modal, Setting, type App } from 'obsidian';
+import type { App } from 'obsidian';
+import { Modal, Setting } from 'obsidian';
 
-type QuizScope = 'current-note' | 'note' | 'folder';
+import {
+  buildQuizDisplayContent,
+  buildQuizPrompt,
+  getBasename,
+  getFolderNotePaths,
+  getSubjectRoot,
+  type LearningScope,
+  type QuizDifficulty,
+  shouldEnableQuizExternalTools,
+  summarizeFolder,
+  summarizeSelectedNotes,
+} from '../../core/learning';
 
 export interface QuizSetupResult {
   prompt: string;
@@ -11,33 +23,13 @@ export interface QuizSetupResult {
   enableExternalTools?: boolean;
 }
 
-function getBasename(path: string): string {
-  const normalized = path.replace(/\\/g, '/');
-  const parts = normalized.split('/').filter(Boolean);
-  return parts[parts.length - 1] || normalized;
-}
-
-function summarizeSelectedNotes(paths: string[]): string {
-  if (paths.length === 0) return '노트 0개';
-  const names = paths.map(getBasename);
-  if (names.length === 1) return `노트 · ${names[0]}`;
-  if (names.length === 2) return `노트 2개 · ${names[0]}, ${names[1]}`;
-  return `노트 ${names.length}개 · ${names[0]}, ${names[1]} 외 ${names.length - 2}개`;
-}
-
-function summarizeFolder(path: string): string {
-  const normalized = path.replace(/\\/g, '/');
-  const parts = normalized.split('/').filter(Boolean);
-  return parts.slice(-2).join('/') || normalized;
-}
-
 export class QuizSetupModal extends Modal {
   private resolvePromise: ((result: QuizSetupResult | null) => void) | null = null;
-  private quizScope: QuizScope = 'current-note';
+  private quizScope: LearningScope = 'current-note';
   private selectedNotePaths = new Set<string>();
   private selectedFolderPaths = new Set<string>();
   private questionCount = '5';
-  private difficulty: '하' | '중' | '상' = '중';
+  private difficulty: QuizDifficulty = '중';
   private focusText = '';
   private useFullVault = false;
 
@@ -60,7 +52,7 @@ export class QuizSetupModal extends Modal {
     this.contentEl.empty();
 
     const allNotes = this.app.vault.getMarkdownFiles().map((file) => file.path).sort();
-    const subjectRoot = this.getSubjectRoot(this.activeFilePath);
+    const subjectRoot = getSubjectRoot(this.activeFilePath);
     const scopedNotes = subjectRoot
       ? allNotes.filter((notePath) => notePath === subjectRoot || notePath.startsWith(`${subjectRoot}/`))
       : allNotes;
@@ -163,7 +155,7 @@ export class QuizSetupModal extends Modal {
         }
         dropdown.addOption('note', 'Choose note');
         dropdown.addOption('folder', 'Choose folder');
-        dropdown.setValue(this.quizScope).onChange((value: QuizScope) => {
+        dropdown.setValue(this.quizScope).onChange((value: LearningScope) => {
           this.quizScope = value;
           renderDetails();
         });
@@ -188,7 +180,7 @@ export class QuizSetupModal extends Modal {
         dropdown.addOption('하', '하 — 기본 암기/이해 확인');
         dropdown.addOption('중', '중 — 종합 이해 (기본값)');
         dropdown.addOption('상', '상 — 심화 (Web + Context7 자동 활성화)');
-        dropdown.setValue(this.difficulty).onChange((value: '하' | '중' | '상') => {
+        dropdown.setValue(this.difficulty).onChange((value: QuizDifficulty) => {
           this.difficulty = value;
         });
       });
@@ -240,10 +232,10 @@ export class QuizSetupModal extends Modal {
       displayScope = summarizeSelectedNotes(selectedPaths);
     } else {
       const selectedFolders = Array.from(this.selectedFolderPaths);
-      const folderNotes = this.app.vault.getMarkdownFiles()
-        .filter((f) => selectedFolders.some((folder) => f.path.startsWith(`${folder}/`)))
-        .map((f) => f.path)
-        .sort();
+      const folderNotes = getFolderNotePaths(
+        this.app.vault.getMarkdownFiles().map((file) => file.path),
+        selectedFolders
+      );
       scopeInstruction = folderNotes.length > 0
         ? `Use only these selected notes as ground truth source material: ${folderNotes.map((p) => `@${p}`).join(', ')}`
         : `No markdown files found in selected folders: ${selectedFolders.join(', ')}. Please inform the user.`;
@@ -252,76 +244,25 @@ export class QuizSetupModal extends Modal {
         : `폴더 ${selectedFolders.length}개`;
     }
 
-    const displayLabel = [`/quiz`, displayScope, `${this.questionCount}문제`, this.difficulty, this.focusText || '전체 범위']
-      .filter(Boolean)
-      .join(' · ');
-
-    const difficultyInstructions: Record<string, string> = {
-      '하': 'Ask simple recall/definition questions. Keep choices straightforward. Do not use any knowledge outside the selected ground truth notes/folder. If the selected material does not support a claim, do not invent it.',
-      '중': 'Do not use any knowledge outside the selected ground truth notes/folder. If the selected material does not support a claim, do not invent it.',
-      '상': 'Create application-level questions that apply the core concepts to novel real-world scenarios (e.g., applying "data science project" concepts to "AI development project"). You may use @context7 or web search to find related official documentation and supplement the questions. Do not be strictly bounded by the notes.'
-    };
-    const difficultyInstruction = difficultyInstructions[this.difficulty];
+    const focusText = this.focusText || undefined;
 
     return {
-      displayContent: displayLabel,
+      displayContent: buildQuizDisplayContent({
+        displayScope,
+        questionCount: this.questionCount,
+        difficulty: this.difficulty,
+        focusText,
+      }),
       totalQuestions: Number(this.questionCount),
-      focusText: this.focusText || undefined,
-      enableExternalTools: this.difficulty === '상',
-      prompt: [
-        `Create a ${this.questionCount}-question quiz in Korean.`,
+      focusText,
+      enableExternalTools: shouldEnableQuizExternalTools(this.difficulty),
+      prompt: buildQuizPrompt({
+        questionCount: this.questionCount,
+        difficulty: this.difficulty,
         scopeInstruction,
-        difficultyInstruction,
-        this.focusText ? `Focus especially on this topic: ${this.focusText}.` : '',
-        'Use a deliberate mix of question formats: multiple-choice, short-answer, true/false, and multi-select.',
-        'Ask exactly one question at a time.',
-        'After the student answers, immediately tell them whether they are correct, explain why in Korean, and then move to the next question.',
-        'Format each question in clean markdown.',
-        'CRITICAL RULE: When a question mentions any specific code, function, variable, regex, or command from the source material, you MUST embed the relevant code snippet as a fenced code block (```) INSIDE the question body, between the #### heading and the answer choices. The student cannot see the original note — if you mention code without showing it, the question is unanswerable.',
-        'Use this EXACT structure for each question — copy it precisely: Line 1: "## {N}/{T}번 문제". Line 2: blank. Line 3: "#### {question text}" — the question sentence IS the #### heading, nothing else. NEVER write "#### 문제" or any other fixed label on line 3. Line 4: blank. Lines 5+: (if referencing code) fenced code block, then blank line, then answer choices. Do NOT include an "답안 형식" hint line — the UI renders answer buttons automatically. For free-text questions with no choices, add "(자유 서술)" on its own line after the question.',
-        `Format examples (use the one that fits):
-
-Example 1 — conceptual question (no code):
-
-## 1/5번 문제
-
-#### 다음 중 SQL의 SELECT 문에 대한 설명으로 옳지 않은 것은 무엇입니까?
-
-A. SELECT 문은 데이터를 조회할 때 사용된다.
-B. SELECT 문에서 FROM 절은 데이터를 가져올 테이블을 지정한다.
-C. SELECT 문은 데이터를 삭제하는 데 사용된다.
-D. SELECT 문에서 컬럼명을 지정할 수 있다.
-
-Example 2 — code-referencing question (MUST include snippet):
-
-## 2/5번 문제
-
-#### 다음 함수에서 정규식이 하는 역할로 올바른 것은?
-
-\`\`\`python
-# (relevant code snippet from source material)
-\`\`\`
-
-A. ... B. ... C. ... D. ...`,
-        'Do not wrap the question in code fences or quote blocks.',
-        'IMPORTANT: When answer choices differ only by whitespace, escaping, or subtle string differences, render each choice as an inline code span (backticks) or use explicit markers like "·" for spaces so the student can visually distinguish them. Markdown collapses consecutive spaces — never rely on multiple spaces to differentiate choices.',
-        'Do NOT include "답안 형식: ..." lines. For free-text/short-answer questions, write "(자유 서술)" on its own line. For multi-select questions, write "(복수 선택 가능)" on its own line.',
-        'For multiple-choice and multi-select questions, accept answers case-insensitively (for example b or B) and also accept the selected choice text when it is unambiguous.',
-        'After the student answers, respond in markdown with this exact structure: "### 정답 확인", then bullet lines for "정오", "정답", "해설", and "핵심 포인트".',
-        'After the feedback block, add a horizontal rule (---) and then continue with the next question.',
-        'Never dump or quote raw source material, pasted notes, markdown headings, XML tags, or long excerpts from the source. Only show the quiz question, the student feedback, the correct answer, and the explanation.',
-      ].join(' '),
+        focusText,
+      }),
     };
-  }
-
-  private getSubjectRoot(activeFilePath: string | null): string | null {
-    if (!activeFilePath || !activeFilePath.includes('/')) {
-      return null;
-    }
-
-    const segments = activeFilePath.split('/').slice(0, -1);
-    const subjectSegments = segments.slice(0, Math.min(3, segments.length));
-    return subjectSegments.length > 0 ? subjectSegments.join('/') : null;
   }
 
   private finish(result: QuizSetupResult | null) {

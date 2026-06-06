@@ -14,7 +14,6 @@ import {
   type ContextUsageMeter,
   createInputToolbar,
   type ExternalContextSelector,
-  type SocraticLauncherButton,
   FileContextManager,
   ImageContextManager,
   type InstructionModeManager,
@@ -22,12 +21,13 @@ import {
   type McpServerSelector,
   type ModelSelector,
   type PermissionToggle,
-  type WebSearchToggle,
   PlanBanner,
-  SocraticBanner,
   SlashCommandDropdown,
+  SocraticBanner,
+  type SocraticLauncherButton,
   type ThinkingBudgetSelector,
   TodoPanel,
+  type WebSearchToggle,
 } from '../../ui';
 import { QuizSetupModal, SocraticSetupModal } from '../../ui';
 import { getVaultPath } from '../../utils/path';
@@ -367,6 +367,7 @@ export class ObsidianCopilotView extends ItemView {
     this.contextUsageMeter = toolbarComponents.contextUsageMeter;
     this.externalContextSelector = toolbarComponents.externalContextSelector;
     this.webSearchToggle = toolbarComponents.webSearchToggle;
+    this.webSearchToggle.setEnabled(this.plugin.settings.enableWebSearch);
     this.mcpServerSelector = toolbarComponents.mcpServerSelector;
     this.permissionToggle = toolbarComponents.permissionToggle;
     this.socraticLauncherButton = toolbarComponents.socraticLauncherButton;

@@ -98,6 +98,47 @@ interface WebSearchLink {
   url: string;
 }
 
+interface ResultPreview {
+  lines: string[];
+  hasMore: boolean;
+  moreLines?: number;
+  truncatedByLength: boolean;
+}
+
+const DEFAULT_RESULT_PREVIEW_MAX_LENGTH = 2000;
+
+function getResultPreview(result: string, maxLines: number, maxLength: number): ResultPreview {
+  const truncatedByLength = result.length > maxLength;
+  const cappedResult = truncatedByLength ? result.substring(0, maxLength) : result;
+  const lines = cappedResult.split(/\r?\n/);
+  return {
+    lines: lines.slice(0, maxLines),
+    hasMore: truncatedByLength || lines.length > maxLines,
+    moreLines: !truncatedByLength && lines.length > maxLines ? lines.length - maxLines : undefined,
+    truncatedByLength,
+  };
+}
+
+function countNonEmptyLines(text: string): number {
+  let count = 0;
+  let lineStart = 0;
+
+  for (let i = 0; i <= text.length; i++) {
+    if (i === text.length || text[i] === '\n') {
+      let lineEnd = i;
+      if (lineEnd > lineStart && text[lineEnd - 1] === '\r') {
+        lineEnd--;
+      }
+      if (text.slice(lineStart, lineEnd).trim() !== '') {
+        count++;
+      }
+      lineStart = i + 1;
+    }
+  }
+
+  return count;
+}
+
 function parseWebSearchResult(result: string): WebSearchLink[] | null {
   const linksMatch = result.match(/Links:\s*(\[[\s\S]*\])/);
   if (!linksMatch) return null;
@@ -135,40 +176,42 @@ export function renderWebSearchResult(container: HTMLElement, result: string, ma
 /** Render Read tool result showing line count. */
 export function renderReadResult(container: HTMLElement, result: string): void {
   container.empty();
-  const lines = result.split(/\r?\n/).filter(line => line.trim() !== '');
   const item = container.createSpan({ cls: 'ocop-tool-result-item' });
-  item.setText(`${lines.length} lines read`);
+  item.setText(`${countNonEmptyLines(result)} lines read`);
 }
 
 /** Render generic result as DOM elements. Strips line number prefixes. */
-export function renderResultLines(container: HTMLElement, result: string, maxLines = 3): void {
+export function renderResultLines(
+  container: HTMLElement,
+  result: string,
+  maxLines = 3,
+  maxLength = DEFAULT_RESULT_PREVIEW_MAX_LENGTH
+): void {
   container.empty();
 
-  const lines = result.split(/\r?\n/);
-  const displayLines = lines.slice(0, maxLines);
+  const preview = getResultPreview(result, maxLines, maxLength);
 
-  displayLines.forEach(line => {
+  preview.lines.forEach(line => {
     // Strip line number prefix (e.g., "  1→" or "123→")
     const stripped = line.replace(/^\s*\d+→/, '');
     const item = container.createSpan({ cls: 'ocop-tool-result-item' });
     item.setText(stripped);
   });
 
-  if (lines.length > maxLines) {
+  if (preview.hasMore) {
     const more = container.createSpan({ cls: 'ocop-tool-result-item' });
-    more.setText(`${lines.length - maxLines} more lines`);
+    more.setText(
+      preview.truncatedByLength ? 'Result preview truncated' : `${preview.moreLines ?? 0} more lines`
+    );
   }
 }
 
 /** Truncate a result string for display. */
 export function truncateResult(result: string, maxLines = 20, maxLength = 2000): string {
-  if (result.length > maxLength) {
-    result = result.substring(0, maxLength);
-  }
-  const lines = result.split(/\r?\n/);
-  if (lines.length > maxLines) {
-    const moreLines = lines.length - maxLines;
-    return lines.slice(0, maxLines).join('\n') + `\n${moreLines} more lines`;
+  const preview = getResultPreview(result, maxLines, maxLength);
+  if (preview.hasMore) {
+    const suffix = preview.truncatedByLength ? 'Result preview truncated' : `${preview.moreLines ?? 0} more lines`;
+    return preview.lines.join('\n') + `\n${suffix}`;
   }
   return result;
 }

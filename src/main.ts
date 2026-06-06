@@ -9,15 +9,13 @@ import type { Editor, MarkdownView } from 'obsidian';
 import { addIcon, Notice, Plugin } from 'obsidian';
 
 import { COPILOT_ICON_SVG } from './assets/icon';
-
 import { CopilotBridgeService } from './core/agent/CopilotBridgeService';
 import { deleteCachedImages } from './core/images/imageCache';
 import { StorageService } from './core/storage';
 import type {
-  ObsidianCopilotSettings,
   Conversation,
-  ConversationMeta
-} from './core/types';
+  ConversationMeta,
+  ObsidianCopilotSettings} from './core/types';
 import {
   DEFAULT_SETTINGS,
   VIEW_TYPE_OBSIDIAN_COPILOT,

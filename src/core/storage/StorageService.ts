@@ -12,7 +12,7 @@
 
 import type { App, Plugin } from 'obsidian';
 
-import type { ObsidianCopilotSettings, Conversation, SlashCommand } from '../types';
+import type { Conversation, ObsidianCopilotSettings, SlashCommand } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
 import { McpStorage } from './McpStorage';
 import { SESSIONS_PATH, SessionStorage } from './SessionStorage';

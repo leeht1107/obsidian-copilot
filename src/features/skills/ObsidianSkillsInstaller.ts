@@ -5,11 +5,10 @@
  */
 
 import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
-
 import type { App } from 'obsidian';
 import { Notice, requestUrl } from 'obsidian';
+import * as os from 'os';
+import * as path from 'path';
 
 import { getVaultPath } from '../../utils/path';
 
@@ -381,6 +380,7 @@ function loadSkillsFromPath(skillsBasePath: string, isGlobal: boolean): Installe
           description = descMatch[1].trim();
         }
       } catch {
+        // Ignore malformed or unreadable skill metadata and show the fallback description.
       }
 
       skills.push({
@@ -392,6 +392,7 @@ function loadSkillsFromPath(skillsBasePath: string, isGlobal: boolean): Installe
       });
     }
   } catch {
+    // Ignore unreadable skills directories; callers treat an empty list as no installed skills.
   }
 
   return skills;
