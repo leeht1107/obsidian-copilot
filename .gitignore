@@ -104,6 +104,10 @@ sandbox/
 .agents/archive
 .sisyphus/
 docs/
+.handoff/
+
+# Personal IDE workspace
+obsidian-copilot.code-workspace
 
 # Lock files (uncomment based on package manager)
 # yarn.lock
